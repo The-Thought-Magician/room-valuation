@@ -7,6 +7,7 @@ computed by Jev), totals and depreciation are arithmetic in valuation.py.
 """
 
 import os
+import re
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 
@@ -68,11 +69,40 @@ def _view(item: Item) -> dict:
     return d
 
 
-def align(sources: list[list[Item]]) -> tuple[list[Group], list[dict]]:
-    """One Score per plausible cross-source pair (same category, or either side 'other')."""
+def _words(item: Item) -> set[str]:
+    text = " ".join([item.name, item.brand or "", item.model or "", *item.attributes.values(),
+                     item.book.title or "" if item.book else "", item.book.author or "" if item.book else ""])
+    return {w for w in re.findall(r"[a-z0-9]+", text.lower()) if len(w) > 2}
+
+
+def similarity(a: Item, b: Item) -> float:
+    """Cheap blocking score: word overlap, plus a bonus when both were seen in the same photo."""
+    wa, wb = _words(a), _words(b)
+    jac = len(wa & wb) / len(wa | wb) if wa | wb else 0.0
+    return jac + (0.3 if set(a.photos) & set(b.photos) else 0.0) + (0.2 if a.brand and b.brand
+                                                                     and a.brand.lower() == b.brand.lower() else 0.0)
+
+
+def candidate_pairs(flat: list[Item], k: int = 3, min_sim: float = 0.05) -> tuple[list[tuple[Item, Item]], int]:
+    """Only pairs worth a Jev call: same category (or either 'other'), and among each item's k
+    most similar items from each other source. Returns the pairs and how many were skipped."""
+    allowed = [(a, b) for i, a in enumerate(flat) for b in flat[i + 1 :]
+               if _src(a) != _src(b) and (a.category == b.category or "other" in (a.category, b.category))]
+    best: dict[tuple[str, str], list[tuple[float, tuple[str, str]]]] = {}  # (item, other source) -> scored pairs
+    for a, b in allowed:
+        s, key = similarity(a, b), (a.id, b.id)
+        if s >= min_sim or a.category == "book":
+            best.setdefault((a.id, _src(b)), []).append((s, key))
+            best.setdefault((b.id, _src(a)), []).append((s, key))
+    keep = {key for scored in best.values() for _, key in sorted(scored, reverse=True)[:k]}
+    pairs = [(a, b) for a, b in allowed if (a.id, b.id) in keep]
+    return pairs, len(allowed) - len(pairs)
+
+
+def align(sources: list[list[Item]]) -> tuple[list[Group], list[dict], int]:
+    """One Score per candidate cross-source pair after the similarity filter."""
     flat = [it for items in sources for it in items]
-    pairs = [(a, b) for i, a in enumerate(flat) for b in flat[i + 1 :]
-             if _src(a) != _src(b) and (a.category == b.category or "other" in (a.category, b.category))]
+    pairs, skipped = candidate_pairs(flat)
     questions = {
         f"pair_{n}": Score(
             instructions={"item_a": _view(a), "item_b": _view(b),
@@ -109,7 +139,7 @@ def align(sources: list[list[Item]]) -> tuple[list[Group], list[dict]]:
             groups.remove(gb)
         elif round(s["score"]) == 1:
             ga.flags.append(f"possibly the same as {by_id[s['b']].name} ({s['b']})")
-    return groups, scored
+    return groups, scored, skipped
 
 
 def rank_groups(groups: list[Group]) -> dict:

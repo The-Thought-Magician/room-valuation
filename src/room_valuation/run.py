@@ -96,10 +96,10 @@ def run(capture: Path, backend: str = "opus") -> dict:
 
     _status(workdir, "jev", "running")
     sources = [results[k].items for k in ("local", "frontier", "voice") if k in results]
-    groups, pairs = jev.align(sources)
+    groups, pairs, skipped = jev.align(sources)
     answers = jev.rank_groups(groups)
     lines = valuation.line_items(groups, answers)
-    _status(workdir, "jev", "done", groups=len(groups), pairs=len(pairs))
+    _status(workdir, "jev", "done", groups=len(groups), pairs=len(pairs), pairs_skipped=skipped)
 
     shelves = {k: results[k].shelves for k in ("local", "frontier") if k in results and results[k].shelves is not None}
     report = {
@@ -107,7 +107,7 @@ def run(capture: Path, backend: str = "opus") -> dict:
         "area": area_info, "shelves": shelves, "totals": valuation.totals(lines),
         "leaderboard": valuation.leaderboard(lines), "items": lines,
         "sources": {k: {"items": len(v.items), "seconds": v.seconds, "notes": v.notes} for k, v in results.items()},
-        "errors": errors, "jev_pairs_scored": len(pairs), "seconds": round(time.time() - t0, 1),
+        "errors": errors, "jev_pairs_scored": len(pairs), "jev_pairs_skipped": skipped, "seconds": round(time.time() - t0, 1),
     }
     (workdir / "report.json").write_text(json.dumps(report, indent=1, default=str))
     (workdir / "jev_pairs.json").write_text(json.dumps(pairs, indent=1))

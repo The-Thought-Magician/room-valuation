@@ -119,7 +119,7 @@ async function show() {
     (a.plan_png ? `<img class="plan" src="${api}/plan.png">` : "");
   const notes = Object.entries(r.sources).flatMap(([s, v]) => v.notes.map(n => `<li><b>${s}</b>: ${esc(n)}</li>`));
   const errs = Object.entries(r.errors).map(([s, e]) => `<li class="flag"><b>${s}</b> failed: ${esc(e)}</li>`);
-  document.getElementById("notes").innerHTML = `<ul>${[...errs, ...notes].join("")}</ul><div class="muted">Jev scored ${r.jev_pairs_scored} candidate pairs. Total run ${r.seconds} s.</div>`;
+  document.getElementById("notes").innerHTML = `<ul>${[...errs, ...notes].join("")}</ul><div class="muted">Jev scored ${r.jev_pairs_scored} candidate pairs; the similarity filter skipped ${r.jev_pairs_skipped ?? 0}. Total run ${r.seconds} s.</div>`;
   document.getElementById("json").href = api + "/report";
 }
 poll();

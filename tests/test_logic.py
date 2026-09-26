@@ -95,3 +95,28 @@ def test_line_items_follow_jev_choices_and_add_up():
     assert t["rcv_inr"] == 190499 and t["books"]["count"] == 1
     board = valuation.leaderboard(lines)
     assert board["voice"]["price"]["chosen"] == 1 and board["frontier"]["identity"]["chosen"] == 1
+
+
+def test_similarity_filter_keeps_likely_pairs_and_drops_the_rest():
+    from room_valuation import jev
+
+    a = item(0, "local", "monitor", "computer monitor", "p1.jpg", brand="Acer")
+    others = [item(i, "opus", "monitor", n, "p9.jpg") for i, n in
+              enumerate(["Acer 27 inch monitor", "old CRT monitor", "tiny display", "photo frame screen", "tv"], 1)]
+    others[0].brand = "Acer"
+    pairs, skipped = jev.candidate_pairs([a, *others], k=3)
+    ids = {b.id for _, b in pairs}
+    assert "opus-1" in ids and len(pairs) <= 3 and skipped >= 2
+    lamp = item(9, "opus", "lighting", "lamp", "p1.jpg")
+    pairs, _ = jev.candidate_pairs([a, lamp])
+    assert pairs == []  # different category never reaches Jev
+
+
+def test_spine_bands_group_lines_by_row():
+    from room_valuation import ocr
+
+    lines = [{"text": "ATOMIC HABITS", "score": 0.99, "x0": 10, "y0": 0, "y1": 20},
+             {"text": "James Clear", "score": 0.98, "x0": 300, "y0": 2, "y1": 18},
+             {"text": "SAPIENS", "score": 0.97, "x0": 10, "y0": 40, "y1": 60}]
+    bands = ocr._bands(lines)
+    assert len(bands) == 2 and {ln["text"] for ln in bands[0]} == {"ATOMIC HABITS", "James Clear"}
