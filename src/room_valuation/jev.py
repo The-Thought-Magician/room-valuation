@@ -27,8 +27,8 @@ STATE = {
         "frontier": "a large vision model with web search on the same photos",
         "voice": "the owner describing their things out loud; knows what they bought, may misremember prices",
     },
-    "how_to_compare": "Sizes, models and prices read from photos are estimates and are often off (a 27 inch "
-                      "monitor may be reported as about 24 inch). Judge sameness by the kind of object, where it "
+    "how_to_compare": "Sizes, models and prices read from photos are estimates and are often off by a few "
+                      "inches or centimetres. Judge sameness by the kind of object, where it "
                       "was seen, colour and distinguishing details. The owner has no photos; match their words by "
                       "kind of object and brand.",
 }

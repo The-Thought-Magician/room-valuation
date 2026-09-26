@@ -49,8 +49,8 @@ IDENTIFY = (
     "category (one of: {categories}), name (short generic name), brand (only if a logo or name is readable), "
     "model (only if model text is readable), size (only if you can tell), text (text printed on it), "
     "condition (like_new, good, fair or poor). Use null for anything you cannot see. "
-    'Example: {{"category": "monitor", "name": "computer monitor", "brand": "LG", "model": null, '
-    '"size": "24 inch", "text": null, "condition": "good"}}'
+    'Example: {{"category": "kitchenware", "name": "pressure cooker", "brand": "Prestige", "model": null, '
+    '"size": "5 litre", "text": null, "condition": "good"}}'
 )
 NOT_CONTENTS = {"wall", "ceiling", "floor", "doorway"}
 SPINES = (
@@ -204,8 +204,8 @@ CLOSEUP = (
     "Text read by OCR: {ocr}. Reply with one JSON object and nothing else, with keys: brand, model "
     "(model number exactly as printed), size (e.g. 27 inch, 1.5 ton), specs (resolution, capacity, power, "
     "anything printed), name (short generic name). Use null for anything not shown. "
-    'Example: {{"brand": "Acer", "model": "KA270 P6", "size": "27 inch", "specs": "1920x1080 100Hz", '
-    '"name": "computer monitor"}}'
+    'Example: {{"brand": "Philips", "model": "HD9252", "size": "4.1 litre", "specs": "1400 W", '
+    '"name": "air fryer"}}'
 )
 
 

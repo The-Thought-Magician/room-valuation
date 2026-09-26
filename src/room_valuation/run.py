@@ -4,7 +4,7 @@ detect(capture): room photos -> the item list the owner reviews (session.json, s
 value(capture):  reviewed items + per-item close-ups and voice notes -> the valuation report
 
 Capture folder layout (what the capture pages upload):
-    meta.json                  {"room": "bedroom", "city": "Rourkela", "length_cm": null, "width_cm": null}
+    meta.json                  {"room": "bedroom", "city": "Pune", "length_cm": null, "width_cm": null}
     photos/room/*.jpg          photos covering the room
     items/<item id>/*.jpg      close-ups taken on that item's page (labels, stickers, spines)
     items/<item id>/voice.*    the owner's voice note about that item

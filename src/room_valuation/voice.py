@@ -15,7 +15,7 @@ EXTRACT = (
     "Below is what a person said while walking through their room for an insurance inventory. "
     "List every physical object they mention. Reply with a JSON array only, no prose. Each element: "
     '{{"category": one of [{categories}], "name": "short name", "brand": null or string, "model": null or string, '
-    '"size": null or string, "price_paid_inr": null or number in rupees (1.9 lakh = 190000, 16.5k = 16500), '
+    '"size": null or string, "price_paid_inr": null or number in rupees (2.4 lakh = 240000, 12k = 12000), '
     '"age_years": null or number (bought last year = 1), "quote": "the words they used"}}.\n\nTranscript:\n{text}'
 )
 
@@ -63,7 +63,7 @@ def extract(transcript: str) -> list[Item]:
 ITEM_NOTE = (
     "The owner recorded a voice note about one object in their room, a {name} ({category}). "
     "Reply with one JSON object and nothing else, with keys: brand, model, size, "
-    "price_paid_inr (number in rupees; 1.9 lakh = 190000, 16.5k = 16500), age_years (number; bought last "
+    "price_paid_inr (number in rupees; 2.4 lakh = 240000, 12k = 12000), age_years (number; bought last "
     "year = 1), quantity (number), condition (like_new, good, fair or poor), facts (anything else they said). "
     "Use null for anything they did not say.\n\nTranscript: {text}"
 )

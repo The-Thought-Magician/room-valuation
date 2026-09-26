@@ -113,7 +113,7 @@ def health():
 
 
 @app.post("/api/captures")
-async def create(room: str = Form("bedroom"), city: str = Form("Rourkela"), length_cm: float | None = Form(None),
+async def create(room: str = Form("bedroom"), city: str = Form(""), length_cm: float | None = Form(None),
                  width_cm: float | None = Form(None), room_photos: list[UploadFile] = File(default=[]),
                  voice: UploadFile | None = File(None), video: UploadFile | None = File(None)):
     if not room_photos:
