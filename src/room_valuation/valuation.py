@@ -49,7 +49,8 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
             flags.append(f"owner: {free}")
         qty = item.quantity or 1
         lines.append({
-            "n": n, "category": item.category, "name": item.name, "brand": item.brand, "model": item.model,
+            "n": n, "key": "|".join(sorted(f"{s}:{it.id}" for s, it in m.items())),  # stable across replays
+            "category": item.category, "name": item.name, "brand": item.brand, "model": item.model,
             "attributes": item.attributes, "quantity": qty, "condition": condition, "age_years": age, "price_paid_inr": paid,
             "book": ({**book.model_dump(), "genre": genre} if book else None),
             "sources": sorted(m), "identity_from": id_src, "identity_confidence": id_conf, "identity_probs": id_probs,
@@ -64,6 +65,49 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
             "flags": flags,
         })
     return lines
+
+
+def suggest_duplicates(lines: list[dict]) -> None:
+    """For a line flagged as a possible double count, the line it probably duplicates."""
+    import re
+
+    owner = {}
+    for ln in lines:
+        for part in ln["key"].split("|"):
+            owner[part.split(":", 1)[1]] = ln["key"]
+    for ln in lines:
+        for f in ln["flags"]:
+            m = re.search(r"\(([\w-]+)\)", f) if f.startswith("possible double count") else None
+            if m and owner.get(m.group(1)) and owner[m.group(1)] != ln["key"]:
+                ln["suggest_duplicate_of"] = owner[m.group(1)]
+                break
+
+
+def apply_review(lines: list[dict], review: dict) -> list[dict]:
+    """The owner's last word on the result: a removed line, or a line marked as a duplicate of
+    another, stays visible but leaves the totals. Returns the lines that count."""
+    keys = {ln["key"] for ln in lines}
+    kept = []
+    for ln in lines:
+        r = review.get(ln["key"])
+        if r and (r["action"] == "remove" or (r["action"] == "duplicate" and r.get("of") in keys)):
+            ln["review"] = r
+        else:
+            ln.pop("review", None)
+            kept.append(ln)
+    return kept
+
+
+def reviewed_report(report: dict, review: dict) -> dict:
+    """The report with the owner's review applied: totals and leaderboard from the kept lines."""
+    lines = report["items"]
+    suggest_duplicates(lines)
+    kept = apply_review(lines, review or {})
+    report["totals"] = totals(kept)
+    report["review_summary"] = {"removed": sum(1 for ln in lines if ln.get("review", {}).get("action") == "remove"),
+                                "duplicates": sum(1 for ln in lines if ln.get("review", {}).get("action") == "duplicate"),
+                                "kept": len(kept)}
+    return report
 
 
 def leaderboard(lines: list[dict]) -> dict:

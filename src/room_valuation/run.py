@@ -191,12 +191,17 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
             remote.result()
 
     _status(workdir, "area", "running")
-    tape = area.from_tape(meta["length_cm"], meta["width_cm"]) if meta.get("length_cm") and meta.get("width_cm") else None
+    tape = (area.from_tape(meta["length_cm"], meta["width_cm"], meta.get("tape_source", "tape measurement"),
+                           meta.get("ceiling_cm")) if meta.get("length_cm") and meta.get("width_cm") else None)
+    measured = area.from_plan_file(Path(meta["floorplan_plan"])) if meta.get("floorplan_plan") else None
     fp = None
-    if not tape and meta.get("run_floorplan", True):
+    if not tape and not measured and meta.get("run_floorplan", True):
         fp = area.from_floorplan(room, [p for p, _ in photos], _first(capture, "video", VIDEO), workdir)
+    elif any((workdir / "floorplan" / n).exists() for n in ("plan_photos.json", "plan_video.json")):
+        # computed on an earlier run: still shown as a candidate next to the tape
+        fp = area.from_floorplan(room, [], None, workdir)
     fr = results.get("frontier")
-    area_info = area.pick(tape, fp, fr.room_area_m2 if fr else None)
+    area_info = area.pick(tape, fp, fr.room_area_m2 if fr else None, measured)
     _status(workdir, "area", "done", source=area_info.get("source"))
 
     _status(workdir, "jev", "running")
@@ -208,6 +213,7 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
     _status(workdir, "jev", "done", groups=len(groups), pairs=len(pairs), pairs_skipped=skipped)
 
     everything = session.load(capture)["items"]
+    line_review = session.load(capture).get("line_review") or {}
     shelves = {k: results[k].shelves for k in ("local", "frontier") if k in results and results[k].shelves is not None}
     report = {
         "room": room, "city": city, "backend": BACKEND_NAMES[backend],
@@ -220,6 +226,7 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
         "errors": errors, "jev_pairs_scored": len(pairs), "jev_pairs_skipped": skipped,
         "seconds": round(time.time() - t0, 1),
     }
+    report = valuation.reviewed_report(report, line_review)  # the owner's last word, kept across replays
     (workdir / "report.json").write_text(json.dumps(report, indent=1, default=str))
     (workdir / "jev_pairs.json").write_text(json.dumps(pairs, indent=1))
     _keep_run(workdir, report, pairs, backend, reuse)

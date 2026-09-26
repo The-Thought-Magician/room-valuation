@@ -289,3 +289,14 @@ def test_closeup_links_and_compatible_categories():
     jev.closeup_links([chair, opus_chair, opus_bed, opus_door, opus_table])
     assert opus_chair.link == "added-1" and opus_bed.link is None and opus_door.link is None and opus_table.link is None
     assert jev.comparable("bedding", "furniture") and not jev.comparable("laptop", "bedding")
+
+
+def test_owner_review_takes_lines_out_of_the_totals():
+    lines = [{"key": "frontier:opus-1|local:local-36", "category": "furniture", "quantity": 1, "rcv_inr": 18100,
+              "acv_inr": 1810, "flags": [], "book": None},
+             {"key": "local:local-177", "category": "furniture", "quantity": 1, "rcv_inr": 20384, "acv_inr": 3058,
+              "flags": ["possible double count with Steel almirah (opus-1), Jev 1.1"], "book": None}]
+    rep = valuation.reviewed_report({"items": lines, "totals": {}}, {})
+    assert rep["items"][1]["suggest_duplicate_of"] == "frontier:opus-1|local:local-36" and rep["totals"]["rcv_inr"] == 38484
+    rep = valuation.reviewed_report(rep, {"local:local-177": {"action": "duplicate", "of": "frontier:opus-1|local:local-36"}})
+    assert rep["totals"]["rcv_inr"] == 18100 and rep["review_summary"]["duplicates"] == 1

@@ -20,7 +20,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from room_valuation import run as runner
-from room_valuation import session
+from room_valuation import session, valuation
 from room_valuation.schema import CATEGORIES
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -249,10 +249,34 @@ def status(cid: str):
 
 @app.get("/api/captures/{cid}/report")
 def report(cid: str):
-    f = _capture_dir(cid) / "out" / "report.json"
+    cap = _capture_dir(cid)
+    f = cap / "out" / "report.json"
     if not f.exists():
         raise HTTPException(404, "not ready")
-    return json.loads(f.read_text())
+    return valuation.reviewed_report(json.loads(f.read_text()), session.load(cap).get("line_review") or {})
+
+
+@app.post("/api/captures/{cid}/review")
+def review_line(cid: str, key: str = Form(...), action: str = Form(...), of: str | None = Form(None)):
+    """The owner's final review on the results page: remove a line, mark it a duplicate of
+    another, or undo. Totals recompute on the next read; no re-run needed."""
+    cap = _capture_dir(cid)
+    if action not in ("remove", "duplicate", "keep"):
+        raise HTTPException(400, "action must be remove, duplicate or keep")
+    rep = json.loads((cap / "out" / "report.json").read_text())
+    keys = {ln["key"] for ln in rep["items"] if "key" in ln}
+    if key not in keys or (action == "duplicate" and of not in keys):
+        raise HTTPException(404, "unknown line")
+
+    def edit(s):
+        r = s.setdefault("line_review", {})
+        if action == "keep":
+            r.pop(key, None)
+        else:
+            r[key] = {"action": action, "of": of if action == "duplicate" else None, "t": round(time.time())}
+
+    session.update(cap, edit)
+    return {"ok": True}
 
 
 def _file(cid: str, sub: str, name: str) -> FileResponse:
