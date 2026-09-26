@@ -93,7 +93,7 @@ Price candidates: Local (pipeline 1's Serper search), Frontier (the frontier mod
 
 ## Against the owner's ground truth
 
-11/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 10.0%
+12/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 10.0%
 
 | Owner's item | Paid | Age (y) | Local | Frontier | Owner | Market | Chosen | RCV | Error |
 |---|---|---|---|---|---|---|---|---|---|
@@ -107,7 +107,7 @@ Price candidates: Local (pipeline 1's Serper search), Frontier (the frontier mod
 | Razer DeathAdder mouse | ₹2,500 | 4 | ₹4,772 | ₹1,649 | – | – | frontier | ₹1,649 | – |
 | suitcase | ₹2,500 | 2 | – | ₹3,499 | ₹2,500 | – | frontier | ₹3,499 | +40.0% |
 | stool | ₹600 | 8 | ₹610 | ₹1,799 | – | – | frontier | ₹1,799 | – |
-| whiteboard sheet | ₹150 | – | – | – | – | – | – | – | not found |
+| whiteboard sheet | ₹150 | – | ₹10,637 | ₹450 | ₹150 | – | voice | ₹150 | – |
 | JioFiber router | – | – | ₹2,035 | ₹1,999 | – | – | frontier | ₹1,999 | – |
 | Good Knight liquid mosquito repellent | – | – | – | – | – | – | – | – | not found |
 

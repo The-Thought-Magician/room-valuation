@@ -180,7 +180,7 @@ web/demo.html    demo walkthrough of one real capture         /demo/{name}/     
   - RCV Rs 4.52 lakh (contents 3.40, building fixtures 1.12), ACV Rs 3.10 lakh
   - Area 168 sq ft from tape
   - 11 of 11 books plus one flagged unidentified
-  - 11 of 13 ground-truth items; mean RCV error 10.0 percent on the 4 recent purchases
+  - 12 of 13 ground-truth items; mean RCV error 10.0 percent on the 4 recent purchases
     (laptop, table and AC at 0, suitcase +40)
 - **Other captures:** photos 31.0 percent, video 10.6 percent. Exported to
   docs/results/bedroom-{photos,video,merged} (report.md, report.json, score.json,

@@ -2,7 +2,7 @@
 
 from types import SimpleNamespace
 
-from room_valuation import frontier, local, prices, valuation
+from room_valuation import frontier, local, prices, score, valuation
 from room_valuation.jev import Group
 from room_valuation.schema import Book, Item
 
@@ -325,3 +325,9 @@ def test_market_prices_only_unpriced_items_after_jev(monkeypatch):
     assert counts == {"searched": 2, "priced": 2, "unreadable_books": 1}
     switch = Item(id="local-5", source="local", category="electrical_fixture", name="switch")
     assert prices.query_for(switch)[0] == "switch electrical wall"
+
+
+def test_score_matches_a_full_name_across_categories():
+    line = {"n": 0, "category": "other", "name": "Roll-up whiteboard sheet on PVC pipes", "rcv_inr": 150, "candidates": {}}
+    assert score._match({"category": "building_fixture", "name": "whiteboard sheet"}, [line], set()) is line
+    assert score._match({"category": "building_fixture", "name": "whiteboard marker"}, [line], set()) is None

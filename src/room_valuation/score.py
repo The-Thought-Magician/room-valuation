@@ -15,9 +15,9 @@ def _words(text: str) -> set[str]:
 
 
 def _match(truth: dict, lines: list[dict], used: set[int]) -> dict | None:
-    cands = [ln for ln in lines if ln["category"] == truth["category"] and ln["n"] not in used]
-    if not cands:
-        return None
+    """Same category and most shared words; failing that, a line in another category that
+    has every word of the owner's name (the owner and the pipeline can file one thing
+    differently, as with a whiteboard sheet under building fixture or other)."""
     tw = _words(truth["name"])
 
     def overlap(ln):
@@ -25,8 +25,12 @@ def _match(truth: dict, lines: list[dict], used: set[int]) -> dict | None:
                         + [c.get("name") or "" for c in ln["candidates"].values()])
         return (len(tw & _words(text)), ln["rcv_inr"] or 0)
 
-    best = max(cands, key=overlap)
-    return best if overlap(best)[0] > 0 else None
+    free = [ln for ln in lines if ln["n"] not in used]
+    same = [ln for ln in free if ln["category"] == truth["category"]]
+    if same and overlap(best := max(same, key=overlap))[0] > 0:
+        return best
+    other = [ln for ln in free if tw and overlap(ln)[0] == len(tw)]
+    return max(other, key=overlap) if other else None
 
 
 def score(report: dict, truth: dict) -> dict:

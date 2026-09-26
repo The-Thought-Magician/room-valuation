@@ -1,5 +1,5 @@
 {
- "summary": "11/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 10.0%",
+ "summary": "12/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 10.0%",
  "items": [
   {
    "truth": "HP Victus gaming laptop (Ryzen 7 260, RTX 5050)",
@@ -238,7 +238,22 @@
    "truth": "whiteboard sheet",
    "paid_inr": 150,
    "age_years": null,
-   "found": false
+   "found": true,
+   "line": "Roll-up whiteboard sheet on PVC pipes",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 10637,
+    "frontier": 450.0,
+    "voice": 150.0
+   },
+   "chosen_from": "voice",
+   "rcv_inr": 150.0,
+   "acv_inr": 60,
+   "price_confidence": 0.3
   },
   {
    "truth": "JioFiber router",

@@ -202,7 +202,7 @@ The merged capture was built with `scripts/merge_captures.py`. Detection runs on
 everything, and notes, close-ups and the owner's removals are carried over by box overlap in
 the same photos. Its total is **₹4.53 lakh RCV, ₹3.11 lakh ACV**.
 
-Against the owner's ground truth, 11 of 13 items were found. The 4 purchases within 2 years:
+Against the owner's ground truth, 12 of 13 items were found. The 4 purchases within 2 years:
 
 | Item | Owner paid | Local (Serper) | Opus | Owner note | Jev chose | Error |
 |---|---|---|---|---|---|---|
@@ -219,7 +219,7 @@ Against the owner's ground truth, 11 of 13 items were found. The 4 purchases wit
   tape. The results use the tape measurement.
 - Windows and doors are Opus estimates (supply plus install), not listings.
 - The router is ISP-provided (the owner said so), and the line is flagged for it.
-- The whiteboard and the Good Knight refill were not matched.
+- The Good Knight mosquito repellent was not detected by any source. The owner would add it on the item list, and pipeline 1 then prices it.
 
 ## Tuning loop
 
