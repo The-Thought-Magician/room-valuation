@@ -226,16 +226,19 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
         shots = closeups.get(e["id"], [])
         if it.category == "book":
             images = [(p.name, Image.open(p).convert("RGB")) for p in shots]
-            if not images:  # no close-up: read the spines off the room photo, around the box
+            if not images:  # no close-up: one crop per room photo around all its book boxes
+                by_photo: dict[str, list] = {}
                 for r in it.regions:
-                    if r["photo"] in room_photos:
-                        images.append((r["photo"], _crop(Image.open(room_photos[r["photo"]]).convert("RGB"), r["box"], 0.4)))
+                    by_photo.setdefault(r["photo"], []).append(r["box"])
+                for photo, boxes in by_photo.items():
+                    if photo in room_photos:
+                        images.append((photo, _union_crop(Image.open(room_photos[photo]).convert("RGB"), boxes)))
             books_found = []
             for photo, image in images:
-                for j, (book, evidence) in enumerate(_read_spines(image, vlm, photo, log)):
-                    books_found.append(Item(id=f"{e['id']}-b{len(books_found)}-{j}", source="local", category="book",
+                for book, evidence in _read_spines(image, vlm, photo, log):
+                    books_found.append(Item(id=f"{e['id']}-b{len(books_found)}", source="local", category="book",
                                             name=book.title, evidence=evidence, photos=[photo], book=book))
-            items.extend(_merge(books_found) or [it.model_copy(update={"name": "book (title not read)"})])
+            items.extend(_dedupe_books(books_found) or [it.model_copy(update={"name": "book (title not read)"})])
             continue
         for p in shots:
             image = Image.open(p).convert("RGB")
@@ -259,33 +262,99 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
 MIN_MATCH = 0.45  # below this the catalogue record is probably a different book
 
 
-def _read_spines(image: Image.Image, vlm, photo: str, log: list) -> list[tuple[Book, str]]:
-    """Spine texts from PP-OCR and from the VLM, each looked up in Open Library. A text whose
-    best record matches poorly is kept as the spine text itself, not as a wrong book."""
-    texts = [(f"ocr: {s['text']}", s["text"]) for s in ocr.spines(image)]
-    reply = vlm.ask(SPINES, _downsize(image), 400)
+PUBLISHERS = {"doubleday", "picador", "vintage", "penguin", "harpercollins", "harper", "bloomsbury", "pan",
+              "macmillan", "random", "house", "books", "edition", "updated", "new", "york", "times", "best", "seller",
+              "classics", "press", "publishing", "xx", "the", "and", "of"}
+
+
+def _norm(s: str) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", (s or "").lower()).strip()
+
+
+def _plausible_spine(text: str) -> bool:
+    """Unmatched spine text worth keeping as a book: two real words that are not only
+    publisher or edition words (DOUBLEDAY, PICADOR XX, NEW UPDATED EDITION)."""
+    words = [w for w in _norm(text).split() if len(w) >= 3]
+    return len(words) >= 2 and any(w not in PUBLISHERS for w in words) and len(_norm(text)) >= 8
+
+
+def _vlm_spine_queries(reply: str) -> list[str]:
+    """Qwen lists books as 'title | author', sometimes several per line, sometimes looping
+    the same field. Split into pairs, drop repeats, cap the loop."""
+    out = []
     for line in reply.splitlines():
-        if "|" in line and line.strip().upper() != "NONE":
-            title, _, author = (s.strip(" -*•\t") for s in line.partition("|"))
-            if len(title) >= 2:
-                texts.append((f"vlm: {line.strip()}", f"{title} {author}".strip()))
+        if line.strip().upper() == "NONE" or "|" not in line:
+            continue
+        fields, seen = [], set()
+        for f in (s.strip(" -*•\t") for s in line.split("|")):
+            if f and f.lower() not in seen:
+                fields.append(f)
+                seen.add(f.lower())
+            if len(fields) >= 24:
+                break
+        for i in range(0, len(fields), 2):
+            q = " ".join(fields[i:i + 2]).strip()
+            if len(q) >= 3:
+                out.append(q)
+    return out
+
+
+def _same_book(a: Book, b: Book) -> bool:
+    ta, tb = _norm(a.title), _norm(b.title)
+    if not ta or not tb:
+        return False
+    if a.isbn and a.isbn == b.isbn:
+        return True
+    return ta == tb or (min(len(ta), len(tb)) >= 6 and (ta in tb or tb in ta)) or _similar(ta, tb) > 0.75
+
+
+def _read_spines(image: Image.Image, vlm, photo: str, log: list) -> list[tuple[Book, str]]:
+    """Spine texts from PP-OCR and from the VLM, each looked up in Open Library. A catalogue
+    match wins; unmatched text is kept only if it looks like a real title; repeats collapse."""
+    texts = [(f"ocr: {s['text']}", s["text"]) for s in ocr.spines(image)]
+    texts += [(f"vlm: {q}", q) for q in _vlm_spine_queries(vlm.ask(SPINES, _downsize(image), 400))]
     log.append({"photo": photo, "spine_texts": [e for e, _ in texts]})
     found = []
     for evidence, query in texts:
         book = books.lookup(query)
-        if not book or (book.match or 0) < MIN_MATCH:
-            book = Book(title=query, lookup="spine text only", match=book.match if book else None)
-        found.append((book, evidence))
-    # the OCR and VLM reads of one spine are one book: keep the better catalogue match
+        if book and (book.match or 0) >= MIN_MATCH:
+            found.append((book, evidence))
+        elif _plausible_spine(query):
+            found.append((Book(title=query, lookup="spine text only", match=book.match if book else None), evidence))
     kept: list[tuple[Book, str]] = []
     for book, ev in sorted(found, key=lambda f: -(f[0].match or 0)):
-        twin = next((k for k in kept if (book.isbn and k[0].isbn == book.isbn)
-                     or _similar(k[0].title or "", book.title or "") > 0.7), None)
+        twin = next((k for k in kept if _same_book(k[0], book)), None)
         if twin is None:
             kept.append((book, ev))
         else:
             kept[kept.index(twin)] = (twin[0], f"{twin[1]}; {ev}")
     return kept
+
+
+def _dedupe_books(items: list[Item]) -> list[Item]:
+    """The same book read in two photos, or once by OCR and once by the VLM, is one book."""
+    kept: list[Item] = []
+    for it in sorted(items, key=lambda i: -((i.book.match or 0) if i.book else 0)):
+        twin = next((k for k in kept if k.book and it.book and _same_book(k.book, it.book)), None)
+        if twin is None:
+            kept.append(it)
+        else:
+            twin.photos = sorted(set(twin.photos) | set(it.photos))
+            twin.evidence = "; ".join(x for x in (twin.evidence, it.evidence) if x)
+    return kept
+
+
+def _union_crop(image: Image.Image, boxes: list[list[float]], margin: float = 0.15, side: int = 2000) -> Image.Image:
+    """One crop around every book box in a photo, at full resolution: overlapping crops of
+    one shelf read each spine many times."""
+    x0, y0 = min(b[0] for b in boxes), min(b[1] for b in boxes)
+    x1, y1 = max(b[2] for b in boxes), max(b[3] for b in boxes)
+    w, h = image.size
+    bw, bh = x1 - x0, y1 - y0
+    c = image.crop((int(max(0, x0 - margin * bw) * w), int(max(0, y0 - margin * bh) * h),
+                    int(min(1, x1 + margin * bw) * w), int(min(1, y1 + margin * bh) * h)))
+    c.thumbnail((side, side))
+    return c
 
 
 def _downsize(image: Image.Image, side: int = 1280) -> Image.Image:

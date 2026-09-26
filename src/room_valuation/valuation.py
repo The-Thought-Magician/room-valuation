@@ -44,6 +44,9 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
                 flags.append(f"low Jev confidence on {label} ({conf:.2f})")
         if rcv is None:
             flags.append("no price from any source")
+        free = next((it.attributes.get("acquired") for it in m.values() if it.attributes.get("acquired")), None)
+        if free:
+            flags.append(f"owner: {free}")
         qty = item.quantity or 1
         lines.append({
             "n": n, "category": item.category, "name": item.name, "brand": item.brand, "model": item.model,

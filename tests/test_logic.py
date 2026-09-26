@@ -188,3 +188,16 @@ def test_voice_rules_read_prices_ages_and_free():
     mon = voice._item_claim({"brand": "Acer"}, {"id": "local-2", "name": "monitor", "category": "monitor"},
                             "Acer, 24-inch, 16K, 3 years back.")
     assert mon.rcv_inr is None and mon.price_paid_inr == 16000 and mon.age_years == 3
+
+
+def test_spine_parsing_splits_loops_and_drops_fragments():
+    q = local._vlm_spine_queries("Torment | Lauren Kate\nTurenate | Turenate | Turenate | Turenate\n"
+                                 "The 80/20 Principle | Richard Koch | The Great Gatsby | F. Scott Fitzgerald\nNONE")
+    assert q == ["Torment Lauren Kate", "Turenate", "The 80/20 Principle Richard Koch", "The Great Gatsby F. Scott Fitzgerald"]
+    assert not local._plausible_spine("DOUBLEDAY")
+    assert not local._plausible_spine("PICADOR XX")
+    assert not local._plausible_spine("KATE")
+    assert local._plausible_spine("Iron Horse Edward Marston")
+    a, b = Book(title="The Great Gatsby"), Book(title="Great Gatsby")
+    assert local._same_book(a, b)
+    assert not local._same_book(Book(title="Torment"), Book(title="The Thread"))

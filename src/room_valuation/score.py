@@ -26,7 +26,7 @@ def _match(truth: dict, lines: list[dict], used: set[int]) -> dict | None:
         return (len(tw & _words(text)), ln["rcv_inr"] or 0)
 
     best = max(cands, key=overlap)
-    return best if overlap(best)[0] > 0 or len(cands) == 1 else None
+    return best if overlap(best)[0] > 0 else None
 
 
 def score(report: dict, truth: dict) -> dict:

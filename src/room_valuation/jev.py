@@ -213,7 +213,11 @@ def rank_groups(groups: list[Group]) -> dict:
                               "candidates": {s: {"price_inr": f"Rs {it.rcv_inr:,.0f}", "basis": _basis(it)}
                                              for s, it in cands.items()},
                               "question": "Which candidate is the most reliable estimate of what it costs to buy "
-                                          "this exact object new in India today?"},
+                                          "this exact object new in India today?",
+                              "how_to_judge": "A price the owner paid within the last 12 months for this exact item "
+                                              "is the strongest evidence. Next best is a listing for the same model. A "
+                                              "listing for a similar item or a class estimate is weaker, and a web "
+                                              "median over many different models is weakest."},
                 criteria={s: None for s in cands},
             )
         conds = {s: it.condition for s, it in g.members.items() if it.condition}
