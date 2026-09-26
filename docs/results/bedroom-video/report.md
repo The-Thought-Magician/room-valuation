@@ -28,81 +28,81 @@ Books: 14, ₹5,547. Lines flagged for review: 15. Possible double counts: ₹4,
 
 ## Items
 
-Price from: the frontier model's web price, the owner's recent price, or the market price searched after Jev for items no source priced. Jev chooses when more than one exists.
+Price candidates: Local (pipeline 1's Serper search), Frontier (the frontier model's web price), Owner (a price paid within 2 years), Market (a second search after Jev, only for what was still unpriced). Price from: the one Jev trusted.
 
-| Item | Qty | RCV | ACV | Price from | Frontier | Owner | Market | Flags |
-|---|---|---|---|---|---|---|---|---|
-| **Contents** | | | | | | | | |
-| HP Victus 15 gaming laptop (AMD Ryzen, NVIDIA GeForce RTX) | 1 | ₹190,000 | ₹186,960 | voice | ₹78,990 | ₹190,000 | – | merged on 'possibly the same' (0.97) as mutual best match |
-| Carrier split air conditioner (indoor unit, with remote) | 1 | ₹35,890 | ₹14,356 | frontier | ₹35,890 | – | – |  |
-| wardrobe | 1 | ₹20,384 | ₹3,058 | local | – | – | – |  |
-| Double bed with box storage | 1 | ₹18,000 | ₹11,700 | frontier | ₹18,000 | – | – |  |
-| Acer 27 inch class monitor, thin bezel, red-accent stand | 1 | ₹11,589 | ₹4,636 | frontier | ₹11,589 | – | – |  |
-| High-back mesh ergonomic office chair with headrest | 1 | ₹9,000 | ₹3,600 | frontier | ₹9,000 | – | – |  |
-| Mattress (double/queen) | 1 | ₹9,000 | ₹5,850 | frontier | ₹9,000 | – | – |  |
-| L-shaped computer desk, wenge engineered-wood top, black metal legs | 1 | ₹8,000 | ₹7,400 | voice | ₹8,999 | ₹8,000 | – | low Jev confidence on price (0.45) |
-| Hard-shell trolley suitcase in printed stretch cover | 1 | ₹3,500 | ₹1,400 | frontier | ₹3,500 | – | – |  |
-| table | 1 | ₹2,860 | ₹1,859 | local | – | – | – | possible double count with L-shaped computer desk, wenge engineered-wo |
-| Wall-mounted Wi-Fi router (ISP fibre type) | 1 | ₹2,500 | ₹1,625 | frontier | ₹2,500 | – | – |  |
-| Razer DeathAdder Essential wired gaming mouse | 1 | ₹1,749 | ₹700 | frontier | ₹1,749 | – | – |  |
-| Wooden stool with turned legs | 1 | ₹1,500 | ₹600 | frontier | ₹1,500 | – | – | low Jev confidence on price (0.45) |
-| pillow | 1 | ₹1,399 | ₹210 | local | – | – | – |  |
-| Eyelet curtain panels, brown printed header with black body | 3 | ₹1,350 | ₹540 | frontier | ₹450 | – | – |  |
-| Laptop backpack, navy/black | 1 | ₹1,305 | ₹522 | local | ₹1,500 | – | – | low Jev confidence on price (0.14) |
-| White quilted comforter/dohar (folded) | 1 | ₹1,299 | ₹844 | frontier | ₹1,299 | – | – |  |
-| Patchwork double bedsheet/bedcover (red, black, beige, white) | 1 | ₹1,249 | ₹812 | local | ₹899 | – | – | low Jev confidence on price (0.08) |
-| Wall chargers / power adapters plugged into the extension board | 2 | ₹1,000 | ₹650 | frontier | ₹500 | – | – |  |
-| Stainless steel curtain rod with brackets | 1 | ₹700 | ₹455 | frontier | ₹700 | – | – |  |
-| curtain | 1 | ₹629 | ₹94 | local | – | – | – | possible double count with Eyelet curtain panels, brown printed header |
-| Extended printed gaming mouse pad | 1 | ₹599 | ₹240 | frontier | ₹599 | – | – |  |
-| Black IR remote with sleep (moon) key, likely a BLDC ceiling fan remot | 1 | ₹400 | ₹260 | frontier | ₹400 | – | – |  |
-| Wall-mounted planning chart / roll-up writing sheet with handwritten n | 1 | ₹300 | ₹120 | frontier | ₹300 | – | – |  |
-| tube light | 1 | ₹299 | ₹45 | local | – | – | – |  |
-| Bulb in wall batten holder near the ceiling (yellow) | 1 | ₹150 | ₹60 | frontier | ₹150 | – | – |  |
-| **Building fixtures** | | | | | | | | |
-| Main room door with frame and lever handle | 1 | ₹14,000 | ₹5,600 | frontier | ₹14,000 | – | – |  |
-| Window behind the curtains, with frame, glass and grill | 1 | ₹12,000 | ₹7,800 | frontier | ₹12,000 | – | – |  |
-| Small ventilator opening beside the AC | 1 | ₹2,500 | ₹1,000 | frontier | ₹2,500 | – | – |  |
-| Switchboard 2: old porcelain switches on a wooden base (window corner) | 1 | ₹960 | ₹144 | local | ₹600 | – | – | low Jev confidence on price (0.19) |
-| Power extension board with switches | 2 | ₹900 | ₹360 | frontier | ₹450 | – | – | low Jev confidence on price (0.27) |
-| Switchboard 1: surface board by the router (desk wall) | 1 | ₹655 | ₹262 | local | ₹1,800 | – | – | merged on 'possibly the same' (1.28) as mutual best match |
-| Small surface switch/junction boxes on the window-side wall | 2 | ₹500 | ₹200 | frontier | ₹250 | – | – |  |
-| Switchboard 3: modular plate by the door | 1 | ₹239 | ₹96 | local | ₹900 | – | – | merged on 'possibly the same' (1.35) as mutual best match; possible double count with Switchboard 1: surface board by the router  |
-| **Books** | | | | | | | | |
-| Rock Paper Scissors (Alice Feeney) · mystery_thriller | 1 | ₹876 | ₹350 | local | ₹399 | – | – |  |
-| Iron Horse (Edward Marston) · mystery_thriller | 1 | ₹699 | ₹280 | frontier | ₹699 | – | – |  |
-| Annte Moys Black Book (author not read) · reference | 1 | ₹499 | ₹200 | frontier | ₹499 | – | – |  |
-| A HISTORYOF THEWORLD IN 0CHAPTERS (author not read) · history | 1 | ₹499 | ₹200 | frontier | ₹499 | – | – |  |
-| NodeCOMMUNICATION MARSHALL B ROSENBERG (author not read) · self_help | 1 | ₹450 | ₹292 | frontier | ₹450 | – | – |  |
-| The Hare with Amber Eyes (author not read) · biography_memoir | 1 | ₹429 | ₹172 | local | ₹599 | – | – |  |
-| Dout yort (author not read) · other | 1 | ₹399 | ₹160 | frontier | ₹399 | – | – | possible double count with The Iron Horse (opus-34), Jev 0.88 |
-| unknown (spine not visible) (unknown) · other | 1 | ₹350 | ₹140 | frontier | ₹350 | – | – |  |
-| The 80/20 Principle (Richard Koch) · business_economics | 1 | ₹316 | ₹205 | local | ₹450 | – | – | low Jev confidence on identity (0.44) |
-| unidentified book | 1 | ₹316 | ₹205 | local | – | – | – | possible double count with Nonviolent Communication (opus-32), Jev 1.8 |
-| Antony and Cleopatra (William Shakespeare) · classics | 1 | ₹304 | ₹122 | local | ₹199 | – | – |  |
-| THE GREAT GATSBY  NO (author not read) · classics | 1 | ₹250 | ₹100 | frontier | ₹250 | – | – |  |
-| The thread (Victoria Hislop) · fiction | 1 | ₹160 | ₹64 | local | ₹450 | – | – |  |
-| Ironhorse (Peter Lorie) · history | 1 | – | – | – | – | – | – | no price from any source |
+| Item | Qty | RCV | ACV | Price from | Local | Frontier | Owner | Market | Flags |
+|---|---|---|---|---|---|---|---|---|---|
+| **Contents** | | | | | | | | | |
+| HP Victus 15 gaming laptop (AMD Ryzen, NVIDIA GeForce RTX) | 1 | ₹190,000 | ₹186,960 | voice | ₹83,566 | ₹78,990 | ₹190,000 | – | merged on 'possibly the same' (0.97) as mutual best match |
+| Carrier split air conditioner (indoor unit, with remote) | 1 | ₹35,890 | ₹14,356 | frontier | ₹19,346 | ₹35,890 | – | – |  |
+| wardrobe | 1 | ₹20,384 | ₹3,058 | local | ₹20,384 | – | – | – |  |
+| Double bed with box storage | 1 | ₹18,000 | ₹11,700 | frontier | ₹19,190 | ₹18,000 | – | – |  |
+| Acer 27 inch class monitor, thin bezel, red-accent stand | 1 | ₹11,589 | ₹4,636 | frontier | ₹9,599 | ₹11,589 | – | – |  |
+| High-back mesh ergonomic office chair with headrest | 1 | ₹9,000 | ₹3,600 | frontier | – | ₹9,000 | – | – |  |
+| Mattress (double/queen) | 1 | ₹9,000 | ₹5,850 | frontier | – | ₹9,000 | – | – |  |
+| L-shaped computer desk, wenge engineered-wood top, black metal legs | 1 | ₹8,000 | ₹7,400 | voice | – | ₹8,999 | ₹8,000 | – | low Jev confidence on price (0.45) |
+| Hard-shell trolley suitcase in printed stretch cover | 1 | ₹3,500 | ₹1,400 | frontier | ₹1,099 | ₹3,500 | – | – |  |
+| table | 1 | ₹2,860 | ₹1,859 | local | ₹2,860 | – | – | – | possible double count with L-shaped computer desk, wenge engineered-wo |
+| Wall-mounted Wi-Fi router (ISP fibre type) | 1 | ₹2,500 | ₹1,625 | frontier | – | ₹2,500 | – | – |  |
+| Razer DeathAdder Essential wired gaming mouse | 1 | ₹1,749 | ₹700 | frontier | ₹4,772 | ₹1,749 | – | – |  |
+| Wooden stool with turned legs | 1 | ₹1,500 | ₹600 | frontier | ₹610 | ₹1,500 | – | – | low Jev confidence on price (0.45) |
+| pillow | 1 | ₹1,399 | ₹210 | local | ₹1,399 | – | – | – |  |
+| Eyelet curtain panels, brown printed header with black body | 3 | ₹1,350 | ₹540 | frontier | ₹309 | ₹450 | – | – |  |
+| Laptop backpack, navy/black | 1 | ₹1,305 | ₹522 | local | ₹1,305 | ₹1,500 | – | – | low Jev confidence on price (0.14) |
+| White quilted comforter/dohar (folded) | 1 | ₹1,299 | ₹844 | frontier | – | ₹1,299 | – | – |  |
+| Patchwork double bedsheet/bedcover (red, black, beige, white) | 1 | ₹1,249 | ₹812 | local | ₹1,249 | ₹899 | – | – | low Jev confidence on price (0.08) |
+| Wall chargers / power adapters plugged into the extension board | 2 | ₹1,000 | ₹650 | frontier | – | ₹500 | – | – |  |
+| Stainless steel curtain rod with brackets | 1 | ₹700 | ₹455 | frontier | – | ₹700 | – | – |  |
+| curtain | 1 | ₹629 | ₹94 | local | ₹629 | – | – | – | possible double count with Eyelet curtain panels, brown printed header |
+| Extended printed gaming mouse pad | 1 | ₹599 | ₹240 | frontier | – | ₹599 | – | – |  |
+| Black IR remote with sleep (moon) key, likely a BLDC ceiling fan remot | 1 | ₹400 | ₹260 | frontier | – | ₹400 | – | – |  |
+| Wall-mounted planning chart / roll-up writing sheet with handwritten n | 1 | ₹300 | ₹120 | frontier | – | ₹300 | – | – |  |
+| tube light | 1 | ₹299 | ₹45 | local | ₹299 | – | – | – |  |
+| Bulb in wall batten holder near the ceiling (yellow) | 1 | ₹150 | ₹60 | frontier | – | ₹150 | – | – |  |
+| **Building fixtures** | | | | | | | | | |
+| Main room door with frame and lever handle | 1 | ₹14,000 | ₹5,600 | frontier | – | ₹14,000 | – | – |  |
+| Window behind the curtains, with frame, glass and grill | 1 | ₹12,000 | ₹7,800 | frontier | – | ₹12,000 | – | – |  |
+| Small ventilator opening beside the AC | 1 | ₹2,500 | ₹1,000 | frontier | – | ₹2,500 | – | – |  |
+| Switchboard 2: old porcelain switches on a wooden base (window corner) | 1 | ₹960 | ₹144 | local | ₹960 | ₹600 | – | – | low Jev confidence on price (0.19) |
+| Power extension board with switches | 2 | ₹900 | ₹360 | frontier | ₹628 | ₹450 | – | – | low Jev confidence on price (0.27) |
+| Switchboard 1: surface board by the router (desk wall) | 1 | ₹655 | ₹262 | local | ₹655 | ₹1,800 | – | – | merged on 'possibly the same' (1.28) as mutual best match |
+| Small surface switch/junction boxes on the window-side wall | 2 | ₹500 | ₹200 | frontier | – | ₹250 | – | – |  |
+| Switchboard 3: modular plate by the door | 1 | ₹239 | ₹96 | local | ₹239 | ₹900 | – | – | merged on 'possibly the same' (1.35) as mutual best match; possible double count with Switchboard 1: surface board by the router  |
+| **Books** | | | | | | | | | |
+| Rock Paper Scissors (Alice Feeney) · mystery_thriller | 1 | ₹876 | ₹350 | local | ₹876 | ₹399 | – | – |  |
+| Iron Horse (Edward Marston) · mystery_thriller | 1 | ₹699 | ₹280 | frontier | – | ₹699 | – | – |  |
+| Annte Moys Black Book (author not read) · reference | 1 | ₹499 | ₹200 | frontier | ₹316 | ₹499 | – | – |  |
+| A HISTORYOF THEWORLD IN 0CHAPTERS (author not read) · history | 1 | ₹499 | ₹200 | frontier | ₹316 | ₹499 | – | – |  |
+| NodeCOMMUNICATION MARSHALL B ROSENBERG (author not read) · self_help | 1 | ₹450 | ₹292 | frontier | ₹316 | ₹450 | – | – |  |
+| The Hare with Amber Eyes (author not read) · biography_memoir | 1 | ₹429 | ₹172 | local | ₹429 | ₹599 | – | – |  |
+| Dout yort (author not read) · other | 1 | ₹399 | ₹160 | frontier | ₹316 | ₹399 | – | – | possible double count with The Iron Horse (opus-34), Jev 0.88 |
+| unknown (spine not visible) (unknown) · other | 1 | ₹350 | ₹140 | frontier | – | ₹350 | – | – |  |
+| The 80/20 Principle (Richard Koch) · business_economics | 1 | ₹316 | ₹205 | local | ₹316 | ₹450 | – | – | low Jev confidence on identity (0.44) |
+| unidentified book | 1 | ₹316 | ₹205 | local | ₹316 | – | – | – | possible double count with Nonviolent Communication (opus-32), Jev 1.8 |
+| Antony and Cleopatra (William Shakespeare) · classics | 1 | ₹304 | ₹122 | local | ₹304 | ₹199 | – | – |  |
+| THE GREAT GATSBY  NO (author not read) · classics | 1 | ₹250 | ₹100 | frontier | ₹316 | ₹250 | – | – |  |
+| The thread (Victoria Hislop) · fiction | 1 | ₹160 | ₹64 | local | ₹160 | ₹450 | – | – |  |
+| Ironhorse (Peter Lorie) · history | 1 | – | – | – | – | – | – | – | no price from any source |
 
 ## Against the owner's ground truth
 
 10/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 10.6%
 
-| Owner's item | Paid | Age (y) | Frontier | Owner | Market | Chosen | RCV | Error |
-|---|---|---|---|---|---|---|---|---|
-| HP Victus gaming laptop (Ryzen 7 260, RTX 5050) | ₹190,000 | 0.08 | ₹78,990 | ₹190,000 | – | voice | ₹190,000 | +0.0% |
-| Acer 24 inch monitor | ₹16,000 | 3 | ₹11,589 | – | – | frontier | ₹11,589 | – |
-| chair | ₹5,500 | – | ₹9,000 | – | – | frontier | ₹9,000 | – |
-| L-shaped study table (desk) | ₹8,000 | 0.75 | ₹8,999 | ₹8,000 | – | voice | ₹8,000 | +0.0% |
-| split AC | ₹35,000 | 1 | ₹35,890 | – | – | frontier | ₹35,890 | +2.5% |
-| bed | ₹450 | 35 | ₹18,000 | – | – | frontier | ₹18,000 | – |
-| steel almirah | ₹350 | 40 | – | – | – | – | – | not found |
-| Razer DeathAdder mouse | ₹2,500 | 4 | ₹1,749 | – | – | frontier | ₹1,749 | – |
-| suitcase | ₹2,500 | 2 | ₹3,500 | – | – | frontier | ₹3,500 | +40.0% |
-| stool | ₹600 | 8 | ₹1,500 | – | – | frontier | ₹1,500 | – |
-| whiteboard sheet | ₹150 | – | – | – | – | – | – | not found |
-| JioFiber router | – | – | ₹2,500 | – | – | frontier | ₹2,500 | – |
-| Good Knight liquid mosquito repellent | – | – | – | – | – | – | – | not found |
+| Owner's item | Paid | Age (y) | Local | Frontier | Owner | Market | Chosen | RCV | Error |
+|---|---|---|---|---|---|---|---|---|---|
+| HP Victus gaming laptop (Ryzen 7 260, RTX 5050) | ₹190,000 | 0.08 | ₹83,566 | ₹78,990 | ₹190,000 | – | voice | ₹190,000 | +0.0% |
+| Acer 24 inch monitor | ₹16,000 | 3 | ₹9,599 | ₹11,589 | – | – | frontier | ₹11,589 | – |
+| chair | ₹5,500 | – | – | ₹9,000 | – | – | frontier | ₹9,000 | – |
+| L-shaped study table (desk) | ₹8,000 | 0.75 | – | ₹8,999 | ₹8,000 | – | voice | ₹8,000 | +0.0% |
+| split AC | ₹35,000 | 1 | ₹19,346 | ₹35,890 | – | – | frontier | ₹35,890 | +2.5% |
+| bed | ₹450 | 35 | ₹19,190 | ₹18,000 | – | – | frontier | ₹18,000 | – |
+| steel almirah | ₹350 | 40 | – | – | – | – | – | – | not found |
+| Razer DeathAdder mouse | ₹2,500 | 4 | ₹4,772 | ₹1,749 | – | – | frontier | ₹1,749 | – |
+| suitcase | ₹2,500 | 2 | ₹1,099 | ₹3,500 | – | – | frontier | ₹3,500 | +40.0% |
+| stool | ₹600 | 8 | ₹610 | ₹1,500 | – | – | frontier | ₹1,500 | – |
+| whiteboard sheet | ₹150 | – | – | – | – | – | – | – | not found |
+| JioFiber router | – | – | – | ₹2,500 | – | – | frontier | ₹2,500 | – |
+| Good Knight liquid mosquito repellent | – | – | – | – | – | – | – | – | not found |
 
 Error is only computed where the purchase is within 2 years, so the price paid is a fair replacement cost.
 
