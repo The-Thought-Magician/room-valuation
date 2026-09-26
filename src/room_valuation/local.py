@@ -238,7 +238,7 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
                 for book, evidence in _read_spines(image, vlm, photo, log):
                     books_found.append(Item(id=f"{e['id']}-b{len(books_found)}", source="local", category="book",
                                             name=book.title, evidence=evidence, photos=[photo], book=book))
-            items.extend(_dedupe_books(books_found) or [it.model_copy(update={"name": "book (title not read)"})])
+            items.extend(_settle_books(_dedupe_books(books_found), e["id"], it) )
             continue
         for p in shots:
             image = Image.open(p).convert("RGB")
@@ -259,7 +259,7 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
     return items, log
 
 
-MIN_MATCH = 0.45  # below this the catalogue record is probably a different book
+MIN_MATCH = 0.6  # half similarity, half title coverage; below this it is probably a different book
 
 
 PUBLISHERS = {"doubleday", "picador", "vintage", "penguin", "harpercollins", "harper", "bloomsbury", "pan",
@@ -378,6 +378,24 @@ def _dedupe_books(items: list[Item]) -> list[Item]:
     return kept
 
 
+def _settle_books(found: list[Item], card_id: str, card: Item) -> list[Item]:
+    """Catalogue-matched books stay. Unmatched spine text that shares a word with a matched
+    book is a partial read of it and goes. What is left is an unidentified book each."""
+    matched = [b for b in found if b.book and b.book.lookup == "openlibrary"]
+    known = set()
+    for b in matched:
+        known |= {w for w in _norm(f"{b.book.title} {b.book.author or ''}").split() if len(w) >= 4 and w not in PUBLISHERS}
+    rest = []
+    for b in found:
+        if b in matched:
+            continue
+        words = {w for w in _norm(b.name).split() if len(w) >= 4 and w not in PUBLISHERS}
+        if words and _fuzzy_words(words, known) >= 1:
+            continue
+        rest.append(b.model_copy(update={"name": "unidentified book", "evidence": f"spine read as: {b.name}"}))
+    return matched + rest or [card.model_copy(update={"name": "book (title not read)"})]
+
+
 def _union_crop(image: Image.Image, boxes: list[list[float]], margin: float = 0.15, side: int = 2000) -> Image.Image:
     """One crop around every book box in a photo, at full resolution: overlapping crops of
     one shelf read each spine many times."""
@@ -400,14 +418,17 @@ def _downsize(image: Image.Image, side: int = 1280) -> Image.Image:
 def query_for(item: Item) -> tuple[str, list[str]]:
     """Search text and words a listing title must contain."""
     if item.category == "book" and item.book and item.book.title:
-        return f"{item.book.title} {item.book.author or ''} book".strip(), []
+        return f"{item.book.title} {item.book.author or ''} paperback".strip(), []
     parts = [item.brand, item.model, item.attributes.get("size"), item.name]
     must = [item.brand] if item.brand else []
     return " ".join(p for p in parts if p), [m.split()[0] for m in must]
 
 
 def price_all(items: list[Item], log: list) -> None:
+    unread = [it for it in items if it.category == "book" and (not it.book or it.book.lookup != "openlibrary")]
     for it in items:
+        if it in unread:
+            continue
         q, must = query_for(it)
         try:
             p = prices.price_item(q, it.category, must)
@@ -420,6 +441,11 @@ def price_all(items: list[Item], log: list) -> None:
         log.append({"item": it.id, "price": p})
         if it.book and it.book.genre not in GENRES:
             it.book.genre = "other"
+    # a spine nobody could read is priced like the room's identified books, not searched
+    known = sorted(it.rcv_inr for it in items if it.category == "book" and it not in unread and it.rcv_inr)
+    for it in unread:
+        it.rcv_inr = known[len(known) // 2] if known else None
+        it.price_note = f"median of the {len(known)} identified books in this room" if known else "no identified books to compare"
 
 
 def value(entries: list[dict], closeups: dict[str, list[Path]], room_photos: dict[str, Path], workdir: Path,

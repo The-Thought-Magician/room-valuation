@@ -222,3 +222,24 @@ def test_typed_note_is_an_owner_claim():
     (it,) = voice.typed_notes([e], set())
     assert it.rcv_inr == 8000 and it.age_years == 0.75 and it.link == "added-1"
     assert voice.typed_notes([e], {"added-1"}) == []  # a voice note on the item wins
+
+
+def test_title_coverage_rejects_near_miss_records():
+    from room_valuation import books
+
+    assert books.title_coverage("Rock Paper Scissors", "ROCKPAPERSCISSORS FEENEY ALICE") == 1.0
+    assert books.title_coverage("The Slender Thread", "The Thread Victoria Hislop") < 0.6
+    assert books.title_coverage("Hamlet", "SHAKESPEARE") == 0.0
+    assert books.title_coverage("Torment", "Lauren Kate Forment") == 1.0
+
+
+def test_unmatched_spines_become_unidentified_or_drop():
+    matched = Item(id="b0", source="local", category="book", name="Nonviolent Communication",
+                   book=Book(title="Nonviolent Communication", author="Marshall B. Rosenberg", lookup="openlibrary"))
+    partial = Item(id="b1", source="local", category="book", name="NilINI COMMUNICATION",
+                   book=Book(title="NilINI COMMUNICATION", lookup="spine text only"))
+    stranger = Item(id="b2", source="local", category="book", name="Zorblax Quantum",
+                    book=Book(title="Zorblax Quantum", lookup="spine text only"))
+    card = Item(id="c", source="local", category="book", name="books")
+    out = local._settle_books([matched, partial, stranger], "c", card)
+    assert [o.name for o in out] == ["Nonviolent Communication", "unidentified book"]

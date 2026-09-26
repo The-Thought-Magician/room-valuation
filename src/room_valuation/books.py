@@ -30,6 +30,25 @@ def rule_genre(subjects: list[str]) -> str:
     return "other"
 
 
+STOP = {"the", "and", "of", "a", "an", "in", "on", "to", "for", "with", "by"}
+
+
+def title_coverage(title: str, read: str) -> float:
+    """Share of the title's words found in the text read off the spine, allowing one OCR slip
+    and words run together (ROCKPAPERSCISSORS)."""
+    words = [w for w in re.findall(r"[a-z0-9]+", title.lower()) if w not in STOP]
+    if not words:
+        return 0.0
+    read_words = re.findall(r"[a-z0-9]+", read.lower())
+    compact = "".join(read_words)
+
+    def found(w):
+        return w in read_words or (len(w) >= 4 and w in compact) or any(
+            difflib.SequenceMatcher(None, w, r).ratio() >= 0.8 for r in read_words)
+
+    return sum(found(w) for w in words) / len(words)
+
+
 def lookup(spine_text: str, timeout: float = 15.0) -> Book | None:
     """Search Open Library with the text read off a spine and keep the closest title."""
     query = re.sub(r"[^\w\s']", " ", spine_text).strip()
@@ -47,7 +66,11 @@ def lookup(spine_text: str, timeout: float = 15.0) -> Book | None:
     q = query.lower()
 
     def sim(d):
-        return difflib.SequenceMatcher(None, q, f"{d.get('title', '')} {' '.join(d.get('author_name') or [])}".lower()).ratio()
+        """Half string similarity, half title coverage: most of the catalogue title's words must
+        be in what was read. Without coverage 'The Thread' matched 'The Slender Thread' and a
+        spine reading only SHAKESPEARE matched Hamlet."""
+        whole = difflib.SequenceMatcher(None, q, f"{d.get('title', '')} {' '.join(d.get('author_name') or [])}".lower()).ratio()
+        return 0.5 * whole + 0.5 * title_coverage(d.get("title", ""), q)
 
     best = max(docs, key=sim)
     isbns = best.get("isbn") or []
