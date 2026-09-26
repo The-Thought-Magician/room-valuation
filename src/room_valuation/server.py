@@ -1,5 +1,11 @@
-"""FastAPI backend: the phone uploads a capture, one worker thread runs it (one GPU), the
-results page polls status and renders the report."""
+"""FastAPI backend for the guided capture.
+
+1. POST /api/captures            room details and room photos; starts detection
+2. GET  /c/{id}                  detected item list: review, remove, add missing
+3. GET  /c/{id}/i/{item}         one page per item: close-ups and a voice note
+4. POST /api/captures/{id}/submit    starts the valuation; results at /r/{id}
+
+One worker thread runs the jobs in order: there is one GPU."""
 
 import json
 import queue
@@ -11,29 +17,36 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 from room_valuation import run as runner
+from room_valuation import session
+from room_valuation.schema import CATEGORIES
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data" / "captures"
 WEB = ROOT / "web"
 ID_RE = re.compile(r"^[0-9]{8}-[0-9]{6}-[0-9a-f]{6}$")
-PHOTO_EXT = {".jpg", ".jpeg", ".png", ".webp"}
-MEDIA_EXT = set(runner.AUDIO) | set(runner.VIDEO)
+ITEM_RE = re.compile(r"^(local|added)-[0-9]+$")
+PHOTO_EXT = set(runner.PHOTO)
+AUDIO_EXT = set(runner.AUDIO)
+VIDEO_EXT = set(runner.VIDEO)
 MAX_BYTES = 300 * 1024 * 1024
 
 app = FastAPI(title="room-valuation")
+app.mount("/static", StaticFiles(directory=WEB / "static"), name="static")
 jobs: queue.Queue = queue.Queue()
 
 
 def _worker():
     while True:
-        cap, backend = jobs.get()
+        kind, cap, backend = jobs.get()
         try:
-            runner.run(cap, backend)
+            runner.detect(cap) if kind == "detect" else runner.value(cap, backend)
         except Exception as e:
             (cap / "out").mkdir(exist_ok=True)
-            (cap / "out" / "failed.txt").write_text(f"{type(e).__name__}: {e}")
+            (cap / "out" / "failed.txt").write_text(f"{kind}: {type(e).__name__}: {e}")
+            session.update(cap, lambda d: d.update(stage="failed"))
         jobs.task_done()
 
 
@@ -49,7 +62,7 @@ def _capture_dir(cid: str) -> Path:
     return d
 
 
-async def _save(upload: UploadFile, dst: Path, allowed: set[str]) -> None:
+async def _save(upload: UploadFile, dst: Path, allowed: set[str]) -> Path:
     suffix = Path(upload.filename or "").suffix.lower()
     if suffix not in allowed:
         raise HTTPException(400, f"file type {suffix or '?'} not accepted")
@@ -62,17 +75,36 @@ async def _save(upload: UploadFile, dst: Path, allowed: set[str]) -> None:
             if size > MAX_BYTES:
                 raise HTTPException(413, "file too large")
             f.write(chunk)
+    return dst
+
+
+def _page(name: str) -> str:
+    return (WEB / name).read_text()
 
 
 @app.get("/", response_class=HTMLResponse)
 def index():
-    return (WEB / "index.html").read_text()
+    return _page("index.html")
+
+
+@app.get("/c/{cid}", response_class=HTMLResponse)
+def items_page(cid: str):
+    _capture_dir(cid)
+    return _page("items.html")
+
+
+@app.get("/c/{cid}/i/{iid}", response_class=HTMLResponse)
+def item_page(cid: str, iid: str):
+    _capture_dir(cid)
+    if not ITEM_RE.match(iid):
+        raise HTTPException(404)
+    return _page("item.html")
 
 
 @app.get("/r/{cid}", response_class=HTMLResponse)
 def results_page(cid: str):
     _capture_dir(cid)
-    return (WEB / "results.html").read_text()
+    return _page("results.html")
 
 
 @app.get("/health")
@@ -82,28 +114,107 @@ def health():
 
 @app.post("/api/captures")
 async def create(room: str = Form("bedroom"), city: str = Form("Rourkela"), length_cm: float | None = Form(None),
-                 width_cm: float | None = Form(None), backend: str = Form("opus"),
-                 room_photos: list[UploadFile] = File(default=[]), book_photos: list[UploadFile] = File(default=[]),
+                 width_cm: float | None = Form(None), room_photos: list[UploadFile] = File(default=[]),
                  voice: UploadFile | None = File(None), video: UploadFile | None = File(None)):
-    if backend not in ("opus", "astra", "none"):
-        raise HTTPException(400, "backend must be opus, astra or none")
-    if not room_photos and not book_photos:
-        raise HTTPException(400, "at least one photo is needed")
+    if not room_photos:
+        raise HTTPException(400, "at least one room photo is needed")
     cid = time.strftime("%Y%m%d-%H%M%S") + "-" + secrets.token_hex(3)
     cap = DATA / cid
     for i, f in enumerate(room_photos):
         await _save(f, cap / "photos" / "room" / f"{i:03d}", PHOTO_EXT)
-    for i, f in enumerate(book_photos):
-        await _save(f, cap / "photos" / "books" / f"{i:03d}", PHOTO_EXT)
     if voice and voice.filename:
-        await _save(voice, cap / "voice", MEDIA_EXT)
+        await _save(voice, cap / "voice", AUDIO_EXT)
     if video and video.filename:
-        await _save(video, cap / "video", MEDIA_EXT)
+        await _save(video, cap / "video", VIDEO_EXT)
     meta = {"room": re.sub(r"[^\w -]", "", room)[:40] or "room", "city": re.sub(r"[^\w -]", "", city)[:40],
             "length_cm": length_cm, "width_cm": width_cm}
     (cap / "meta.json").write_text(json.dumps(meta))
-    jobs.put((cap, backend))
-    return {"id": cid, "results": f"/r/{cid}"}
+    session.save(cap, {"stage": "queued", "items": [], "meta": meta})
+    jobs.put(("detect", cap, None))
+    return {"id": cid, "next": f"/c/{cid}"}
+
+
+@app.get("/api/captures/{cid}/session")
+def get_session(cid: str):
+    cap = _capture_dir(cid)
+    data = session.load(cap)
+    status = cap / "out" / "status.json"
+    data["status"] = json.loads(status.read_text()) if status.exists() else None
+    failed = cap / "out" / "failed.txt"
+    data["failed"] = failed.read_text() if failed.exists() else None
+    for e in data["items"]:
+        d = cap / "items" / e["id"]
+        e["closeup_count"] = len([p for p in d.glob("*") if p.suffix.lower() in PHOTO_EXT]) if d.is_dir() else 0
+        e["has_voice"] = d.is_dir() and any(p.stem == "voice" for p in d.glob("voice.*"))
+    data["categories"] = CATEGORIES
+    return data
+
+
+@app.post("/api/captures/{cid}/items/{iid}")
+async def save_item(cid: str, iid: str, quantity: int | None = Form(None), name: str | None = Form(None),
+                    state: str | None = Form(None), closeups: list[UploadFile] = File(default=[]),
+                    voice: UploadFile | None = File(None)):
+    cap = _capture_dir(cid)
+    if not ITEM_RE.match(iid):
+        raise HTTPException(404)
+    data = session.load(cap)
+    if not any(e["id"] == iid for e in data["items"]):
+        raise HTTPException(404)
+    d = cap / "items" / iid
+    start = len(list(d.glob("*"))) if d.is_dir() else 0
+    for i, f in enumerate(closeups):
+        await _save(f, d / f"closeup_{start + i:03d}", PHOTO_EXT)
+    if voice and voice.filename:
+        for old in d.glob("voice.*"):
+            old.unlink()
+        await _save(voice, d / "voice", AUDIO_EXT)
+
+    def edit(s):
+        for e in s["items"]:
+            if e["id"] == iid:
+                if quantity is not None:
+                    e["quantity"] = max(1, min(999, quantity))
+                if name:
+                    e["name"] = re.sub(r"[^\w .,'()/-]", "", name)[:80] or e["name"]
+                if state == "removed":
+                    e["state"] = "removed"
+                elif state == "restore" and e["state"] == "removed":
+                    e["state"] = "added" if iid.startswith("added-") else "detected"
+
+    session.update(cap, edit)
+    return {"ok": True}
+
+
+@app.post("/api/captures/{cid}/items")
+async def add_item(cid: str, name: str = Form(...), category: str = Form("other"), quantity: int = Form(1)):
+    cap = _capture_dir(cid)
+    if category not in CATEGORIES:
+        raise HTTPException(400, "unknown category")
+    new = {}
+
+    def add(s):
+        n = 1 + sum(1 for e in s["items"] if e["id"].startswith("added-"))
+        new.update({"id": f"added-{n}", "state": "added", "category": category,
+                    "name": re.sub(r"[^\w .,'()/-]", "", name)[:80] or category, "brand": None, "model": None,
+                    "quantity": max(1, min(999, quantity)), "thumb": None, "closeups": [], "voice": None, "note": ""})
+        s["items"].append(dict(new))
+
+    session.update(cap, add)
+    return {"id": new["id"], "next": f"/c/{cid}/i/{new['id']}"}
+
+
+@app.post("/api/captures/{cid}/submit")
+def submit(cid: str, backend: str = Form("opus")):
+    cap = _capture_dir(cid)
+    if backend not in runner.BACKEND_NAMES:
+        raise HTTPException(400, "backend must be opus, astra or none")
+    if session.load(cap).get("stage") not in ("review", "failed", "done"):
+        raise HTTPException(409, "detection is not finished")
+    for f in ("status.json", "failed.txt", "report.json"):
+        (cap / "out" / f).unlink(missing_ok=True)
+    session.update(cap, lambda d: d.update(stage="queued_value"))
+    jobs.put(("value", cap, backend))
+    return {"results": f"/r/{cid}"}
 
 
 @app.get("/api/captures/{cid}/status")
@@ -124,14 +235,23 @@ def report(cid: str):
     return json.loads(f.read_text())
 
 
-@app.get("/api/captures/{cid}/photo/{name}")
-def photo(cid: str, name: str):
+def _file(cid: str, sub: str, name: str) -> FileResponse:
     if not re.match(r"^[\w.-]+\.jpg$", name):
         raise HTTPException(404)
-    f = _capture_dir(cid) / "out" / "photos" / name
+    f = _capture_dir(cid) / "out" / sub / name
     if not f.exists():
         raise HTTPException(404)
     return FileResponse(f)
+
+
+@app.get("/api/captures/{cid}/photo/{name}")
+def photo(cid: str, name: str):
+    return _file(cid, "photos", name)
+
+
+@app.get("/api/captures/{cid}/thumb/{name}")
+def thumb(cid: str, name: str):
+    return _file(cid, "thumbs", name)
 
 
 @app.get("/api/captures/{cid}/plan.png")

@@ -48,6 +48,7 @@ class Item(BaseModel):
     price_note: str | None = None
     age_years: float | None = None
     price_paid_inr: float | None = None
+    link: str | None = None  # a voice note recorded on an item's page is about that item
 
     def describe(self) -> dict:
         """Compact text form for Jev: only fields that carry meaning."""

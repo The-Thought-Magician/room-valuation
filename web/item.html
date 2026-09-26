@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room valuation: item</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<main>
+  <div class="step" id="pos">Item</div>
+  <h1 id="title">…</h1>
+  <p class="lead" id="cat"></p>
+
+  <section class="big" id="imgbox" hidden><img id="img" alt=""></section>
+
+  <section>
+    <h2>What is it</h2>
+    <div class="row">
+      <div class="grow"><label class="f">Name (edit if wrong)</label><input type="text" id="name"></div>
+      <div class="qty"><div><label class="f">Quantity</label><input type="number" id="qty" min="1" value="1"></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Close-up</h2>
+    <p class="hint" id="phototip"></p>
+    <div class="row">
+      <label class="btn primary">Take photo<input type="file" accept="image/*" capture="environment" hidden class="pick"></label>
+      <label class="btn">From gallery<input type="file" accept="image/*" multiple hidden class="pick"></label>
+    </div>
+    <div class="thumbs" id="thumbs"></div>
+    <div class="hint" id="already" style="margin-top:6px"></div>
+  </section>
+
+  <section>
+    <h2>Voice note</h2>
+    <p class="hint" id="voicetip"></p>
+    <button id="recbtn" type="button">Start recording</button>
+    <span id="rectime" class="hint" style="margin-left:8px"></span>
+    <audio id="playback" controls hidden></audio>
+    <div class="hint" id="hadvoice"></div>
+  </section>
+  <progress id="prog" max="100" value="0" hidden></progress>
+  <div class="err" id="err"></div>
+</main>
+
+<div class="bar"><div class="inner">
+  <button class="primary" id="save">Save and next</button>
+  <button id="skip">Skip</button>
+  <button class="danger" id="remove">Not an item</button>
+  <button id="list">List</button>
+</div></div>
+
+<script src="/static/app.js"></script>
+<script>
+const [, , cid, , iid] = location.pathname.split("/");
+const api = `/api/captures/${cid}`;
+const TIPS = {
+  laptop: ["The logo on the lid, and the sticker underneath with the model number.", "Brand and model, when you bought it and what you paid, e.g. \"HP Victus, bought last year for 1.9 lakh\"."],
+  monitor: ["The back sticker with the model number, and the screen showing Settings, System, Display (the resolution).", "Brand, size, what you paid and when, e.g. \"Acer 27 inch, 16.5 thousand, two years ago\"."],
+  book: ["The spines, straight on, titles readable, 30 to 50 cm away, no flash. A stack is fine.", "Anything the photo will not show, e.g. \"engineering textbooks, bought new\"."],
+  appliance: ["The rating plate or side sticker (model, tonnage or capacity).", "Brand, capacity, what you paid and when, e.g. \"split AC, 1.5 ton, bought last year for 35 thousand\"."],
+  furniture: ["Any brand tag, and one shot that shows the material and wear.", "What it is made of, what you paid and how old it is, e.g. \"study table, 8 thousand, three years old\"."],
+  electrical_fixture: ["Straight on, the whole board in frame, so each switch and socket can be counted.", "Anything unusual, e.g. \"the fan regulator is new\"."],
+  building_fixture: ["The whole door or window, and the frame and hardware.", "Material and age if you know them, e.g. \"teak door, original\"."],
+};
+const DEFAULT_TIP = ["Any label or brand, close enough to read.", "Brand, what you paid and when."];
+let data, entry, active, idx;
+
+const photos = photoPicker([...document.querySelectorAll(".pick")], document.getElementById("thumbs"));
+const voice = recorder(document.getElementById("recbtn"), document.getElementById("rectime"), document.getElementById("playback"), document.getElementById("err"));
+
+async function load() {
+  data = await (await fetch(api + "/session")).json();
+  active = data.items.filter(e => e.state !== "removed");
+  entry = data.items.find(e => e.id === iid);
+  if (!entry) { document.getElementById("title").textContent = "Item not found"; return; }
+  idx = active.findIndex(e => e.id === iid);
+  document.getElementById("pos").textContent = idx >= 0 ? `Step 3 · item ${idx + 1} of ${active.length}` : "Step 3 · removed item";
+  document.getElementById("title").textContent = [entry.brand, entry.name].filter(Boolean).join(" ");
+  document.getElementById("cat").textContent = entry.category.replace("_", " ") + (entry.state === "added" ? " · added by you" : "");
+  document.getElementById("name").value = entry.name;
+  document.getElementById("qty").value = entry.quantity || 1;
+  if (entry.thumb) { document.getElementById("img").src = `${api}/thumb/${entry.thumb}`; document.getElementById("imgbox").hidden = false; }
+  const [pt, vt] = TIPS[entry.category] || DEFAULT_TIP;
+  document.getElementById("phototip").textContent = pt;
+  document.getElementById("voicetip").textContent = "Say: " + vt;
+  if (entry.closeup_count) document.getElementById("already").textContent = `${entry.closeup_count} close-up(s) already saved; new ones are added.`;
+  if (entry.has_voice) document.getElementById("hadvoice").textContent = "A voice note is already saved; recording again replaces it.";
+  document.getElementById("remove").textContent = entry.state === "removed" ? "Restore" : "Not an item";
+}
+
+function next() {
+  const later = active.slice(idx + 1);
+  location.href = later.length ? `/c/${cid}/i/${later[0].id}` : `/c/${cid}`;
+}
+
+document.getElementById("save").onclick = async () => {
+  const fd = new FormData(), btn = document.getElementById("save");
+  fd.append("quantity", document.getElementById("qty").value || "1");
+  const name = document.getElementById("name").value.trim();
+  if (name && name !== entry.name) fd.append("name", name);
+  photos.forEach(f => fd.append("closeups", f, f.name || "closeup.jpg"));
+  if (voice.blob) fd.append("voice", voice.blob, voice.name);
+  btn.disabled = true;
+  try { await upload(`${api}/items/${iid}`, fd, document.getElementById("prog")); next(); }
+  catch (e) { btn.disabled = false; document.getElementById("err").textContent = "Save failed: " + e.message; }
+};
+document.getElementById("skip").onclick = next;
+document.getElementById("list").onclick = () => location.href = `/c/${cid}`;
+document.getElementById("remove").onclick = async () => {
+  const fd = new FormData();
+  fd.append("state", entry.state === "removed" ? "restore" : "removed");
+  await upload(`${api}/items/${iid}`, fd);
+  entry.state === "removed" ? load() : next();
+};
+load();
+</script>
+</body>
+</html>

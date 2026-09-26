@@ -149,11 +149,15 @@ def _merge(items: list[Item]) -> list[Item]:
     return groups
 
 
-def detect_and_identify(photos: list[tuple[Path, str]], threshold: float = 0.18,
-                        max_boxes: int = 14) -> tuple[list[Item], list[dict]]:
+def detect(photos: list[tuple[Path, str]], progress=None, threshold: float = 0.18,
+           max_boxes: int = 14) -> tuple[list[Item], list[dict]]:
+    """The item list for the owner to review: every detected object, identified from its crop.
+    Book boxes become one 'books' card whose spines are read later from close-ups."""
+    say = progress or (lambda **kw: None)
     det = models.Detector()
     raw = []
-    for path, tag in photos:
+    for i, (path, tag) in enumerate(photos):
+        say(step="finding objects", done=i, total=len(photos))
         image = Image.open(path).convert("RGB")
         boxes = _nms(det.detect(image, PROMPTS, threshold))
         area_ok = [b for b in boxes if (b["box"][2] - b["box"][0]) * (b["box"][3] - b["box"][1]) > 0.004]
@@ -164,33 +168,92 @@ def detect_and_identify(photos: list[tuple[Path, str]], threshold: float = 0.18,
     vlm = models.VLM()
     items, log = [], []
     n = 0
-    for path, tag, boxes in raw:
+    total = sum(len(b) for _, _, b in raw)
+    for path, _tag, boxes in raw:
         image = Image.open(path).convert("RGB")
         for b in boxes:
+            say(step="identifying objects", done=n, total=total)
+            region = [{"photo": path.name, "box": [round(x, 4) for x in b["box"]]}]
             hint = PROMPT_CATEGORY[b["prompt"]]
             if hint == "book":
-                continue  # books are read from the whole photo below, box crops cut titles in half
+                items.append(Item(id=f"local-{n}", source="local", category="book", name="books",
+                                  photos=[path.name], regions=region))
+                n += 1
+                continue
             ans = _json(vlm.ask(IDENTIFY.format(categories=", ".join(CATEGORIES), hint=b["prompt"]), _crop(image, b["box"]), 160))
             cat = ans.get("category") if ans.get("category") in CATEGORIES else hint
             name = _null(ans.get("name")) or b["prompt"][2:]
-            if cat == "book" or name.lower() in NOT_CONTENTS:
+            if name.lower() in NOT_CONTENTS:
                 continue
+            if cat == "book":
+                name = "books"
             attrs = {"size": s} if (s := _null(ans.get("size"))) else {}
             items.append(Item(id=f"local-{n}", source="local", category=cat, name=name,
                               brand=_null(ans.get("brand")), model=_null(ans.get("model")), attributes=attrs,
                               condition=ans.get("condition") if ans.get("condition") in prices.CONDITION_LIFE_USED else None,
-                              evidence=_null(ans.get("text")), photos=[path.name],
-                              regions=[{"photo": path.name, "box": [round(x, 4) for x in b["box"]]}]))
+                              evidence=_null(ans.get("text")), photos=[path.name], regions=region))
             log.append({"photo": path.name, "detector": b, "vlm": ans})
             n += 1
-        if tag == "books" or any(PROMPT_CATEGORY[b["prompt"]] == "book" for b in boxes):
-            for book, evidence in _read_spines(image, vlm, path.name, log):
-                items.append(Item(id=f"local-{n}", source="local", category="book", name=book.title,
-                                  evidence=evidence, photos=[path.name], book=book))
-                n += 1
     del vlm
     models.free()
     return _merge(items), log
+
+
+CLOSEUP = (
+    "This is a close-up photo of {name}, taken to show its label, logo or model sticker. "
+    "Text read by OCR: {ocr}. Reply with one JSON object and nothing else, with keys: brand, model "
+    "(model number exactly as printed), size (e.g. 27 inch, 1.5 ton), specs (resolution, capacity, power, "
+    "anything printed), name (short generic name). Use null for anything not shown. "
+    'Example: {{"brand": "Acer", "model": "KA270 P6", "size": "27 inch", "specs": "1920x1080 100Hz", '
+    '"name": "computer monitor"}}'
+)
+
+
+def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: dict[str, Path],
+           progress=None) -> tuple[list[Item], list[dict]]:
+    """The reviewed item list, sharpened by each item's close-ups: OCR and the VLM read labels
+    and model stickers; book cards turn into one item per spine."""
+    say = progress or (lambda **kw: None)
+    vlm = models.VLM()
+    items, log = [], []
+    for k, e in enumerate(entries):
+        say(step="reading close-ups", done=k, total=len(entries))
+        if e["state"] == "added":
+            it = Item(id=e["id"], source="local", category=e["category"], name=e["name"], evidence="added by the owner")
+        else:
+            it = Item.model_validate(e["detected"])
+        it.quantity = int(e.get("quantity") or it.quantity or 1)
+        shots = closeups.get(e["id"], [])
+        if it.category == "book":
+            images = [(p.name, Image.open(p).convert("RGB")) for p in shots]
+            if not images:  # no close-up: read the spines off the room photo, around the box
+                for r in it.regions:
+                    if r["photo"] in room_photos:
+                        images.append((r["photo"], _crop(Image.open(room_photos[r["photo"]]).convert("RGB"), r["box"], 0.4)))
+            books_found = []
+            for photo, image in images:
+                for j, (book, evidence) in enumerate(_read_spines(image, vlm, photo, log)):
+                    books_found.append(Item(id=f"{e['id']}-b{len(books_found)}-{j}", source="local", category="book",
+                                            name=book.title, evidence=evidence, photos=[photo], book=book))
+            items.extend(_merge(books_found) or [it.model_copy(update={"name": "book (title not read)"})])
+            continue
+        for p in shots:
+            image = Image.open(p).convert("RGB")
+            text = ocr.read_text(image)
+            ans = _json(vlm.ask(CLOSEUP.format(name=it.name, ocr=text or "nothing"), _downsize(image), 200))
+            log.append({"item": it.id, "closeup": p.name, "ocr": text, "vlm": ans})
+            for key in ("brand", "model"):
+                if _null(ans.get(key)):
+                    setattr(it, key, _null(ans.get(key)))
+            for key in ("size", "specs"):
+                if _null(ans.get(key)):
+                    it.attributes[key] = _null(ans.get(key))
+            it.evidence = "; ".join(x for x in (it.evidence, f"label: {text}" if text else None) if x)
+            it.photos.append(p.name)
+        items.append(it)
+    del vlm
+    models.free()
+    return items, log
 
 
 MIN_MATCH = 0.45  # below this the catalogue record is probably a different book
@@ -240,9 +303,7 @@ def query_for(item: Item) -> tuple[str, list[str]]:
     return " ".join(p for p in parts if p), [m.split()[0] for m in must]
 
 
-def run(photos: list[tuple[Path, str]], workdir: Path) -> SourceResult:
-    t0 = time.time()
-    items, log = detect_and_identify(photos)
+def price_all(items: list[Item], log: list) -> None:
     for it in items:
         q, must = query_for(it)
         p = prices.price_item(q, it.category, must)
@@ -253,7 +314,14 @@ def run(photos: list[tuple[Path, str]], workdir: Path) -> SourceResult:
         log.append({"item": it.id, "price": p})
         if it.book and it.book.genre not in GENRES:
             it.book.genre = "other"
+
+
+def value(entries: list[dict], closeups: dict[str, list[Path]], room_photos: dict[str, Path], workdir: Path,
+          progress=None) -> SourceResult:
+    t0 = time.time()
+    items, log = refine(entries, closeups, room_photos, progress)
+    price_all(items, log)
     (workdir / "local_log.json").write_text(json.dumps(log, indent=1, default=str))
-    shelves = sum(1 for it in items if "shelf" in it.name.lower())
+    shelves = sum(it.quantity for it in items if "shelf" in it.name.lower())
     return SourceResult(source="local", items=items, shelves=shelves, seconds=round(time.time() - t0, 1),
-                        notes=[f"{len(items)} items after merging repeats across photos"])
+                        notes=[f"{len(items)} items after the owner's review and close-ups"])

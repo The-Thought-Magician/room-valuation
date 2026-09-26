@@ -68,14 +68,32 @@ class VLM:
         return self.processor.batch_decode(out[:, inputs["input_ids"].shape[1]:], skip_special_tokens=True)[0].strip()
 
 
-def transcribe(audio_path: str) -> list[dict]:
-    """Whisper large-v3-turbo. Returns [{start, end, text}]."""
+def load_audio(path: str, rate: int = 16000):
+    """Any phone format (webm/opus from Chrome, m4a from iPhone) to 16 kHz mono float32 via ffmpeg."""
+    import subprocess
+
+    import numpy as np
+
+    raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", path, "-f", "f32le", "-ac", "1", "-ar", str(rate), "-"],
+                         capture_output=True, check=True).stdout
+    return np.frombuffer(raw, dtype=np.float32).copy()
+
+
+def transcribe(audio_paths: list[str]) -> dict[str, list[dict]]:
+    """Whisper large-v3-turbo, loaded once for all clips. Returns {path: [{start, end, text}]}."""
     from transformers import pipeline
 
     asr = pipeline("automatic-speech-recognition", model=ASR_ID, dtype=torch.float16 if DEVICE == "cuda" else torch.float32,
                    device=DEVICE, model_kwargs={"attn_implementation": "sdpa"})
-    out = asr(audio_path, chunk_length_s=30, batch_size=4, return_timestamps=True,
-              generate_kwargs={"language": "en", "task": "transcribe"})
+    out = {}
+    for p in audio_paths:
+        audio = load_audio(p)
+        if audio.size < 1600:  # under 0.1 s: nothing was said
+            out[p] = []
+            continue
+        res = asr({"raw": audio, "sampling_rate": 16000}, chunk_length_s=30, batch_size=4, return_timestamps=True,
+                  generate_kwargs={"language": "en", "task": "transcribe"})
+        out[p] = [{"start": c["timestamp"][0], "end": c["timestamp"][1], "text": c["text"].strip()} for c in res["chunks"]]
     del asr
     free()
-    return [{"start": c["timestamp"][0], "end": c["timestamp"][1], "text": c["text"].strip()} for c in out["chunks"]]
+    return out

@@ -60,8 +60,8 @@ const api = `/api/captures/${cid}`;
 const inr = v => v == null ? "–" : "₹" + Math.round(v).toLocaleString("en-IN");
 const pct = v => v == null ? "" : ` ${(100 * v).toFixed(0)}%`;
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const ORDER = ["prepare", "frontier", "local", "voice", "area", "jev", "report"];
-const NAMES = { prepare: "photos prepared", frontier: "pipeline 2: frontier model", local: "pipeline 1: local models",
+const ORDER = ["frontier", "local", "voice", "area", "jev", "report"];
+const NAMES = { frontier: "pipeline 2: frontier model", local: "pipeline 1: local models",
   voice: "voice narration", area: "floor area", jev: "Jev: match and rank", report: "report" };
 
 async function poll() {
@@ -71,7 +71,8 @@ async function poll() {
   if (s.queued) { setTimeout(poll, 2000); return; }
   ul.innerHTML = ORDER.filter(k => s.stages[k]).map(k => {
     const st = s.stages[k];
-    const extra = st.items != null ? ` (${st.items} items${st.seconds ? ", " + st.seconds + " s" : ""})` : st.error ? `: ${esc(st.error)}` : st.source ? `: ${esc(st.source)}` : "";
+    const extra = st.items != null ? ` (${st.items} items${st.seconds ? ", " + st.seconds + " s" : ""})` : st.error ? `: ${esc(st.error)}`
+      : st.source ? `: ${esc(st.source)}` : st.total ? `: ${esc(st.step)} ${st.done} of ${st.total}` : "";
     return `<li class="${st.state}">${NAMES[k]}: ${st.state}${extra}</li>`;
   }).join("");
   if (s.stages.report && s.stages.report.state === "done") { show(); return; }
@@ -121,7 +122,7 @@ async function show() {
     (a.plan_png ? `<img class="plan" src="${api}/plan.png">` : "");
   const notes = Object.entries(r.sources).flatMap(([s, v]) => v.notes.map(n => `<li><b>${s}</b>: ${esc(n)}</li>`));
   const errs = Object.entries(r.errors).map(([s, e]) => `<li class="flag"><b>${s}</b> failed: ${esc(e)}</li>`);
-  document.getElementById("notes").innerHTML = `<ul>${[...errs, ...notes].join("")}</ul><div class="muted">Jev scored ${r.jev_pairs_scored} candidate pairs; the similarity filter skipped ${r.jev_pairs_skipped ?? 0}. Total run ${r.seconds} s.</div>`;
+  document.getElementById("notes").innerHTML = `<ul>${[...errs, ...notes].join("")}</ul><div class="muted">${r.review ? `Owner review: ${r.review.kept} items kept, ${r.review.removed} removed, ${r.review.added} added, ${r.review.closeups} close-ups, ${r.review.voice_notes} voice notes. ` : ""}Jev scored ${r.jev_pairs_scored} candidate pairs; the similarity filter skipped ${r.jev_pairs_skipped ?? 0}. Total run ${r.seconds} s.</div>`;
   document.getElementById("json").href = api + "/report";
 }
 poll();

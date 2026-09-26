@@ -49,8 +49,7 @@ def _bands(lines: list[dict]) -> list[list[dict]]:
     return bands
 
 
-def spines(image: Image.Image, min_score: float = 0.6) -> list[dict]:
-    """[{text, score, rotation}] one per spine band, in reading order."""
+def _best_rotation(image: Image.Image, min_score: float) -> tuple[int, list[dict]]:
     image = image.copy()
     image.thumbnail((1600, 1600))
     best = (0.0, 0, [])
@@ -59,7 +58,18 @@ def spines(image: Image.Image, min_score: float = 0.6) -> list[dict]:
         weight = sum(ln["score"] * len(ln["text"]) for ln in lines)
         if weight > best[0]:
             best = (weight, rot, lines)
-    _, rot, lines = best
+    return best[1], best[2]
+
+
+def read_text(image: Image.Image, min_score: float = 0.6) -> str:
+    """All confident text on a label or sticker, row by row, joined with ' | '."""
+    _, lines = _best_rotation(image, min_score)
+    return " | ".join(" ".join(ln["text"] for ln in sorted(b, key=lambda ln: ln["x0"])) for b in _bands(lines))
+
+
+def spines(image: Image.Image, min_score: float = 0.6) -> list[dict]:
+    """[{text, score, rotation}] one per spine band, in reading order."""
+    rot, lines = _best_rotation(image, min_score)
     out = []
     for band in _bands(lines):
         text = " ".join(ln["text"] for ln in sorted(band, key=lambda ln: ln["x0"]))

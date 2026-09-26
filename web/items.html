@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room valuation: 2. items</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<main>
+  <div class="step">Step 2 of 3</div>
+  <h1>Check the item list</h1>
+  <p class="lead" id="lead">Finding the items in your photos…</p>
+
+  <section id="working">
+    <div id="stepname" class="hint">waiting for the GPU</div>
+    <progress id="detprog" max="100" value="0"></progress>
+  </section>
+
+  <div id="review" hidden>
+    <section>
+      <h2 id="counthead">Found</h2>
+      <div id="counts"></div>
+      <p class="hint" style="margin-top:8px">Tap an item to add a close-up and a voice note. Remove anything that is not an item or is listed twice.</p>
+    </section>
+    <section><div id="list"></div></section>
+    <section>
+      <h2>Something missing?</h2>
+      <div class="row">
+        <div class="grow"><label class="f">What is it</label><input type="text" id="newname" placeholder="e.g. ceiling fan"></div>
+        <div class="grow"><label class="f">Type</label><select id="newcat"></select></div>
+        <div style="flex:0 0 90px"><label class="f">Quantity</label><input type="number" id="newqty" value="1" min="1"></div>
+      </div>
+      <button style="margin-top:8px" id="add">Add and open its page</button>
+    </section>
+    <section>
+      <h2>Frontier model</h2>
+      <select id="backend">
+        <option value="opus">Claude Opus 5.5</option>
+        <option value="astra">GPT-6 Astra</option>
+        <option value="none">Skip (test run: local models, voice and Jev only)</option>
+      </select>
+    </section>
+    <div class="err" id="err"></div>
+  </div>
+</main>
+
+<div class="bar" id="bar" hidden><div class="inner">
+  <button class="primary" id="walk">Walk through items</button>
+  <button id="value">Value the room</button>
+</div></div>
+
+<script src="/static/app.js"></script>
+<script>
+const cid = location.pathname.split("/")[2];
+const api = `/api/captures/${cid}`;
+let data = null;
+
+async function load() {
+  data = await (await fetch(api + "/session")).json();
+  if (data.failed) { document.getElementById("lead").textContent = "Detection failed: " + data.failed; return; }
+  if (["queued", "detecting", "new"].includes(data.stage)) {
+    const st = data.status && data.status.stages && data.status.stages.detect;
+    if (st && st.total) {
+      document.getElementById("stepname").textContent = `${st.step}: ${st.done} of ${st.total}`;
+      const base = st.step === "finding objects" ? 0 : 30;
+      document.getElementById("detprog").value = base + (st.step === "finding objects" ? 30 : 70) * st.done / st.total;
+    }
+    setTimeout(load, 1500);
+    return;
+  }
+  if (data.stage === "valuing" || data.stage === "queued_value") { location.href = `/r/${cid}`; return; }
+  render();
+}
+
+function render() {
+  document.getElementById("working").hidden = true;
+  document.getElementById("review").hidden = false;
+  document.getElementById("bar").hidden = false;
+  const active = data.items.filter(e => e.state !== "removed");
+  document.getElementById("lead").textContent = `${active.length} items found in ${data.photos ? data.photos.length : "your"} photos.`;
+  const counts = {};
+  active.forEach(e => counts[e.category] = (counts[e.category] || 0) + (e.quantity || 1));
+  document.getElementById("counthead").textContent = `Found ${active.reduce((s, e) => s + (e.quantity || 1), 0)} things`;
+  document.getElementById("counts").innerHTML = Object.entries(counts).map(([c, n]) => `<span class="chip">${n} × ${esc(c.replace("_", " "))}</span>`).join("");
+  document.getElementById("list").innerHTML = data.items.map(e => `
+    <div class="card ${e.state === "removed" ? "removed" : ""}">
+      ${e.thumb ? `<img src="${api}/thumb/${e.thumb}" loading="lazy">` : `<div class="noimg"></div>`}
+      <div class="body" onclick="location.href='/c/${cid}/i/${e.id}'" style="cursor:pointer">
+        <div class="name">${esc([e.brand, e.name].filter(Boolean).join(" "))}${(e.quantity || 1) > 1 ? " × " + e.quantity : ""}</div>
+        <div class="muted" style="font-size:13px">${esc(e.category.replace("_", " "))}${e.state === "added" ? " · added by you" : ""}</div>
+        <div>${e.closeup_count ? `<span class="badge">${e.closeup_count} close-up${e.closeup_count > 1 ? "s" : ""}</span>` : ""}${e.has_voice ? `<span class="badge">voice note</span>` : ""}</div>
+      </div>
+      ${e.state === "removed" ? `<button onclick="setState('${e.id}','restore')">Restore</button>` : `<button class="danger" onclick="setState('${e.id}','removed')">Remove</button>`}
+    </div>`).join("");
+  document.getElementById("newcat").innerHTML = data.categories.map(c => `<option value="${c}">${c.replace("_", " ")}</option>`).join("");
+}
+
+async function setState(iid, state) {
+  const fd = new FormData();
+  fd.append("state", state);
+  await upload(`${api}/items/${iid}`, fd);
+  load();
+}
+
+document.getElementById("add").onclick = async () => {
+  const name = document.getElementById("newname").value.trim();
+  if (!name) return;
+  const fd = new FormData();
+  fd.append("name", name);
+  fd.append("category", document.getElementById("newcat").value);
+  fd.append("quantity", document.getElementById("newqty").value || "1");
+  const r = await upload(`${api}/items`, fd);
+  location.href = r.next;
+};
+document.getElementById("walk").onclick = () => {
+  const first = data.items.find(e => e.state !== "removed");
+  if (first) location.href = `/c/${cid}/i/${first.id}`;
+};
+document.getElementById("value").onclick = async () => {
+  const fd = new FormData();
+  fd.append("backend", document.getElementById("backend").value);
+  try { const r = await upload(`${api}/submit`, fd); location.href = r.results; }
+  catch (e) { document.getElementById("err").textContent = "Could not start: " + e.message; }
+};
+load();
+</script>
+</body>
+</html>

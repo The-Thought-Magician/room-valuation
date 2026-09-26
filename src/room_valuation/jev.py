@@ -111,7 +111,9 @@ def candidate_pairs(flat: list[Item], k: int = 3, min_sim: float = 0.05) -> tupl
 def align(sources: list[list[Item]]) -> tuple[list[Group], list[dict], int]:
     """One Score per candidate cross-source pair after the similarity filter."""
     flat = [it for items in sources for it in items]
-    pairs, skipped = candidate_pairs(flat)
+    ids = {it.id for it in flat}
+    linked = [it for it in flat if it.link in ids]  # voice notes recorded on an item's own page
+    pairs, skipped = candidate_pairs([it for it in flat if it not in linked])
     questions = {
         f"pair_{n}": Score(
             instructions={"item_a": _view(a), "item_b": _view(b),
@@ -131,6 +133,19 @@ def align(sources: list[list[Item]]) -> tuple[list[Group], list[dict], int]:
 
 
 def merge(flat: list[Item], scored: list[dict]) -> list[Group]:
+    groups = _merge_scored([it for it in flat if not it.link or it.link not in {x.id for x in flat}], scored)
+    home = {it.id: g for g in groups for it in g.members.values()}
+    for it in flat:
+        if it.link and it.link in home:
+            g = home[it.link]
+            if _src(it) in g.members:
+                g.flags.append(f"second voice note ignored: {it.evidence}")
+            else:
+                g.members[_src(it)] = it
+    return groups
+
+
+def _merge_scored(flat: list[Item], scored: list[dict]) -> list[Group]:
     """Groups from Jev's pair scores. Rules, applied most certain pair first; a group never
     holds two items from the same source:
     1. score >= MERGE_SCORE: Jev says the same object.
