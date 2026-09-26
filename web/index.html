@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room valuation: capture</title>
+<style>
+  :root { --fg:#16181d; --muted:#667085; --line:#e4e7ec; --accent:#1d4ed8; --bg:#f8fafc; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:var(--fg); background:var(--bg); }
+  main { max-width:640px; margin:0 auto; padding:16px 16px 96px; }
+  h1 { font-size:22px; margin:8px 0 4px; }
+  p.lead { color:var(--muted); margin:0 0 16px; }
+  section { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; margin:12px 0; }
+  h2 { font-size:16px; margin:0 0 8px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 10px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; }
+  .row > * { flex:1 1 140px; }
+  label.f { display:block; font-size:13px; color:var(--muted); margin-bottom:4px; }
+  input[type=text], input[type=number], select { width:100%; padding:10px; border:1px solid var(--line); border-radius:8px; font-size:16px; }
+  button, .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:11px 14px; border-radius:10px;
+    border:1px solid var(--line); background:#fff; font-size:15px; cursor:pointer; color:var(--fg); }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); width:100%; font-size:17px; padding:14px; }
+  button.rec { background:#dc2626; color:#fff; border-color:#dc2626; }
+  button:disabled { opacity:.5; }
+  .thumbs { display:grid; grid-template-columns:repeat(auto-fill, minmax(84px,1fr)); gap:6px; margin-top:10px; }
+  .thumbs div { position:relative; }
+  .thumbs img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:8px; border:1px solid var(--line); }
+  .thumbs b { position:absolute; top:2px; right:2px; background:rgba(0,0,0,.6); color:#fff; border-radius:50%; width:22px; height:22px;
+    display:flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; }
+  audio { width:100%; margin-top:8px; }
+  .bar { position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid var(--line); padding:10px 16px; }
+  .bar .inner { max-width:640px; margin:0 auto; }
+  progress { width:100%; height:6px; margin-top:6px; display:none; }
+  ol.tips { margin:0; padding-left:18px; color:var(--muted); font-size:14px; }
+  .err { color:#b42318; font-size:14px; margin-top:6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Room valuation</h1>
+  <p class="lead">Photograph the room, the book spines and any labels, then say out loud what things are. Three sources are combined by Jev into one insured value.</p>
+
+  <section>
+    <h2>How to capture (2 to 4 minutes)</h2>
+    <ol class="tips">
+      <li>Room photos: turn once around the room so every object is in some photo (furniture, AC, fan, switchboards, shelves). Lights on.</li>
+      <li>Close-ups: every book spine (a stack is fine, keep titles readable), and the brand or model label on electronics.</li>
+      <li>Voice: walk around and say what things are, e.g. "HP Victus laptop, bought last year for 1.9 lakh".</li>
+      <li>Floor area: type tape measurements if you have them; otherwise the room photos are used to estimate it.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Room</h2>
+    <div class="row">
+      <div><label class="f">Room name</label><input type="text" id="room" value="bedroom"></div>
+      <div><label class="f">City (for local prices)</label><input type="text" id="city" value="Rourkela"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label class="f">Length, cm (optional)</label><input type="number" id="length" inputmode="decimal"></div>
+      <div><label class="f">Width, cm (optional)</label><input type="number" id="width" inputmode="decimal"></div>
+    </div>
+    <div style="margin-top:8px"><label class="f">Frontier model (pipeline 2)</label>
+      <select id="backend"><option value="opus">Claude Opus 5.5</option><option value="astra">GPT-6 Astra</option></select></div>
+  </section>
+
+  <section>
+    <h2>Room photos</h2>
+    <p class="hint">Enough shots that everything in the room appears at least once.</p>
+    <div class="row">
+      <label class="btn">Take photo<input type="file" accept="image/*" capture="environment" hidden data-set="room"></label>
+      <label class="btn">From gallery<input type="file" accept="image/*" multiple hidden data-set="room"></label>
+    </div>
+    <div class="thumbs" id="thumbs-room"></div>
+  </section>
+
+  <section>
+    <h2>Book spines and labels</h2>
+    <p class="hint">Close enough that you could read the text yourself.</p>
+    <div class="row">
+      <label class="btn">Take photo<input type="file" accept="image/*" capture="environment" hidden data-set="books"></label>
+      <label class="btn">From gallery<input type="file" accept="image/*" multiple hidden data-set="books"></label>
+    </div>
+    <div class="thumbs" id="thumbs-books"></div>
+  </section>
+
+  <section>
+    <h2>Voice narration</h2>
+    <p class="hint">Brand, model, size, what you paid and when, for the things that matter.</p>
+    <div class="row">
+      <button id="recbtn" type="button">Start recording</button>
+      <label class="btn">Upload audio<input type="file" accept="audio/*" hidden id="voicefile"></label>
+    </div>
+    <div id="rectime" class="hint" style="margin-top:6px"></div>
+    <audio id="playback" controls hidden></audio>
+  </section>
+
+  <section>
+    <h2>Walkthrough video (optional)</h2>
+    <p class="hint">Only used to measure the floor if no tape measurement is given.</p>
+    <label class="btn">Choose video<input type="file" accept="video/*" hidden id="videofile"></label>
+    <span id="videoname" class="hint"></span>
+  </section>
+</main>
+
+<div class="bar"><div class="inner">
+  <button class="primary" id="go">Upload and value</button>
+  <progress id="prog" max="100" value="0"></progress>
+  <div class="err" id="err"></div>
+</div></div>
+
+<script>
+const sets = { room: [], books: [] };
+let voiceBlob = null, voiceName = null, videoFile = null;
+
+function render(set) {
+  const box = document.getElementById("thumbs-" + set);
+  box.innerHTML = "";
+  sets[set].forEach((f, i) => {
+    const d = document.createElement("div");
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(f);
+    const x = document.createElement("b");
+    x.textContent = "×";
+    x.onclick = () => { sets[set].splice(i, 1); render(set); };
+    d.append(img, x);
+    box.append(d);
+  });
+}
+document.querySelectorAll("input[data-set]").forEach(inp => inp.addEventListener("change", e => {
+  sets[inp.dataset.set].push(...e.target.files);
+  inp.value = "";
+  render(inp.dataset.set);
+}));
+
+let rec = null, chunks = [], t0 = 0, timer = null;
+const recbtn = document.getElementById("recbtn"), playback = document.getElementById("playback");
+recbtn.onclick = async () => {
+  if (rec && rec.state === "recording") { rec.stop(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const type = MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "";
+    rec = new MediaRecorder(stream, type ? { mimeType: type } : {});
+    chunks = [];
+    rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+    rec.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      clearInterval(timer);
+      voiceBlob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
+      voiceName = "voice." + ((rec.mimeType || "").includes("mp4") ? "m4a" : "webm");
+      playback.src = URL.createObjectURL(voiceBlob);
+      playback.hidden = false;
+      recbtn.textContent = "Record again";
+      recbtn.classList.remove("rec");
+    };
+    rec.start(1000);
+    t0 = Date.now();
+    recbtn.textContent = "Stop recording";
+    recbtn.classList.add("rec");
+    timer = setInterval(() => {
+      const s = Math.round((Date.now() - t0) / 1000);
+      document.getElementById("rectime").textContent = `recording ${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+    }, 500);
+  } catch (e) {
+    document.getElementById("err").textContent = "Microphone not available: " + e.message + " (the page must be opened over https)";
+  }
+};
+document.getElementById("voicefile").onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  voiceBlob = f;
+  voiceName = "voice." + (f.name.split(".").pop() || "m4a");
+  playback.src = URL.createObjectURL(f);
+  playback.hidden = false;
+};
+document.getElementById("videofile").onchange = e => {
+  videoFile = e.target.files[0] || null;
+  document.getElementById("videoname").textContent = videoFile ? videoFile.name : "";
+};
+
+document.getElementById("go").onclick = () => {
+  const err = document.getElementById("err");
+  err.textContent = "";
+  if (!sets.room.length && !sets.books.length) { err.textContent = "Add at least one photo."; return; }
+  const fd = new FormData();
+  for (const id of ["room", "city", "backend"]) fd.append(id, document.getElementById(id).value);
+  const L = document.getElementById("length").value, W = document.getElementById("width").value;
+  if (L && W) { fd.append("length_cm", L); fd.append("width_cm", W); }
+  sets.room.forEach(f => fd.append("room_photos", f, f.name || "photo.jpg"));
+  sets.books.forEach(f => fd.append("book_photos", f, f.name || "photo.jpg"));
+  if (voiceBlob) fd.append("voice", voiceBlob, voiceName);
+  if (videoFile) fd.append("video", videoFile, videoFile.name);
+  const xhr = new XMLHttpRequest(), prog = document.getElementById("prog"), go = document.getElementById("go");
+  go.disabled = true;
+  prog.style.display = "block";
+  xhr.upload.onprogress = e => { if (e.lengthComputable) prog.value = 100 * e.loaded / e.total; };
+  xhr.onload = () => {
+    if (xhr.status === 200) { location.href = JSON.parse(xhr.responseText).results; return; }
+    go.disabled = false;
+    err.textContent = "Upload failed: " + xhr.status + " " + xhr.responseText;
+  };
+  xhr.onerror = () => { go.disabled = false; err.textContent = "Upload failed, check the connection."; };
+  xhr.open("POST", "/api/captures");
+  xhr.send(fd);
+};
+</script>
+</body>
+</html>
