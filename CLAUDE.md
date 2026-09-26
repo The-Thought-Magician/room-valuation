@@ -48,8 +48,14 @@ scripts/draw_pipeline.py). Results per capture: docs/results/.
   2026-09-26. The OpenAI key sees gpt-6-astra
   but had no credits; `frontier.run_astra` (Responses API with web_search) is written but
   untested. Switching is `backend=astra` on the item list page.
-- **No pre-built price list.** The user rejected it: it has to work in any room. Every item is
-  priced live at run time:
+- **No pre-built price list, and market prices come after Jev** (user's design, 2026-09-26).
+  - Pipeline 1 no longer prices.
+  - After Jev picks each item's identity, market.fill_missing searches Serper once for every
+    merged item with no frontier price and no recent owner price. The query is built from
+    Jev's chosen identity, with a category word added to vague one-word names.
+  - The result is a "market" candidate. Unreadable books get the room's median book price.
+  - The trade-off: Serper no longer cross-checks prices Opus already gave.
+  - It has to work in any room (the user rejected a pre-built list). Sources:
   - Serper.dev Google Shopping with gl=in (Amazon.in, Flipkart, Croma, Reliance and Zepto
     appear as sellers).
   - A site: search on blinkit.com and zeptonow.com, because both block direct scripted
@@ -120,8 +126,10 @@ web/results.html results and the owner's final review         /r/{id}           
 - **local.py** (pipeline 1):
   - detect(): OWLv2 plus Qwen3-VL-2B.
   - refine(): OCR and the VLM on close-ups; spines.
-  - value(): refine, then live prices.
+  - value(): refine. No prices: those come after Jev, in market.py.
 - **frontier.py:** pipeline 2 (opus via `claude -p`, astra via the OpenAI API).
+- **market.py:** after Jev, a Serper price for every item no source priced (query_for,
+  fill_missing).
 - **voice.py:** Whisper plus rule parsing; run_items() reads each item's voice notes and typed
   note as one statement.
 - **Supporting modules:**

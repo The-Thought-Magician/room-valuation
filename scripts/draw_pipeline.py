@@ -68,7 +68,7 @@ def main():
         "close-ups: PP-OCR (RapidOCR) + Qwen3-VL read\nbrand, model, specs off labels\n\n"
         "books: spines read at 0/90/270 deg, one band per\nspine, VLM cross-check needs OCR support,\n"
         "Open Library match needs title coverage\n\n"
-        "prices: Serper Google Shopping India +\nBlinkit/Zepto site search, median of matching\nlistings, every query cached", "local")
+        "no prices here: those come after Jev,\nfrom the identity Jev settles on", "local")
     box(ax, 0.3525, 0.385, 0.295, 0.185, "Pipeline 2: frontier model",
         "Claude Opus 5.5 via claude -p (Read, WebSearch,\nWebFetch; no Bash or writes), or GPT-6 Astra\n(Responses API, web_search)\n\n"
         "reads every photo and close-up, dedupes,\nreads spines, counts switchboard modules,\n"
@@ -84,27 +84,30 @@ def main():
         arrow(ax, x, 0.381, x, 0.354)
 
     # 5. Jev
-    box(ax, 0.03, 0.2, 0.94, 0.15, "Jev (TypeSafe, jev-1.13): which items are the same, and which reading to trust",
+    box(ax, 0.03, 0.245, 0.94, 0.105, "Jev (TypeSafe, jev-1.13): which items are the same, and which reading to trust",
         "links first: an owner's voice or typed note is tied to its item; a frontier item that lists an item's close-up (same category, shared word) is that item\n"
         "similarity filter: only each item's 3 most similar comparable-category candidates per other source are scored (334 of 452 pairs skipped on the merged capture)\n"
         "one Score per pair with spelled-out levels (different / possibly / same; books: same title allowing OCR slips)\n"
         "merge rules in code: Jev says same | possibly + mutual best | one of the category per source | same brand in the same photo; never two items from one source\n"
         "per merged item: Choice identity, Choice price (a recent owner price counts most), Score condition, Choice genre; confidence < 0.5 flags the line\n"
         "all questions batched (40 per call, 6 in parallel): 246 questions in 7 calls, 88k input tokens, about 5 s", "jev")
-    arrow(ax, 0.26, 0.196, 0.26, 0.174)
+    arrow(ax, 0.5, 0.241, 0.5, 0.226)
+    box(ax, 0.03, 0.178, 0.94, 0.044, "Market prices after Jev (Serper)",
+        "every item no source priced, searched once with Jev's identity: Google Shopping India + Blinkit/Zepto, median of matching listings (6 searches on the merged capture)", "local")
+    arrow(ax, 0.26, 0.174, 0.26, 0.163)
 
     # 6. valuation and review
-    box(ax, 0.03, 0.06, 0.45, 0.11, "Valuation",
+    box(ax, 0.03, 0.055, 0.45, 0.105, "Valuation",
         "RCV: chosen price x quantity\nACV: straight line over a per-category useful life, 10% salvage floor\n"
         "contents vs building fixtures (doors, windows, switchboards)\nbooks by genre, possible double counts, lines to review\n"
         "area: tape > measured floor plan > photo floor plan > frontier", "value")
-    box(ax, 0.52, 0.06, 0.45, 0.11, "Results page and the owner's final review",
+    box(ax, 0.52, 0.055, 0.45, 0.105, "Results page and the owner's final review",
         "every line with what each source said and which one Jev trusted\n"
         "Remove / Same as (suggested duplicates) / Undo: totals recompute, no re-run,\nkept across replays   (web: /r/<id>)\n"
         "report.json, out/runs/<time>/ with every Jev call, settings and the score", "value")
-    arrow(ax, 0.484, 0.115, 0.516, 0.115)
+    arrow(ax, 0.484, 0.108, 0.516, 0.108)
 
-    ax.text(0.03, 0.035, "Replays: frontier.json, local_refined.json, transcripts.json and the Serper cache let "
+    ax.text(0.03, 0.03, "Replays: frontier.json, local_refined.json, transcripts.json and the Serper cache let "
             "`room-valuation revalue --reuse frontier,refine,transcripts` re-run Jev and the valuation in about a minute, for free.",
             fontsize=9, color=MUTED, va="top")
     OUT.parent.mkdir(parents=True, exist_ok=True)

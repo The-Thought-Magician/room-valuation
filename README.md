@@ -18,12 +18,15 @@ There are three sources, and Jev combines them:
   Qwen3-VL-2B identifies them     every photo and prices  rules read prices and ages,
   PP-OCR reads spines and labels  it with live web search Qwen reads brand and model
   Open Library: title, genre      (GPT-6 Astra adapter
-  Serper: live Indian prices       written, see below)
+                                   written, see below)
           |                               |                  |
           +---------------+---------------+------------------+
                           v
         Jev (TypeSafe): which items are the same object,
         which description and which price to trust, condition, genre
+                          v
+        Market (Serper): every item no source priced, searched once
+        with the identity Jev chose (Google Shopping India, Blinkit, Zepto)
                           v
         valuation: RCV and ACV per item, contents vs building fixtures,
         books by genre, possible double counts, lines for review
@@ -74,12 +77,14 @@ uv run pytest -q
 
 ## Decisions
 
-- **No pre-built price list.** Everything is priced live, so any room works:
-  - Serper Google Shopping for India (Amazon.in, Flipkart, Croma, Reliance, Zepto), plus a
-    site search on Blinkit and Zepto product pages.
+- **No pre-built price list, and market prices come after Jev.** Everything is priced live,
+  so any room works.
+  - Pipeline 2 prices with its own web search. The owner's recent purchase prices count too.
+  - After Jev settles what each item is, every item still without a price gets one Serper
+    search built from that identity: Google Shopping India (Amazon.in, Flipkart, Croma,
+    Reliance, Zepto) plus Blinkit and Zepto site search, taking the median of matching
+    listings. That was 6 searches instead of about 40 on the merged capture.
   - Every query is cached (`data/price_cache`).
-  - Pipeline 1 takes the median of listings whose titles match the item. Pipeline 2 prices
-    with its own web search.
 - **RCV and ACV, as a claim uses them.**
   - RCV is the cost to buy new today. ACV is straight-line depreciation over a per-category
     useful life, down to a 10 percent salvage floor.

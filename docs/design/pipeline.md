@@ -68,14 +68,8 @@ card once crashed one of them.
     study guides are skipped.
   - Unmatched text that shares a word with a matched book is a partial read and is dropped.
     What is left becomes an "unidentified book", priced at the room's median book.
-- **Prices** (`prices.price_item`), searched live at run time:
-  - Serper Google Shopping for India (Amazon.in, Flipkart, Croma, Reliance, Zepto appear as
-    sellers).
-  - A Google site search of blinkit.com and zeptonow.com, which block scripts, for small
-    goods.
-  - Only listings whose titles share at least half the query words (and the brand) count.
-    The median of those is the price.
-  - Every query is cached in `data/price_cache/`.
+- **No prices here.** Pipeline 1 finds, identifies and reads. Market prices come after Jev
+  (section 6), from the identity Jev settles on.
 
 ### Pipeline 2: frontier model (`frontier.run_opus`, `frontier.run_astra`)
 
@@ -157,11 +151,11 @@ As its docs advise, it only judges; counting, thresholds and arithmetic stay in 
    Real example from the merged run, for the laptop's price:
 
    ```
-   candidates: local    Rs 77,245  median of 18 listings for 'HP VICTUS 14 inches laptop'
-               frontier Rs 76,021  SKU and GPU tier not readable
+   candidates: frontier Rs 76,021  SKU and GPU tier not readable
                voice    Rs 1,90,000  what the owner says they paid, 0.08 years ago
    how_to_judge: "A price the owner paid within the last 12 months for this exact item is the strongest evidence ..."
-   answer: voice, probabilities {voice 0.78, local 0.20, frontier 0.02}, confidence 0.66
+   answer: voice (the run before pricing moved after Jev also had a local Serper candidate at Rs 77,245;
+           Jev gave voice 0.78, local 0.20, frontier 0.02)
    ```
 
    Confidence under 0.5 flags the line for review.
@@ -169,7 +163,35 @@ As its docs advise, it only judges; counting, thresholds and arithmetic stay in 
    246 questions in 7 calls, 88k input tokens, about 5 s and well under a cent. Every call
    (state, questions, answers, model, usage) is kept in `out/runs/<time>/jev_calls.jsonl`.
 
-## 6. Valuation (`valuation.py`, `prices.acv`, `area.py`)
+## 6. Market prices after Jev (`market.py`, `prices.price_item`)
+
+Jev has decided what every item is. Any merged item that still has no replacement price gets
+one Serper search, built from the identity Jev chose. That means no frontier price and no owner
+price from within 2 years.
+
+- The query is "HP Victus 15 gaming laptop", not the local model's misread
+  "HP VICTUS 14 inches laptop".
+- A vague one-word name gets its category word: "switch" becomes "switch electrical wall",
+  after "switch" matched Nintendo Switch listings.
+- **Sources:**
+  - Serper Google Shopping for India (Amazon.in, Flipkart, Croma, Reliance, Zepto appear as
+    sellers).
+  - A Google site search of blinkit.com and zeptonow.com, which block scripts, for small
+    goods.
+- Only listings whose titles share at least half the query words, and the brand, count. The
+  median of those is the price.
+- The result joins the item as a **market** candidate.
+- A spine nobody could read gets the median of the room's identified book prices.
+- Every query is cached in `data/price_cache/`.
+
+On the merged capture: 6 searches, where pricing every local item before Jev took about 40.
+Every item ends up priced.
+
+The trade-off is that Serper is no longer a second opinion on prices the frontier model
+already gave. If that matters, the same step can also search the lines where Jev's price
+confidence is low.
+
+## 7. Valuation (`valuation.py`, `prices.acv`, `area.py`)
 
 - **RCV** is the chosen price times the quantity.
 - **ACV** is `RCV x max(0.10, 1 - age / useful life)`:
@@ -191,7 +213,7 @@ As its docs advise, it only judges; counting, thresholds and arithmetic stay in 
 
   Every candidate is shown, and the plan picture comes from whichever has one.
 
-## 7. Results and the owner's final review (`web/results.html`)
+## 8. Results and the owner's final review (`web/results.html`)
 
 - Every line shows what each source said and which one Jev trusted, with the photos, the
   candidates, and the Jev probabilities.
@@ -200,11 +222,12 @@ As its docs advise, it only judges; counting, thresholds and arithmetic stay in 
 - Decisions are stored by a stable line key, the sorted member item ids, so they survive
   replays.
 
-## 8. What is saved, and replays
+## 9. What is saved, and replays
 
 | Artifact | Where | Used for |
 |---|---|---|
 | Every Serper response | `data/price_cache/*.json` | replays never search twice |
+| Market searches after Jev | `out/market_log.json` | which items were searched, with what query |
 | Frontier raw output and parsed items | `out/opus_raw.json`, `out/frontier.json` | `--reuse frontier` |
 | Local close-up and spine reading | `out/local_refined.json` | `--reuse refine` (no GPU) |
 | Transcripts | `out/transcripts.json` | `--reuse transcripts` |
@@ -215,7 +238,7 @@ As its docs advise, it only judges; counting, thresholds and arithmetic stay in 
 matching, Jev and the valuation on saved sources in about a minute, for free. Every fix in
 the README's tuning table was found and checked this way.
 
-## 9. Known limits
+## 10. Known limits
 
 - **Local-only duplicates.** Two lines both from the local detector (a "wardrobe" next to the
   almirah) cannot be merged by Jev, since a group holds one item per source. The owner's

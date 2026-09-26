@@ -13,17 +13,16 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": 95490,
+    "local": null,
     "frontier": 84990.0,
     "voice": 190000.0
    },
    "chosen_from": "voice",
    "rcv_inr": 190000.0,
    "acv_inr": 186960,
-   "price_confidence": 0.82,
+   "price_confidence": 0.55,
    "rcv_error_pct": 0.0,
    "per_source_error_pct": {
-    "local": -49.7,
     "frontier": -55.3,
     "voice": 0.0
    }
@@ -40,14 +39,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": 12249,
+    "local": null,
     "frontier": 11999.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 11999.0,
    "acv_inr": 6000,
-   "price_confidence": 0.06
+   "price_confidence": null
   },
   {
    "truth": "chair",
@@ -68,7 +67,7 @@
    "chosen_from": "voice",
    "rcv_inr": 5500.0,
    "acv_inr": 3575,
-   "price_confidence": 0.51
+   "price_confidence": 0.56
   },
   {
    "truth": "L-shaped study table (desk)",
@@ -109,14 +108,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": 19190,
+    "local": null,
     "frontier": 12000.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 12000.0,
    "acv_inr": 1200,
-   "price_confidence": 0.44
+   "price_confidence": null
   },
   {
    "truth": "steel almirah",
@@ -130,14 +129,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": 7999,
+    "local": null,
     "frontier": 18100.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 18100.0,
    "acv_inr": 1810,
-   "price_confidence": 0.76
+   "price_confidence": null
   },
   {
    "truth": "Razer DeathAdder mouse",
@@ -151,14 +150,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": 5744,
+    "local": null,
     "frontier": 1749.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 1749.0,
    "acv_inr": 175,
-   "price_confidence": 0.98
+   "price_confidence": null
   },
   {
    "truth": "suitcase",
@@ -179,7 +178,7 @@
    "chosen_from": "frontier",
    "rcv_inr": 4200.0,
    "acv_inr": 1400,
-   "price_confidence": 0.72,
+   "price_confidence": 0.66,
    "rcv_error_pct": 68.0,
    "per_source_error_pct": {
     "frontier": 68.0,
@@ -198,14 +197,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": 610,
+    "local": null,
     "frontier": 1500.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 1500.0,
    "acv_inr": 150,
-   "price_confidence": 0.18
+   "price_confidence": null
   },
   {
    "truth": "whiteboard sheet",
@@ -225,14 +224,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": 2749,
+    "local": null,
     "frontier": 2500.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 2500.0,
    "acv_inr": 1625,
-   "price_confidence": 0.08
+   "price_confidence": null
   },
   {
    "truth": "Good Knight liquid mosquito repellent",
@@ -242,8 +241,8 @@
   }
  ],
  "report_totals": {
-  "rcv_inr": 328210,
-  "acv_inr": 237309,
+  "rcv_inr": 326889,
+  "acv_inr": 236383,
   "items": 46
  }
 }
