@@ -6,7 +6,9 @@ live search at run time.
 3. Book photos: PP-OCR (RapidOCR) reads the spines, Qwen3-VL reads them too as a cross-check,
    and each spine text goes to Open Library.
 4. The same object seen in several photos is merged into one item.
-5. No prices here: after Jev, market.py searches every item no source priced.
+5. Each item is priced live from its own reading (prices.query_for and price_item), so Jev
+   can rank this pipeline's value against the frontier model's and the owner's. Anything
+   still unpriced after Jev gets a second search in market.py.
 """
 
 import difflib
@@ -423,6 +425,31 @@ def _downsize(image: Image.Image, side: int = 1280) -> Image.Image:
     return im
 
 
+def price_items(items: list[Item], log: list) -> None:
+    """This pipeline's own value for each item: one Serper search from its own reading. A spine
+    nobody could read gets the median of the identified books' prices."""
+    unread = [it for it in items if it.category == "book" and (not it.book or it.book.lookup != "openlibrary")]
+    for it in items:
+        if it.book and it.book.genre not in GENRES:
+            it.book.genre = "other"
+        if it in unread:
+            continue
+        q, must = prices.query_for(it)
+        try:
+            p = prices.price_item(q, it.category, must)
+        except Exception as e:  # one bad lookup costs one price, not the pipeline
+            p = {"query": q, "rcv_inr": None, "note": f"price lookup failed: {type(e).__name__}"}
+        it.rcv_inr = p.get("rcv_inr")
+        it.price_source = p.get("url")
+        it.price_note = (f"median of {p['matched']} matching listings for '{q}'"
+                         + (f" ({', '.join(p['sellers'])})" if p.get("sellers") else "")) if it.rcv_inr else p.get("note")
+        log.append({"item": it.id, "price": p})
+    known = sorted(it.rcv_inr for it in items if it.category == "book" and it not in unread and it.rcv_inr)
+    for it in unread:
+        it.rcv_inr = known[len(known) // 2] if known else None
+        it.price_note = f"median of the {len(known)} identified books in this room" if known else "no identified books to compare"
+
+
 def value(entries: list[dict], closeups: dict[str, list[Path]], room_photos: dict[str, Path], workdir: Path,
           progress=None, reuse_refined: bool = False) -> SourceResult:
     t0 = time.time()
@@ -433,9 +460,7 @@ def value(entries: list[dict], closeups: dict[str, list[Path]], room_photos: dic
     else:
         items, log = refine(entries, closeups, room_photos, progress)
         refined.write_text(json.dumps({"items": [i.model_dump() for i in items], "log": log}, default=str))
-    for it in items:  # prices come after Jev (market.py), from the item Jev settles on
-        if it.book and it.book.genre not in GENRES:
-            it.book.genre = "other"
+    price_items(items, log)
     (workdir / "local_log.json").write_text(json.dumps(log, indent=1, default=str))
     shelves = sum(it.quantity for it in items if "shelf" in it.name.lower())
     return SourceResult(source="local", items=items, shelves=shelves, seconds=round(time.time() - t0, 1),

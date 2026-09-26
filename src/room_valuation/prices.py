@@ -166,3 +166,28 @@ def acv(rcv: float, category: str, age_years: float | None, condition: str | Non
         used = CONDITION_LIFE_USED.get(condition or "good", 0.35)
         basis = f"condition '{condition or 'unknown'}' read as {used:.0%} of a {life} y life used"
     return round(rcv * max(SALVAGE_FLOOR, 1 - used)), basis
+
+
+# a one-word name searches badly ("switch" matched Nintendo Switch listings, 2026-09-26): the
+# category word keeps a vague query in the right aisle
+CATEGORY_HINT = {"electrical_fixture": "electrical wall", "lighting": "LED", "computer_accessory": "computer",
+                 "networking": "wifi", "appliance": "home appliance", "audio": "audio", "bedding": "bed",
+                 "kitchenware": "kitchen", "decor": "home decor", "building_fixture": "house"}
+
+
+def query_for(item) -> tuple[str, list[str]]:
+    """Search text, and the words a listing title must contain (the brand)."""
+    if item.category == "book" and item.book and item.book.title:
+        return f"{item.book.title} {item.book.author or ''} paperback".strip(), []
+    parts = [item.brand, item.model, item.attributes.get("size"), item.name]
+    seen, words = set(), []
+    for w in " ".join(p for p in parts if p).split():  # "Acer" + "Acer 24 inch monitor" says Acer once
+        if w.lower() not in seen:
+            seen.add(w.lower())
+            words.append(w)
+    name = " ".join(words)
+    hint = CATEGORY_HINT.get(item.category)
+    if len(words) <= 2 and hint and not set(hint.lower().split()) & seen:
+        name = f"{name} {hint}"
+    must = [item.brand.split()[0]] if item.brand else []
+    return name, must

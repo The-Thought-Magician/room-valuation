@@ -1,39 +1,17 @@
-"""After Jev: a live market price for every item no source priced.
+"""After Jev: a live market price for every item still unpriced.
 
-Jev first settles what each item is (the best of the local, frontier and owner readings).
-Then every merged item that still has no replacement price (no frontier price, no recent owner
-price) is searched once on Serper with that identity: "HP Victus 15 gaming laptop", not the
-local model's misread "HP VICTUS 14 inches laptop". The result joins the item as a "market"
-candidate. A spine nobody could read is priced at the median of the room's identified books.
+Pipeline 1 prices its own readings, the frontier model prices its own, and the owner may give a
+recent price; Jev ranks those. What is left is an item no source priced (a local search found no
+matching listing, the frontier model missed it, the owner said nothing). Those are searched once
+more with the identity Jev settled on, which is usually a better query than the local reading.
+The result joins the item as a "market" candidate. A spine nobody could read is priced at the
+median of the room's identified books.
 """
 
 from room_valuation import prices
 from room_valuation.jev import Group
+from room_valuation.prices import query_for
 from room_valuation.schema import Item
-
-# a one-word name searches badly ("switch" matched Nintendo Switch listings, 2026-09-26): the
-# category word keeps a vague query in the right aisle
-CATEGORY_HINT = {"electrical_fixture": "electrical wall", "lighting": "LED", "computer_accessory": "computer",
-                 "networking": "wifi", "appliance": "home appliance", "audio": "audio", "bedding": "bed",
-                 "kitchenware": "kitchen", "decor": "home decor", "building_fixture": "house"}
-
-
-def query_for(item: Item) -> tuple[str, list[str]]:
-    """Search text, and the words a listing title must contain (the brand)."""
-    if item.category == "book" and item.book and item.book.title:
-        return f"{item.book.title} {item.book.author or ''} paperback".strip(), []
-    parts = [item.brand, item.model, item.attributes.get("size"), item.name]
-    seen, words = set(), []
-    for w in " ".join(p for p in parts if p).split():  # "Acer" + "Acer 24 inch monitor" says Acer once
-        if w.lower() not in seen:
-            seen.add(w.lower())
-            words.append(w)
-    name = " ".join(words)
-    hint = CATEGORY_HINT.get(item.category)
-    if len(words) <= 2 and hint and not set(hint.lower().split()) & seen:
-        name = f"{name} {hint}"
-    must = [item.brand.split()[0]] if item.brand else []
-    return name, must
 
 
 def _identity(g: Group, n: int, answers: dict) -> Item:
