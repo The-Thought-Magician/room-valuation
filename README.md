@@ -61,6 +61,7 @@ https, and the URL changes every time `serve.sh` restarts.
 | Step 2: item list | `/c/<capture id>` ([web/items.html](web/items.html)) | Detected items counted by type. **Remove** false or duplicate ones, add what is missing, pick the frontier model, then **Walk through items** or **Value the room** |
 | Step 3: one page per item | `/c/<capture id>/i/<item id>` ([web/item.html](web/item.html)) | Close-ups (labels, spines), any number of voice notes, a typed note, quantity |
 | Results and final review | `/r/<capture id>` ([web/results.html](web/results.html)) | Totals, every item with every source's price and Jev's choice, books by genre, floor area and plan. **Remove**, **Same as** and **Undo** per line |
+| Demo walkthrough | `/demo/<name>/` ([web/demo.html](web/demo.html)) | One real capture step by step: photos, video, detection boxes, the owner's list, close-ups and voice notes with transcripts, what each pipeline read, Jev's questions and answers, the valuation, the score. Built by `scripts/build_demo.py` |
 
 The API behind the pages is in [src/room_valuation/server.py](src/room_valuation/server.py): `POST /api/captures`,
 `/api/captures/<id>/session`, `/items/<item>`, `/items`, `/detect`, `/submit`, `/status`, `/report`, `/review`.
@@ -95,6 +96,8 @@ uv run python scripts/merge_captures.py <capture> <capture> [--into <merged>] [-
                                          # several captures of one room into one
 uv run python scripts/export_report.py <capture> <name>              # writes docs/results/<name>/
 uv run python scripts/draw_pipeline.py   # redraws docs/design/pipeline.png
+uv run python scripts/build_demo.py <capture> <name> [--run <capture>/out/runs/<time>]
+                                         # demo walkthrough in demo/<name>/ (not in git: it holds the room's media)
 ```
 
 Checks:
@@ -245,7 +248,7 @@ Problems found this way on the real captures, and fixed:
 ```
 src/room_valuation/  schema, local (pipeline 1), frontier (pipeline 2), voice, ocr, books, prices,
                      jev, valuation, area, session, run, score, server
-web/                 index (step 1), record (video only), items (step 2), item (step 3), results
-scripts/             serve.sh, fetch_weights.sh, merge_captures.py
+web/                 index (step 1), record (video only), items (step 2), item (step 3), results, demo
+scripts/             serve.sh, fetch_weights.sh, merge_captures.py, export_report.py, build_demo.py
 data/                captures/ and fixtures/ (not in git), ground_truth/, price_cache/ (not in git)
 ```

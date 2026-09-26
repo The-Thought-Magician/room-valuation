@@ -122,6 +122,7 @@ web/items.html   step 2: item list, remove/add, backend       /c/{id}           
 web/item.html    step 3: one page per item                    /c/{id}/i/{item}            close-ups, voice notes, typed note
                  "Value the room"                             POST /api/captures/{id}/submit -> run.value
 web/results.html results and the owner's final review         /r/{id}                     POST /api/captures/{id}/review
+web/demo.html    demo walkthrough of one real capture         /demo/{name}/               static, built by scripts/build_demo.py into demo/ (git-ignored)
 ```
 
 - **schema.py:** the Item every source reports in; CATEGORIES, GENRES, BUILDING.
@@ -150,6 +151,9 @@ web/results.html results and the owner's final review         /r/{id}           
     decisions)
   - export_report.py (docs/results/<name>/)
   - draw_pipeline.py
+  - build_demo.py (a static walkthrough of one capture in demo/<name>/, git-ignored because it
+    copies the room's photos, video and voice; the bedroom demo uses run 20260926-110157, the
+    one exported to docs/results)
 - **data/ground_truth/bedroom.json:** what the owner paid, from memory, including voice-note
   corrections (monitor 24 inch, Rs 16k, 3 years; stool 8 years; table Rs 8k, 9 months).
   - Only for scoring. The pipeline never reads it.

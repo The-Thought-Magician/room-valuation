@@ -35,6 +35,8 @@ MAX_BYTES = 300 * 1024 * 1024
 
 app = FastAPI(title="room-valuation")
 app.mount("/static", StaticFiles(directory=WEB / "static"), name="static")
+# Demo walkthroughs built by scripts/build_demo.py (git-ignored: the owner's media).
+app.mount("/demo", StaticFiles(directory=ROOT / "demo", html=True, check_dir=False), name="demo")
 jobs: queue.Queue = queue.Queue()
 
 
