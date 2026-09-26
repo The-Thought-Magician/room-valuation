@@ -273,3 +273,15 @@ def test_colocated_single_items_of_one_brand_merge_despite_jev():
     scored = [{"a": "local-9", "b": "opus-0", "score": 0.24, "p_different": 0.81, "confidence": 0.65}]
     groups = jev.merge([a, b], scored)
     assert len(groups) == 1 and any("Jev said different" in f for f in groups[0].flags)
+
+
+def test_closeup_links_and_compatible_categories():
+    from room_valuation import jev
+
+    chair = Item(id="added-1", source="local", category="furniture", name="Chair")
+    opus_chair = Item(id="opus-5", source="opus", category="furniture", name="Green Soul mesh chair",
+                      photos=["room_001.jpg", "item_added-1_closeup_00.jpg"])
+    opus_bed = Item(id="opus-6", source="opus", category="furniture", name="box bed", photos=["room_004.jpg"])
+    jev.closeup_links([chair, opus_chair, opus_bed])
+    assert opus_chair.link == "added-1" and opus_bed.link is None
+    assert jev.comparable("bedding", "furniture") and not jev.comparable("laptop", "bedding")

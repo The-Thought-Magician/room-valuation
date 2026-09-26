@@ -122,7 +122,8 @@ def _item_claim(d: dict, entry: dict, text: str) -> Item:
         attrs["acquired"] = "free or provided (the owner said so); may not be the owner's to claim"
     brand = d.get("brand") if d.get("brand") not in (None, "", "null") else None
     model = d.get("model") if d.get("model") not in (None, "", "null") else None
-    name = " ".join(x for x in (brand, model) if x) or entry["name"]
+    # the item's own name plus the brand: the model text a 2B model pulls from speech is unreliable
+    name = entry["name"] if not brand or brand.lower() in entry["name"].lower() else f"{brand} {entry['name']}"
     note = None
     if paid and not recent:
         note = (f"paid Rs {paid:,.0f} about {age:g} years ago; too old to be a replacement price" if age is not None

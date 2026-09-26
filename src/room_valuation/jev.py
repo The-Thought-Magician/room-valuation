@@ -107,6 +107,30 @@ def _view(item: Item) -> dict:
     return d
 
 
+# categories the detectors mix up: a bed filed as bedding by one source and furniture by the
+# other is still one bed (it was counted twice on the merged capture, 2026-09-26)
+COMPATIBLE = [{"bedding", "furniture"}, {"appliance", "electrical_fixture"}, {"decor", "furniture"},
+              {"computer_accessory", "phone"}, {"lighting", "electrical_fixture"}, {"building_fixture", "furniture"},
+              {"decor", "building_fixture"}]
+
+
+def comparable(a: str, b: str) -> bool:
+    return a == b or "other" in (a, b) or any({a, b} <= pair for pair in COMPATIBLE)
+
+
+def closeup_links(flat: list[Item]) -> None:
+    """A close-up taken on an item's page is a photo of that item. A frontier item that lists
+    exactly one item's close-ups among its photos is that item: link it, no pairwise guess."""
+    ids = {it.id: it for it in flat if _src(it) == "local"}
+    taken = set()
+    for it in sorted((x for x in flat if _src(x) == "frontier"), key=lambda x: len(x.photos)):
+        owners = {p.split("_closeup")[0][len("item_"):] for p in it.photos if p.startswith("item_") and "_closeup" in p}
+        owners = {o for o in owners if o in ids and comparable(ids[o].category, it.category)}
+        if len(owners) == 1 and (o := owners.pop()) not in taken:
+            it.link = o
+            taken.add(o)
+
+
 def _words(item: Item) -> set[str]:
     text = " ".join([item.name, item.brand or "", item.model or "", *item.attributes.values(),
                      item.book.title or "" if item.book else "", item.book.author or "" if item.book else ""])
@@ -131,7 +155,7 @@ def candidate_pairs(flat: list[Item], k: int = 3, min_sim: float = 0.05) -> tupl
     """Only pairs worth a Jev call: same category (or either 'other'), and among each item's k
     most similar items from each other source. Returns the pairs and how many were skipped."""
     allowed = [(a, b) for i, a in enumerate(flat) for b in flat[i + 1 :]
-               if _src(a) != _src(b) and (a.category == b.category or "other" in (a.category, b.category))]
+               if _src(a) != _src(b) and comparable(a.category, b.category)]
     best: dict[tuple[str, str], list[tuple[float, tuple[str, str]]]] = {}  # (item, other source) -> scored pairs
     for a, b in allowed:
         s, key = similarity(a, b), (a.id, b.id)
@@ -146,6 +170,7 @@ def candidate_pairs(flat: list[Item], k: int = 3, min_sim: float = 0.05) -> tupl
 def align(sources: list[list[Item]]) -> tuple[list[Group], list[dict], int]:
     """One Score per candidate cross-source pair after the similarity filter."""
     flat = [it for items in sources for it in items]
+    closeup_links(flat)
     ids = {it.id for it in flat}
     linked = [it for it in flat if it.link in ids]  # voice notes recorded on an item's own page
     pairs, skipped = candidate_pairs([it for it in flat if it not in linked])
@@ -174,10 +199,13 @@ def merge(flat: list[Item], scored: list[dict]) -> list[Group]:
     for it in flat:
         if it.link and it.link in home:
             g = home[it.link]
-            if _src(it) in g.members:
-                g.flags.append(f"second voice note ignored: {it.evidence}")
+            if _src(it) in g.members:  # never drop an item: keep it as its own line, flagged
+                groups.append(Group(members={_src(it): it}, flags=[f"possible double count with {g.members[_src(it)].name}, "
+                                                                   f"both tied to item {it.link}"]))
             else:
                 g.members[_src(it)] = it
+                if _src(it) == "frontier":
+                    g.flags.append("frontier item matched by the owner's close-up")
     return groups
 
 
