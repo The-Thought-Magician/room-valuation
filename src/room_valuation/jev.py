@@ -27,7 +27,16 @@ STATE = {
         "frontier": "a large vision model with web search on the same photos",
         "voice": "the owner describing their things out loud; knows what they bought, may misremember prices",
     },
+    "how_to_compare": "Sizes, models and prices read from photos are estimates and are often off (a 27 inch "
+                      "monitor may be reported as about 24 inch). Judge sameness by the kind of object, where it "
+                      "was seen, colour and distinguishing details. The owner has no photos; match their words by "
+                      "kind of object and brand.",
 }
+MERGE_SCORE = 1.5  # expected level >= 1.5: Jev leans to 'the same physical object'
+MAYBE_SCORE = 0.75  # between this and MERGE_SCORE: 'possibly the same'
+# one item of the category per source (one laptop, one laptop): the same object unless Jev is
+# confident it is not
+SINGLETON_BLOCK = {"p_different": 0.6, "confidence": 0.5}
 
 
 @dataclass
@@ -115,31 +124,60 @@ def align(sources: list[list[Item]]) -> tuple[list[Group], list[dict], int]:
     scored = []
     for n, (a, b) in enumerate(pairs):
         ans = answers[f"pair_{n}"]
-        scored.append({"a": a.id, "b": b.id, "p_same": float(ans.probabilities.get("2", 0.0)),
-                       "p_maybe": float(ans.probabilities.get("1", 0.0)), "score": ans.score,
-                       "confidence": ans.confidence})
+        probs = {int(k): float(v) for k, v in ans.probabilities.items()}
+        scored.append({"a": a.id, "b": b.id, "p_same": probs.get(2, 0.0), "p_maybe": probs.get(1, 0.0),
+                       "p_different": probs.get(0, 0.0), "score": float(ans.score), "confidence": float(ans.confidence)})
+    return merge(flat, scored), scored, skipped
 
+
+def merge(flat: list[Item], scored: list[dict]) -> list[Group]:
+    """Groups from Jev's pair scores. Rules, applied most certain pair first; a group never
+    holds two items from the same source:
+    1. score >= MERGE_SCORE: Jev says the same object.
+    2. score >= MAYBE_SCORE and each item is the other's best-scoring candidate: merged, flagged.
+    3. both sources report exactly one item of this category (one laptop and one laptop) and
+       Jev is not confident they differ: merged, flagged.
+    Anything else at or above MAYBE_SCORE stays apart and is flagged as a possible double count."""
     by_id = {it.id: it for it in flat}
+    best: dict[tuple[str, str], float] = {}  # (item, other source) -> best score
+    for s in scored:
+        for x, y in ((s["a"], s["b"]), (s["b"], s["a"])):
+            key = (x, _src(by_id[y]))
+            best[key] = max(best.get(key, 0.0), s["score"])
+    per_cat: dict[tuple[str, str], int] = {}
+    for it in flat:
+        per_cat[(_src(it), it.category)] = per_cat.get((_src(it), it.category), 0) + 1
+
     group_of: dict[str, Group] = {}
     groups: list[Group] = []
     for it in flat:
         g = Group(members={_src(it): it})
         groups.append(g)
         group_of[it.id] = g
-    # greedy: most certain pairs first, each group holds at most one item per source
-    for s in sorted(scored, key=lambda s: -s["p_same"]):
-        ga, gb = group_of[s["a"]], group_of[s["b"]]
+    for s in sorted(scored, key=lambda s: -s["score"]):
+        a, b = by_id[s["a"]], by_id[s["b"]]
+        ga, gb = group_of[a.id], group_of[b.id]
         if ga is gb:
             continue
-        if round(s["score"]) == 2 and not set(ga.members) & set(gb.members):
+        mutual = s["score"] >= best[(a.id, _src(b))] and s["score"] >= best[(b.id, _src(a))]
+        singleton = a.category == b.category and per_cat[(_src(a), a.category)] == 1 == per_cat[(_src(b), b.category)]
+        rule = None
+        if s["score"] >= MERGE_SCORE:
+            rule = ""
+        elif s["score"] >= MAYBE_SCORE and mutual:
+            rule = f"merged on 'possibly the same' ({s['score']:.2f}) as mutual best match"
+        elif singleton and not (s.get("p_different", 0.0) >= SINGLETON_BLOCK["p_different"]
+                                and s.get("confidence", 0.0) >= SINGLETON_BLOCK["confidence"]):
+            rule = f"merged as the only {a.category} in both sources (Jev {s['score']:.2f})"
+        if rule is not None and not set(ga.members) & set(gb.members):
             ga.members.update(gb.members)
-            ga.flags += gb.flags
+            ga.flags += gb.flags + ([rule] if rule else [])
             for it in gb.members.values():
                 group_of[it.id] = ga
             groups.remove(gb)
-        elif round(s["score"]) == 1:
-            ga.flags.append(f"possibly the same as {by_id[s['b']].name} ({s['b']})")
-    return groups, scored, skipped
+        elif s["score"] >= MAYBE_SCORE:
+            ga.flags.append(f"possible double count with {b.name} ({b.id}), Jev {s['score']:.2f}")
+    return groups
 
 
 def rank_groups(groups: list[Group]) -> dict:

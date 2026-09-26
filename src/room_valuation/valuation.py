@@ -94,6 +94,8 @@ def totals(lines: list[dict]) -> dict:
         "items": sum(ln["quantity"] for ln in lines),
         "unpriced": sum(1 for ln in lines if not ln["rcv_inr"]),
         "needs_review": sum(1 for ln in lines if ln["flags"]),
+        "possible_double_count_inr": round(sum(ln["rcv_inr"] or 0 for ln in lines
+                                               if any(f.startswith("possible double count") for f in ln["flags"]))),
         "books": {"count": len(books), "rcv_inr": round(sum(ln["rcv_inr"] or 0 for ln in books)),
                   "by_genre": _count(ln["book"]["genre"] for ln in books if ln["book"])},
         "by_category": {k: {**v, "rcv_inr": round(v["rcv_inr"]), "acv_inr": round(v["acv_inr"])}

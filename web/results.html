@@ -87,6 +87,7 @@ async function show() {
   document.getElementById("tiles").innerHTML = [
     ["Replacement cost (RCV)", inr(t.rcv_inr)], ["Actual cash value (ACV)", inr(t.acv_inr)],
     ["Items", t.items + (t.unpriced ? ` (${t.unpriced} unpriced)` : "")], ["Needs review", t.needs_review],
+    ["Possible double count", inr(t.possible_double_count_inr)],
     ["Floor area", a.area_m2 ? `${a.area_sqft} sq ft` : "–"], ["Books", `${t.books.count} (${inr(t.books.rcv_inr)})`],
     ["Shelves", shelves], ["Pipeline 2", r.backend],
   ].map(([k, v]) => `<div class="tile"><div class="v">${esc(v)}</div><div class="k">${k}</div></div>`).join("");

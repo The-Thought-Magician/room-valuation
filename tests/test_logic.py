@@ -120,3 +120,27 @@ def test_spine_bands_group_lines_by_row():
              {"text": "SAPIENS", "score": 0.97, "x0": 10, "y0": 40, "y1": 60}]
     bands = ocr._bands(lines)
     assert len(bands) == 2 and {ln["text"] for ln in bands[0]} == {"ATOMIC HABITS", "James Clear"}
+
+
+def test_merge_rules_same_mutual_singleton_and_flag():
+    from room_valuation import jev
+
+    lap_l = Item(id="local-0", source="local", category="laptop", name="laptop")
+    lap_o = Item(id="opus-0", source="opus", category="laptop", name="HP laptop")
+    mon_l = Item(id="local-1", source="local", category="monitor", name="monitor")
+    mon_o = Item(id="opus-1", source="opus", category="monitor", name="Acer monitor")
+    ch_l = [Item(id=f"local-{i}", source="local", category="furniture", name="chair") for i in (2, 3)]
+    ch_o = [Item(id=f"opus-{i}", source="opus", category="furniture", name="chair") for i in (2, 3)]
+    flat = [lap_l, lap_o, mon_l, mon_o, *ch_l, *ch_o]
+    scored = [
+        {"a": "local-0", "b": "opus-0", "score": 0.46, "p_different": 0.55, "confidence": 0.31},  # singleton: merge
+        {"a": "local-1", "b": "opus-1", "score": 1.8},  # Jev says same: merge
+        {"a": "local-2", "b": "opus-2", "score": 1.1},  # mutual best: merge
+        {"a": "local-3", "b": "opus-2", "score": 0.9},  # opus-2 already taken: flag
+        {"a": "local-3", "b": "opus-3", "score": 0.3, "p_different": 0.8, "confidence": 0.7},  # different: apart
+    ]
+    groups = jev.merge(flat, scored)
+    sizes = sorted(len(g.members) for g in groups)
+    assert sizes == [1, 1, 2, 2, 2]
+    flagged = [g for g in groups if any("possible double count" in f for f in g.flags)]
+    assert len(flagged) == 1 and "local-3" in [it.id for it in flagged[0].members.values()]
