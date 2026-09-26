@@ -21,7 +21,7 @@ from pathlib import Path
 
 from PIL import Image, ImageOps
 
-from room_valuation import area, frontier, jev, local, models, session, valuation, voice
+from room_valuation import area, frontier, jev, local, market, models, session, valuation, voice
 from room_valuation.schema import SourceResult
 
 BACKEND_NAMES = {"opus": "claude-opus-5-5", "astra": "gpt-6-astra", "none": "skipped (test run)"}
@@ -209,6 +209,11 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
     sources = [results[k].items for k in ("local", "frontier", "voice") if k in results]
     groups, pairs, skipped = jev.align(sources)
     answers = jev.rank_groups(groups)
+    _status(workdir, "market", "running")
+    market_log: list = []
+    market_counts = market.fill_missing(groups, answers, market_log)  # Serper, after Jev, only the unpriced
+    (workdir / "market_log.json").write_text(json.dumps(market_log, indent=1, default=str))
+    _status(workdir, "market", "done", **market_counts)
     lines = valuation.line_items(groups, answers)
     _status(workdir, "jev", "done", groups=len(groups), pairs=len(pairs), pairs_skipped=skipped)
 
@@ -223,7 +228,7 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
         "review": {"kept": len(entries), "removed": sum(1 for e in everything if e["state"] == "removed"),
                    "added": sum(1 for e in entries if e["state"] == "added"),
                    "closeups": sum(len(v) for v in closeups.values()), "voice_notes": len(notes)},
-        "errors": errors, "jev_pairs_scored": len(pairs), "jev_pairs_skipped": skipped,
+        "errors": errors, "jev_pairs_scored": len(pairs), "jev_pairs_skipped": skipped, "market": market_counts,
         "seconds": round(time.time() - t0, 1),
     }
     report = valuation.reviewed_report(report, line_review)  # the owner's last word, kept across replays

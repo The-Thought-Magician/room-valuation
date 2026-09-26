@@ -304,3 +304,28 @@ def test_owner_review_takes_lines_out_of_the_totals():
 
 def test_prompt_example_values_are_dropped():
     assert local._null("1400 W") is None and local._null("Philips") is None and local._null("HP") == "HP"
+
+
+def test_market_prices_only_unpriced_items_after_jev(monkeypatch):
+    from room_valuation import market
+    from room_valuation.jev import Group
+
+    asked = []
+    listing = {"rcv_inr": 12000, "matched": 4, "url": "u", "sellers": ["Flipkart"]}
+    monkeypatch.setattr(market.prices, "price_item", lambda q, cat, must: asked.append((q, must)) or listing)
+    local_mon = Item(id="local-2", source="local", category="monitor", name="monitor", brand="Acer",
+                     attributes={"size": "27 inch"})
+    opus_mon = Item(id="opus-1", source="opus", category="monitor", name="Acer 24 inch monitor", brand="Acer")
+    priced = Item(id="opus-2", source="opus", category="laptop", name="HP Victus 15", rcv_inr=76000)
+    book = Item(id="local-9", source="local", category="book", name="Torment", book=Book(title="Torment", author="Lauren Kate"),
+                rcv_inr=None)
+    unread = Item(id="local-10", source="local", category="book", name="unidentified book")
+    groups = [Group(members={"local": local_mon, "frontier": opus_mon}), Group(members={"frontier": priced}),
+              Group(members={"local": book}), Group(members={"local": unread})]
+    answers = {"id_0": SimpleNamespace(choice="frontier")}
+    counts = market.fill_missing(groups, answers, [])
+    assert asked[0] == ("Acer 24 inch monitor", ["Acer"])  # Jev's identity, not the local reading
+    assert "market" not in groups[1].members  # already priced: not searched
+    assert groups[2].members["market"].rcv_inr == 12000 and asked[1][0] == "Torment Lauren Kate paperback"
+    assert groups[3].members["market"].rcv_inr == 12000  # unreadable spine: the room's median book
+    assert counts == {"searched": 2, "priced": 2, "unreadable_books": 1}

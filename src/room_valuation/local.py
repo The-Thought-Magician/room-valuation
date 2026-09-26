@@ -6,7 +6,7 @@ live search at run time.
 3. Book photos: PP-OCR (RapidOCR) reads the spines, Qwen3-VL reads them too as a cross-check,
    and each spine text goes to Open Library.
 4. The same object seen in several photos is merged into one item.
-5. Each item is priced live (prices.price_item).
+5. No prices here: after Jev, market.py searches every item no source priced.
 """
 
 import difflib
@@ -423,39 +423,6 @@ def _downsize(image: Image.Image, side: int = 1280) -> Image.Image:
     return im
 
 
-def query_for(item: Item) -> tuple[str, list[str]]:
-    """Search text and words a listing title must contain."""
-    if item.category == "book" and item.book and item.book.title:
-        return f"{item.book.title} {item.book.author or ''} paperback".strip(), []
-    parts = [item.brand, item.model, item.attributes.get("size"), item.name]
-    must = [item.brand] if item.brand else []
-    return " ".join(p for p in parts if p), [m.split()[0] for m in must]
-
-
-def price_all(items: list[Item], log: list) -> None:
-    unread = [it for it in items if it.category == "book" and (not it.book or it.book.lookup != "openlibrary")]
-    for it in items:
-        if it in unread:
-            continue
-        q, must = query_for(it)
-        try:
-            p = prices.price_item(q, it.category, must)
-        except Exception as e:  # one bad lookup costs one price, not the whole pipeline
-            p = {"query": q, "rcv_inr": None, "note": f"price lookup failed: {type(e).__name__}"}
-        it.rcv_inr = p.get("rcv_inr")
-        it.price_source = p.get("url")
-        it.price_note = (f"median of {p['matched']} matching listings for '{q}'"
-                         + (f" ({', '.join(p['sellers'])})" if p.get("sellers") else "")) if it.rcv_inr else p.get("note")
-        log.append({"item": it.id, "price": p})
-        if it.book and it.book.genre not in GENRES:
-            it.book.genre = "other"
-    # a spine nobody could read is priced like the room's identified books, not searched
-    known = sorted(it.rcv_inr for it in items if it.category == "book" and it not in unread and it.rcv_inr)
-    for it in unread:
-        it.rcv_inr = known[len(known) // 2] if known else None
-        it.price_note = f"median of the {len(known)} identified books in this room" if known else "no identified books to compare"
-
-
 def value(entries: list[dict], closeups: dict[str, list[Path]], room_photos: dict[str, Path], workdir: Path,
           progress=None, reuse_refined: bool = False) -> SourceResult:
     t0 = time.time()
@@ -466,7 +433,9 @@ def value(entries: list[dict], closeups: dict[str, list[Path]], room_photos: dic
     else:
         items, log = refine(entries, closeups, room_photos, progress)
         refined.write_text(json.dumps({"items": [i.model_dump() for i in items], "log": log}, default=str))
-    price_all(items, log)
+    for it in items:  # prices come after Jev (market.py), from the item Jev settles on
+        if it.book and it.book.genre not in GENRES:
+            it.book.genre = "other"
     (workdir / "local_log.json").write_text(json.dumps(log, indent=1, default=str))
     shelves = sum(it.quantity for it in items if "shelf" in it.name.lower())
     return SourceResult(source="local", items=items, shelves=shelves, seconds=round(time.time() - t0, 1),

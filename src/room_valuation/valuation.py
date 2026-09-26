@@ -115,14 +115,14 @@ def leaderboard(lines: list[dict]) -> dict:
     board = {}
     for kind in ("identity", "price"):
         contested = [ln for ln in lines if ln[f"{kind}_probs"]]
-        for src in ("local", "frontier", "voice"):
+        for src in ("local", "frontier", "voice", "market"):
             took = [ln for ln in contested if src in ln[f"{kind}_probs"]]
             won = [ln for ln in took if ln[f"{kind}_from"] == src]
             board.setdefault(src, {})[kind] = {
                 "contested": len(took), "chosen": len(won),
                 "mean_probability": round(sum(ln[f"{kind}_probs"][src] for ln in took) / len(took), 3) if took else None,
             }
-    for src in ("local", "frontier", "voice"):
+    for src in ("local", "frontier", "voice", "market"):
         board[src]["items_found"] = sum(1 for ln in lines if src in ln["sources"])
         board[src]["found_alone"] = sum(1 for ln in lines if ln["sources"] == [src])
     return board
