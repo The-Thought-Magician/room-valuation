@@ -54,15 +54,23 @@ function recorder(button, timeLabel, player, errBox) {
   return state;
 }
 
-function upload(url, fd, prog) {
-  return new Promise((resolve, reject) => {
+function upload(url, fd, prog, tries = 3) {
+  // A save sent while the server restarts fails: retry a few times before showing an error.
+  const once = () => new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     if (prog) { prog.hidden = false; xhr.upload.onprogress = e => { if (e.lengthComputable) prog.value = 100 * e.loaded / e.total; }; }
-    xhr.onload = () => xhr.status === 200 ? resolve(JSON.parse(xhr.responseText)) : reject(new Error(xhr.status + " " + xhr.responseText));
-    xhr.onerror = () => reject(new Error("network error, check the connection"));
+    xhr.onload = () => xhr.status === 200 ? resolve(JSON.parse(xhr.responseText))
+      : reject(Object.assign(new Error(xhr.status + " " + xhr.responseText), { retry: xhr.status >= 500 }));
+    xhr.onerror = () => reject(Object.assign(new Error("network error, check the connection"), { retry: true }));
     xhr.open("POST", url);
     xhr.send(fd);
   });
+  return (async () => {
+    for (let i = 1; ; i++) {
+      try { return await once(); }
+      catch (e) { if (!e.retry || i >= tries) throw e; await new Promise(r => setTimeout(r, 3000 * i)); }
+    }
+  })();
 }
 
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
