@@ -105,30 +105,31 @@ web/results.html results                                 /r/{id}
   output. The pipeline never reads it, and no room-specific value may appear in code,
   prompts or page tips (checked and cleaned on 2026-09-26).
 
-## Status (2026-09-26, about 12:30 IST)
+## Status (2026-09-26, about 15:30 IST)
 
-Done and tested:
-- Both pipelines, on 10 old bedroom photos (floorplan-takehome/data/captures/bedroom-files-only):
-  - Local: 39 items in about 4 minutes.
-  - Opus: 41 items in 171 s, reported as $1.29 of usage. It counted switch
-    modules per board and flagged ISP-owned hardware and old wiring.
-  - End to end without voice: Rs 1.95 lakh RCV. That is low because the blurry photos turned
-    the Rs 1.9 lakh laptop into a Rs 55k generic one.
-- The guided flow through the API in test mode (backend none):
-  - 3 photos gave 21 items; one was removed and a chair was added.
-  - A voice note was linked to its item, and the chair got a live price of Rs 6,149.
-  - Area came from tape, and building fixtures were totalled separately.
-- Keys work: Serper (Google Shopping India) and Jev (jev-1.13.0). 13 unit tests, ruff clean.
-
-Not done or not tested:
-- The real capture from the phone (next step: test run in skip mode, then the real one).
-- PP-OCR on a real photo of spines (only a synthetic test so far).
-- The Astra backend (no credits).
-- Multiple rooms and the whole property: one capture is one room. No property roll-up or
-  stitched layout across captures yet.
-- Using video frames as room photos for detection (video is only used for area today).
-- A script that scores a report against data/ground_truth.
-- README and the write-up for Alok.
+- **Real captures**, all frozen in data/fixtures (git-ignored):
+  - bedroom-real: 8 photos, 7 close-ups, 12 voice notes
+  - bedroom-video: 39 s video
+  - bedroom-merged: both, merged with scripts/merge_captures.py, plus the AC and table
+    photos and typed notes
+- **Merged result:**
+  - RCV Rs 4.53 lakh (contents 3.41, building fixtures 1.12), ACV Rs 3.11 lakh
+  - 11 of 11 books
+  - 11 of 13 ground-truth items; mean RCV error 10 percent on the 4 recent purchases
+- **Tuning loop:**
+  - `revalue --reuse frontier,refine,transcripts` replays a fixture for free in about a minute.
+  - Every run keeps out/runs/<time>/ (report, score, settings, every raw Jev call).
+  - Every Serper response is cached in data/price_cache, every Opus output in
+    out/opus_raw.json.
+- **The app:**
+  - Photos, video or both. Per-item close-ups, several voice notes, and a typed note, all
+    read together.
+  - Uploads retry. One GPU job at a time across processes.
+- **Open:**
+  - A local-only duplicate "wardrobe"; area without tape.
+  - The Astra backend is untested (no credits).
+  - No whole-house roll-up.
+  - The write-up for Alok.
 
 ## Running
 

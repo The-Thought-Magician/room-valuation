@@ -124,7 +124,43 @@ uv run pytest -q
 The ground truth is what the owner paid, from memory, in `data/ground_truth/bedroom.json`.
 The pipeline never reads it; `score.py` uses it after the run.
 
-(filled in from the merged capture's run, below)
+**The capture.** The final capture (`data/fixtures/bedroom-merged-2026-09-26`) merges:
+- a photos capture: 8 room photos, 7 close-ups, 12 voice notes
+- a 39 s video capture: 16 sharp frames
+- two more close-ups (AC, table) and typed notes
+
+It was merged with `scripts/merge_captures.py`. Detection runs once over everything. Notes,
+close-ups and the owner's removals are carried over by box overlap in the same photos.
+
+| | Replacement (RCV) | After depreciation (ACV) |
+|---|---|---|
+| Contents (incl. 11 books, ₹5.7k) | ₹3.41 lakh | ₹2.57 lakh |
+| Building fixtures (2 windows, 3 doors, switchboards, MCB) | ₹1.12 lakh | ₹0.54 lakh |
+| **Total** | **₹4.53 lakh** | **₹3.11 lakh** |
+
+**Against the ground truth:**
+- 11 of 13 items found. Mean RCV error 10.0 percent on the 4 items with a purchase within 2
+  years: laptop 0, table 0, AC 0, suitcase +40.
+- 11 of 11 books read with title, author, genre and price, plus one flagged "unidentified
+  book".
+
+| Item | Owner paid | Local | Opus | Owner note | Jev chose |
+|---|---|---|---|---|---|
+| HP Victus laptop, 1 month | ₹1.9 lakh | ₹77k (web median) | ₹76k | ₹1.9 lakh | owner |
+| Carrier split AC, 1 year | ₹35k | ₹32.9k | ₹35.9k | ₹35k | owner |
+| L-shaped desk, 9 months | ₹8k | ₹2.9k | ₹12k | ₹8k | owner |
+| Suitcase, 2 years | ₹2.5k | none | ₹3.5k | ₹2.5k | Opus |
+| Acer 24 inch monitor, 3 years | ₹16k | ₹12.2k | ₹13k | too old to count | local |
+
+**Honest gaps:**
+- A local "wardrobe" line (₹20k) is most likely the almirah seen again. Both come from the
+  local detector, so Jev cannot merge them; the review step is where it gets removed.
+- Two local curtain lines are flagged as possible double counts (₹22.5k flagged in total).
+- The floor came out at 125 sq ft from the video frames, against 168 sq ft by tape. No tape
+  dimensions were entered; with them the area is exact.
+- Windows and doors are Opus estimates (supply plus install), not listings.
+- The router is ISP-provided (the owner said so), and the line is flagged for it.
+- The whiteboard and the Good Knight refill were not matched.
 
 ## Tuning loop
 
