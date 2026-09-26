@@ -37,7 +37,8 @@ def main() -> None:
     r.add_argument("--backend", choices=["opus", "astra", "none"], default="opus")
     v = sub.add_parser("revalue", help="re-run the valuation of a reviewed capture, reusing saved sources")
     v.add_argument("capture")
-    v.add_argument("--reuse", default="frontier,local,voice", help="comma list of sources to load from out/*.json")
+    v.add_argument("--reuse", default="frontier,local,voice", help="comma list: frontier, local, voice load out/<source>.json; "
+                                                                "refine keeps the local close-up reading and re-prices")
     v.add_argument("--backend", choices=["opus", "astra", "none"], default="opus")
     sc = sub.add_parser("score", help="score a report against a ground truth file")
     sc.add_argument("capture")

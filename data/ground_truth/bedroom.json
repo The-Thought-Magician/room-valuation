@@ -12,19 +12,22 @@
       "category": "laptop",
       "name": "HP Victus gaming laptop (Ryzen 7 260, RTX 5050)",
       "price_paid_inr": 190000,
-      "age_years": null
+      "age_years": 0.08,
+      "note": "voice note: 1.9 lakh, one month old"
     },
     {
       "category": "monitor",
       "name": "Acer 27 inch monitor",
-      "price_paid_inr": 16500,
-      "age_years": null
+      "price_paid_inr": 16000,
+      "age_years": 3,
+      "note": "voice note says 24 inch, 16K, 3 years back; earlier the owner said 27 inch, 16.5k"
     },
     {
       "category": "furniture",
       "name": "chair",
       "price_paid_inr": 5500,
-      "age_years": null
+      "age_years": null,
+      "note": "voice note: 5.5k"
     },
     {
       "category": "furniture",
@@ -43,14 +46,46 @@
       "name": "bed",
       "price_paid_inr": 450,
       "age_years": 35,
-      "note": "said 400 to 500"
+      "note": "earlier: 400 to 500, 35 years; voice note: about 300, made 40 years back"
     },
     {
       "category": "furniture",
       "name": "steel almirah",
       "price_paid_inr": 350,
       "age_years": 40,
-      "note": "said 300 to 400"
+      "note": "earlier: 300 to 400, 40 years; voice note: 500, 40 years back"
+    },
+    {
+      "category": "computer_accessory",
+      "name": "Razer DeathAdder mouse",
+      "price_paid_inr": 2500,
+      "age_years": 4
+    },
+    {
+      "category": "bag_clothing",
+      "name": "suitcase",
+      "price_paid_inr": 2500,
+      "age_years": 2
+    },
+    {
+      "category": "furniture",
+      "name": "stool",
+      "price_paid_inr": 600,
+      "age_years": null,
+      "note": "voice note said 80 years; may be a transcription slip"
+    },
+    {
+      "category": "building_fixture",
+      "name": "whiteboard sheet",
+      "price_paid_inr": 150,
+      "age_years": null
+    },
+    {
+      "category": "networking",
+      "name": "JioFiber router",
+      "price_paid_inr": 0,
+      "age_years": null,
+      "note": "provided free by the ISP"
     }
   ],
   "books": {
@@ -70,5 +105,6 @@
       "The Great Gatsby (F. Scott Fitzgerald)"
     ],
     "titles_note": "as read by pipeline 2 from the room photos; not yet checked against the physical books"
-  }
+  },
+  "updated": "2026-09-26, from the owner's voice notes on the first real capture"
 }

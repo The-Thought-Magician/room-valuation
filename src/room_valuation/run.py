@@ -174,11 +174,12 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
         use_frontier = backend != "none" or ("frontier" in reuse and (workdir / "frontier.json").exists())
         remote = pool.submit(guarded, "frontier", frontier.run, backend, all_photos, city, workdir) if use_frontier else None
         guarded("local", local.value, entries, closeups, by_name, workdir,
-                progress=lambda **kw: _status(workdir, "local", "running", **kw))
+                progress=lambda **kw: _status(workdir, "local", "running", **kw), reuse_refined="refine" in reuse)
         room_note = _first(capture, "voice", AUDIO)
         if notes or room_note:
             guarded("voice", voice.run_items, notes, room_note, workdir,
-                    progress=lambda **kw: _status(workdir, "voice", "running", **kw))
+                    progress=lambda **kw: _status(workdir, "voice", "running", **kw),
+                    reuse_transcripts="transcripts" in reuse)
         if remote:
             remote.result()
 

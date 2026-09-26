@@ -167,3 +167,24 @@ def test_building_fixtures_totalled_apart_from_contents():
              {"category": "laptop", "quantity": 1, "rcv_inr": 190000, "acv_inr": 152000, "flags": [], "book": None}]
     t = valuation.totals(lines)
     assert t["contents"]["rcv_inr"] == 190000 and t["building_fixtures"]["rcv_inr"] == 10200 and t["rcv_inr"] == 200200
+
+
+def test_voice_rules_read_prices_ages_and_free():
+    from room_valuation import voice
+
+    assert voice.parse_price("Acer, 24-inch, 16K, 3 years back.") == 16000
+    assert voice.parse_price("it costed me 1.9 lakhs and it is one month old") == 190000
+    assert voice.parse_price("purchased 2 years back for Rs.2500") == 2500
+    assert voice.parse_price("Almera 500 rupees purchased 40 years back") == 500
+    assert voice.parse_price("charger, it came with my phone") is None
+    assert voice.parse_age("Acer, 24-inch, 16K, 3 years back.") == 3
+    assert voice.parse_age("it is one month old") == 0.08
+    assert voice.parse_age("And it was made 40 years back") == 40
+    assert voice.parse_age("bought it last year") == 1
+    assert voice.parse_age("It costed me about 150 rupees.") is None
+    e = {"id": "local-30", "name": "router", "category": "networking", "quantity": 1}
+    it = voice._item_claim({}, e, "It came for free and company provided it")
+    assert it.rcv_inr is None and "free" in it.attributes["acquired"]
+    mon = voice._item_claim({"brand": "Acer"}, {"id": "local-2", "name": "monitor", "category": "monitor"},
+                            "Acer, 24-inch, 16K, 3 years back.")
+    assert mon.rcv_inr is None and mon.price_paid_inr == 16000 and mon.age_years == 3

@@ -54,11 +54,25 @@ def _cached(kind: str, query: str, fetch) -> dict:
     return data
 
 
-def _serper(endpoint: str, query: str) -> dict:
-    r = httpx.post(f"https://google.serper.dev/{endpoint}", timeout=30,
-                   headers={"X-API-KEY": os.environ["SERPER_API_KEY"], "Content-Type": "application/json"},
-                   json={"q": query, "gl": "in", "hl": "en", "num": 20})
-    return r.json() if r.status_code == 200 else {"error": f"serper {r.status_code}: {r.text[:200]}"}
+def _serper(endpoint: str, query: str, attempts: int = 3) -> dict:
+    """Up to three tries with a short backoff; a failure comes back as {"error"} and is not cached."""
+    import time
+
+    last = ""
+    for i in range(attempts):
+        try:
+            r = httpx.post(f"https://google.serper.dev/{endpoint}", timeout=20,
+                           headers={"X-API-KEY": os.environ["SERPER_API_KEY"], "Content-Type": "application/json"},
+                           json={"q": query, "gl": "in", "hl": "en", "num": 20})
+            if r.status_code == 200:
+                return r.json()
+            last = f"serper {r.status_code}: {r.text[:200]}"
+            if r.status_code < 500 and r.status_code != 429:
+                break
+        except httpx.HTTPError as e:
+            last = f"serper {type(e).__name__}"
+        time.sleep(1.5 * (i + 1))
+    return {"error": last}
 
 
 def _serpapi(params: dict) -> dict:

@@ -306,7 +306,10 @@ def query_for(item: Item) -> tuple[str, list[str]]:
 def price_all(items: list[Item], log: list) -> None:
     for it in items:
         q, must = query_for(it)
-        p = prices.price_item(q, it.category, must)
+        try:
+            p = prices.price_item(q, it.category, must)
+        except Exception as e:  # one bad lookup costs one price, not the whole pipeline
+            p = {"query": q, "rcv_inr": None, "note": f"price lookup failed: {type(e).__name__}"}
         it.rcv_inr = p.get("rcv_inr")
         it.price_source = p.get("url")
         it.price_note = (f"median of {p['matched']} matching listings for '{q}'"
@@ -317,9 +320,15 @@ def price_all(items: list[Item], log: list) -> None:
 
 
 def value(entries: list[dict], closeups: dict[str, list[Path]], room_photos: dict[str, Path], workdir: Path,
-          progress=None) -> SourceResult:
+          progress=None, reuse_refined: bool = False) -> SourceResult:
     t0 = time.time()
-    items, log = refine(entries, closeups, room_photos, progress)
+    refined = workdir / "local_refined.json"
+    if reuse_refined and refined.exists():  # tuning prices or Jev: skip the GPU work
+        saved = json.loads(refined.read_text())
+        items, log = [Item.model_validate(i) for i in saved["items"]], saved["log"]
+    else:
+        items, log = refine(entries, closeups, room_photos, progress)
+        refined.write_text(json.dumps({"items": [i.model_dump() for i in items], "log": log}, default=str))
     price_all(items, log)
     (workdir / "local_log.json").write_text(json.dumps(log, indent=1, default=str))
     shelves = sum(it.quantity for it in items if "shelf" in it.name.lower())
