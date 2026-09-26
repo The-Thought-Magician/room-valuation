@@ -18,7 +18,20 @@ from room_valuation.schema import GENRES, Item
 MODEL = os.environ.get("TYPESAFE_MODEL", "jev-latest")
 BATCH = 40  # questions per request; one call per batch is cheaper than one per question
 WORKERS = 6  # the public endpoint rate-limits above roughly eight concurrent calls
-SAME_LEVELS = ["different objects", "possibly the same object, not sure", "the same physical object"]
+# Levels spelled out: Jev reads literally, and a misread model name ("Vergence" for Victus)
+# was enough for it to call one laptop two objects (2026-09-26).
+SAME_LEVELS = [
+    "different objects: a different kind of object, a different brand, or a clearly different item",
+    "possibly the same object, not sure",
+    "the same physical object: same kind of object and brand, or seen in the same photos; small differences "
+    "in model name, size, colour or wording between the two readings are misreadings and do not matter",
+]
+BOOK_LEVELS = [
+    "different books: the titles name different books",
+    "possibly the same book, not sure",
+    "the same book: the same title, allowing OCR slips, missing letters and words run together "
+    "(IRONHORSE is Iron Horse, Forment is Torment)",
+]
 CONDITION_LEVELS = ["poor", "fair", "good", "like_new"]
 STATE = {
     "task": "Home contents inventory of one room in India for an insurance claim.",
@@ -139,8 +152,9 @@ def align(sources: list[list[Item]]) -> tuple[list[Group], list[dict], int]:
     questions = {
         f"pair_{n}": Score(
             instructions={"item_a": _view(a), "item_b": _view(b),
-                          "question": "Do item_a and item_b describe the same physical object in this room?"},
-            criteria=SAME_LEVELS,
+                          "question": "Do item_a and item_b name the same book?" if a.category == b.category == "book"
+                          else "Do item_a and item_b describe the same physical object in this room?"},
+            criteria=BOOK_LEVELS if a.category == b.category == "book" else SAME_LEVELS,
         )
         for n, (a, b) in enumerate(pairs)
     }
@@ -198,6 +212,10 @@ def _merge_scored(flat: list[Item], scored: list[dict]) -> list[Group]:
             continue
         mutual = s["score"] >= best[(a.id, _src(b))] and s["score"] >= best[(b.id, _src(a))]
         singleton = a.category == b.category and per_cat[(_src(a), a.category)] == 1 == per_cat[(_src(b), b.category)]
+        # one of the category in each source, same brand, in the same photo: one object, whatever
+        # a misread model name made Jev think
+        colocated = (singleton and a.category != "book" and bool(set(a.photos) & set(b.photos))
+                     and bool(a.brand) and bool(b.brand) and a.brand.split()[0].lower() == b.brand.split()[0].lower())
         rule = None
         if s["score"] >= MERGE_SCORE:
             rule = ""
@@ -206,6 +224,9 @@ def _merge_scored(flat: list[Item], scored: list[dict]) -> list[Group]:
         elif singleton and not (s.get("p_different", 0.0) >= SINGLETON_BLOCK["p_different"]
                                 and s.get("confidence", 0.0) >= SINGLETON_BLOCK["confidence"]):
             rule = f"merged as the only {a.category} in both sources (Jev {s['score']:.2f})"
+        elif colocated:
+            rule = (f"merged: the only {a.category} in both sources, same brand, same photos; "
+                    f"Jev said different ({s.get('p_different', 0):.2f})")
         if rule is not None and not set(ga.members) & set(gb.members):
             ga.members.update(gb.members)
             ga.flags += gb.flags + ([rule] if rule else [])

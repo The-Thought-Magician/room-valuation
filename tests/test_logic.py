@@ -258,3 +258,14 @@ def test_blocking_pairs_run_together_book_titles():
     b = Item(id="opus-1", source="opus", category="book", name="Iron Horse", book=Book(title="Iron Horse"))
     c = Item(id="opus-2", source="opus", category="book", name="The Thread", book=Book(title="The Thread"))
     assert jev.similarity(a, b) > jev.similarity(a, c) + 0.3
+
+
+def test_colocated_single_items_of_one_brand_merge_despite_jev():
+    from room_valuation import jev
+
+    a = Item(id="local-9", source="local", category="laptop", name="laptop", brand="HP", model="Vergence",
+             photos=["f1.jpg", "f2.jpg"])
+    b = Item(id="opus-0", source="opus", category="laptop", name="HP Victus 15", brand="HP", photos=["f2.jpg"])
+    scored = [{"a": "local-9", "b": "opus-0", "score": 0.24, "p_different": 0.81, "confidence": 0.65}]
+    groups = jev.merge([a, b], scored)
+    assert len(groups) == 1 and any("Jev said different" in f for f in groups[0].flags)
