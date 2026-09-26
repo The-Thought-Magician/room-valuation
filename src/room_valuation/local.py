@@ -299,28 +299,62 @@ def _vlm_spine_queries(reply: str) -> list[str]:
     return out
 
 
+def _fuzzy_words(a: set[str], b: set[str]) -> int:
+    """Words of a that appear in b, allowing one OCR slip (Forment for Torment)."""
+    return sum(1 for w in a if w in b or any(_similar(w, v) >= 0.8 for v in b))
+
+
 def _same_book(a: Book, b: Book) -> bool:
     ta, tb = _norm(a.title), _norm(b.title)
     if not ta or not tb:
         return False
     if a.isbn and a.isbn == b.isbn:
         return True
-    return ta == tb or (min(len(ta), len(tb)) >= 6 and (ta in tb or tb in ta)) or _similar(ta, tb) > 0.75
+    ca, cb = ta.replace(" ", ""), tb.replace(" ", "")  # OCR runs words together: ROCKPAPERSCISSORS
+    if ca == cb or (min(len(ca), len(cb)) >= 6 and (ca in cb or cb in ca)) or _similar(ta, tb) > 0.75:
+        return True
+    wa = {w for w in _norm(f"{a.title} {a.author or ''}").split() if len(w) >= 4 and w not in PUBLISHERS}
+    wb = {w for w in _norm(f"{b.title} {b.author or ''}").split() if len(w) >= 4 and w not in PUBLISHERS}
+    small = min(len(wa), len(wb))
+    # an author in common is not enough: two Shakespeare plays are two books
+    title_a = {w for w in ta.split() if len(w) >= 4 and w not in PUBLISHERS}
+    title_b = {w for w in tb.split() if len(w) >= 4 and w not in PUBLISHERS}
+    titles_meet = _fuzzy_words(title_a, wb) >= 1 or _fuzzy_words(title_b, wa) >= 1
+    return titles_meet and small >= 2 and _fuzzy_words(wa, wb) >= max(2, round(0.6 * small))
+
+
+def _ocr_supports(book: Book, ocr_words: set[str]) -> bool:
+    """The OCR reads what is printed; the small VLM sometimes names books that are not there.
+    A title stays only if one of its real words (or a near miss) is in the OCR text."""
+    words = {w for w in _norm(book.title).split() if len(w) >= 4 and w not in PUBLISHERS}
+    compact = "".join(sorted(ocr_words))
+    return not words or _fuzzy_words(words, ocr_words) >= 1 or any(w in compact for w in words)
 
 
 def _read_spines(image: Image.Image, vlm, photo: str, log: list) -> list[tuple[Book, str]]:
     """Spine texts from PP-OCR and from the VLM, each looked up in Open Library. A catalogue
     match wins; unmatched text is kept only if it looks like a real title; repeats collapse."""
-    texts = [(f"ocr: {s['text']}", s["text"]) for s in ocr.spines(image)]
+    ocr_reads = ocr.spines(image)
+    ocr_words = {w for s in ocr_reads for w in _norm(s["text"]).split() if len(w) >= 3}
+    ocr_words |= {"".join(_norm(s["text"]).split()) for s in ocr_reads}  # run-together reads
+    texts = [(f"ocr: {s['text']}", s["text"]) for s in ocr_reads]
     texts += [(f"vlm: {q}", q) for q in _vlm_spine_queries(vlm.ask(SPINES, _downsize(image), 400))]
     log.append({"photo": photo, "spine_texts": [e for e, _ in texts]})
-    found = []
+    found, dropped = [], []
     for evidence, query in texts:
         book = books.lookup(query)
         if book and (book.match or 0) >= MIN_MATCH:
-            found.append((book, evidence))
+            cand = book
         elif _plausible_spine(query):
-            found.append((Book(title=query, lookup="spine text only", match=book.match if book else None), evidence))
+            cand = Book(title=query, lookup="spine text only", match=book.match if book else None)
+        else:
+            continue
+        if evidence.startswith("vlm:") and ocr_reads and not _ocr_supports(cand, ocr_words):
+            dropped.append(f"{cand.title} ({evidence})")
+            continue
+        found.append((cand, evidence))
+    if dropped:
+        log.append({"photo": photo, "dropped_without_ocr_support": dropped})
     kept: list[tuple[Book, str]] = []
     for book, ev in sorted(found, key=lambda f: -(f[0].match or 0)):
         twin = next((k for k in kept if _same_book(k[0], book)), None)

@@ -201,3 +201,14 @@ def test_spine_parsing_splits_loops_and_drops_fragments():
     a, b = Book(title="The Great Gatsby"), Book(title="Great Gatsby")
     assert local._same_book(a, b)
     assert not local._same_book(Book(title="Torment"), Book(title="The Thread"))
+
+
+def test_book_matching_handles_run_together_and_misread_titles():
+    assert local._same_book(Book(title="Rock Paper Scissors", author="Alice Feeney"),
+                            Book(title="ROCKPAPERSCISSORS FEENEY ALICE"))
+    assert local._same_book(Book(title="Torment", author="Lauren Kate"), Book(title="Lauren Kate Forment"))
+    assert not local._same_book(Book(title="Hamlet", author="William Shakespeare"),
+                                Book(title="Antony and Cleopatra", author="William Shakespeare"))
+    ocr_words = {"torment", "lauren", "kate", "ironhorse", "marston", "edward"}
+    assert local._ocr_supports(Book(title="Iron Horse"), ocr_words | {"ironhorse"})
+    assert not local._ocr_supports(Book(title="Anne of Green Gables"), ocr_words)
