@@ -11,7 +11,6 @@ from room_valuation import prices
 from room_valuation.jev import Group
 from room_valuation.schema import Item
 
-
 # a one-word name searches badly ("switch" matched Nintendo Switch listings, 2026-09-26): the
 # category word keeps a vague query in the right aisle
 CATEGORY_HINT = {"electrical_fixture": "electrical wall", "lighting": "LED", "computer_accessory": "computer",
