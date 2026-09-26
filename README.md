@@ -139,8 +139,9 @@ Edit and Write are disabled.
   - **The owner:** a price paid within 2 years.
 
   Anything still unpriced after Jev is searched once more with Jev's chosen identity
-  (`market.py`). Replayed on the saved captures, this beat running Serper only after Jev: 10.0
-  against 10.6 percent error on the merged capture, 10.6 against 13.8 on the video. Every
+  (`market.py`). Replayed on the saved captures (with the earlier Opus pass), this beat running
+  Serper only after Jev: 10.0 against 10.6 percent error on the merged capture, 10.6 against
+  13.8 on the video. Every
   query is cached (`data/price_cache`).
 - **RCV and ACV, as a claim uses them.**
   - RCV is the cost to buy new today. ACV is straight-line depreciation over a per-category
@@ -194,32 +195,35 @@ measurement of this room: 426.7 x 365.8 cm, 168 sq ft, ceiling 312.4 cm.
 
 | Capture | Contents RCV / ACV | Building fixtures RCV | Books | Mean RCV error, recent purchases | Report |
 |---|---|---|---|---|---|
-| Merged: 8 photos, a 39 s video (16 frames), 9 close-ups, 12 voice notes, typed notes | ₹3.40 / ₹2.57 lakh | ₹1.12 lakh | 11 of 11, plus 1 flagged | **10.0%** (4 items) | [report](docs/results/bedroom-merged/report.md) |
+| Merged: 8 photos, a 39 s video (16 frames), 10 close-ups, 12 voice notes, typed notes | ₹3.16 / ₹2.49 lakh | ₹0.74 lakh | 11 of 11, plus 1 flagged | **15.0%** (4 items) | [report](docs/results/bedroom-merged/report.md) |
 | Photos only | ₹2.69 / ₹2.14 lakh | ₹0.58 lakh | 11 of 11 | 31.0% (3 items; no table note) | [report](docs/results/bedroom-photos/report.md) |
 | Video only | ₹3.30 / ₹2.51 lakh | ₹0.32 lakh | 14 (blurrier frames) | 10.6% (4 items) | [report](docs/results/bedroom-video/report.md) |
 
 The merged capture was built with `scripts/merge_captures.py`. Detection runs once over
 everything, and notes, close-ups and the owner's removals are carried over by box overlap in
-the same photos. Its total is **₹4.53 lakh RCV, ₹3.11 lakh ACV**.
+the same photos. Its total is **₹3.90 lakh RCV, ₹2.82 lakh ACV**. It is the latest full run:
+every photo and all 10 close-ups through Opus, then Jev and Serper.
 
-Against the owner's ground truth, 12 of 13 items were found. The 4 purchases within 2 years:
+Against the owner's ground truth, all 13 items were found. The 4 purchases within 2 years:
 
 | Item | Owner paid | Local (Serper) | Opus | Owner note | Jev chose | Error |
 |---|---|---|---|---|---|---|
-| HP Victus laptop, 1 month | ₹1.9 lakh | ₹77k | ₹76k | ₹1.9 lakh | owner | 0% |
+| HP Victus laptop, 1 month | ₹1.9 lakh | ₹77k | ₹79k | ₹1.9 lakh | owner | 0% |
 | Carrier split AC, 1 year | ₹35k | ₹32.7k | ₹35.9k | ₹35k | owner | 0% |
-| L-shaped desk, 9 months | ₹8k | ₹2.9k | ₹12k | ₹8k | owner | 0% |
-| Suitcase, 2 years | ₹2.5k | none | ₹3.5k | ₹2.5k | Opus | +40% |
+| L-shaped desk, 9 months | ₹8k | ₹2.9k | ₹8k | ₹8k | owner | 0% |
+| Suitcase, 2 years | ₹2.5k | none | ₹4k | ₹2.5k | Opus | +60% |
 
 **Honest gaps:**
 - A local "wardrobe" line (₹20k) is most likely the almirah seen again. Both come from the
   local detector, so Jev cannot merge them; the review step is where it gets removed.
-- Some local lines are flagged as possible double counts (₹5.5k on the merged capture) for the owner to confirm on the results page.
+- Some local lines are flagged as possible double counts (₹4.1k on the merged capture) for the owner to confirm on the results page.
 - Floor area from phone photos alone is weak: 125 sq ft from the video frames against 168 by
   tape. The results use the tape measurement.
-- Windows and doors are Opus estimates (supply plus install), not listings.
+- Windows and doors are Opus estimates (supply plus install), not listings, and they move run to
+  run: two Opus passes on the same photos put building fixtures at ₹1.12 and ₹0.74 lakh.
 - The router is ISP-provided (the owner said so), and the line is flagged for it.
-- The Good Knight mosquito repellent was not detected by any source. The owner would add it on the item list, and pipeline 1 then prices it.
+- The Good Knight mosquito repellent was not detected by any source. The owner added it on the
+  item list with a close-up; pipeline 1 read it and priced it at ₹160 (median of 16 listings).
 
 ## Tuning loop
 

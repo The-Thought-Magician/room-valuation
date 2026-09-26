@@ -58,8 +58,8 @@
     "plan_png": "data/captures/20260926-090044-d552ae/out/floorplan/plan_video.png"
    },
    {
-    "area_m2": 12.5,
-    "area_sqft": 135,
+    "area_m2": 15.5,
+    "area_sqft": 167,
     "source": "frontier model estimate from photos"
    }
   ]
@@ -70,24 +70,24 @@
  },
  "totals": {
   "contents": {
-   "items": 47,
-   "rcv_inr": 340459,
-   "acv_inr": 256510
+   "items": 44,
+   "rcv_inr": 315661,
+   "acv_inr": 249328
   },
   "building_fixtures": {
-   "items": 12,
-   "rcv_inr": 112134,
-   "acv_inr": 54365
+   "items": 11,
+   "rcv_inr": 73884,
+   "acv_inr": 32593
   },
-  "items": 59,
-  "rcv_inr": 452593,
-  "acv_inr": 310875,
+  "items": 55,
+  "rcv_inr": 389545,
+  "acv_inr": 281921,
   "unpriced": 0,
-  "needs_review": 27,
-  "possible_double_count_inr": 5450,
+  "needs_review": 31,
+  "possible_double_count_inr": 4086,
   "books": {
    "count": 12,
-   "rcv_inr": 5661,
+   "rcv_inr": 5778,
    "by_genre": {
     "fiction": 5,
     "mystery_thriller": 2,
@@ -104,116 +104,116 @@
     "acv_inr": 186960
    },
    "building_fixture": {
-    "items": 5,
-    "rcv_inr": 107900,
-    "acv_inr": 53035
+    "items": 4,
+    "rcv_inr": 70000,
+    "acv_inr": 31500
    },
    "furniture": {
     "items": 7,
-    "rcv_inr": 72401,
-    "acv_inr": 17916
+    "rcv_inr": 57203,
+    "acv_inr": 16396
    },
    "appliance": {
-    "items": 1,
-    "rcv_inr": 35000,
-    "acv_inr": 30625
+    "items": 2,
+    "rcv_inr": 35160,
+    "acv_inr": 30729
    },
    "monitor": {
     "items": 1,
-    "rcv_inr": 12249,
-    "acv_inr": 6124
-   },
-   "bedding": {
-    "items": 6,
-    "rcv_inr": 9950,
-    "acv_inr": 5575
-   },
-   "bag_clothing": {
-    "items": 4,
-    "rcv_inr": 5998,
-    "acv_inr": 2490
+    "rcv_inr": 8635,
+    "acv_inr": 4318
    },
    "book": {
     "items": 12,
-    "rcv_inr": 5661,
-    "acv_inr": 2811
+    "rcv_inr": 5778,
+    "acv_inr": 2750
+   },
+   "bag_clothing": {
+    "items": 2,
+    "rcv_inr": 5305,
+    "acv_inr": 2181
+   },
+   "bedding": {
+    "items": 5,
+    "rcv_inr": 5252,
+    "acv_inr": 2264
    },
    "electrical_fixture": {
     "items": 7,
-    "rcv_inr": 4234,
-    "acv_inr": 1330
+    "rcv_inr": 3884,
+    "acv_inr": 1093
    },
-   "decor": {
-    "items": 5,
-    "rcv_inr": 2907,
-    "acv_inr": 1386
+   "networking": {
+    "items": 1,
+    "rcv_inr": 2500,
+    "acv_inr": 1625
    },
    "computer_accessory": {
     "items": 2,
     "rcv_inr": 2248,
-    "acv_inr": 405
+    "acv_inr": 499
    },
-   "networking": {
-    "items": 1,
-    "rcv_inr": 1999,
-    "acv_inr": 1299
-   },
-   "phone": {
-    "items": 1,
-    "rcv_inr": 699,
-    "acv_inr": 280
+   "decor": {
+    "items": 6,
+    "rcv_inr": 2018,
+    "acv_inr": 808
    },
    "lighting": {
     "items": 3,
-    "rcv_inr": 699,
-    "acv_inr": 305
+    "rcv_inr": 719,
+    "acv_inr": 288
+   },
+   "phone": {
+    "items": 1,
+    "rcv_inr": 693,
+    "acv_inr": 450
    },
    "other": {
-    "items": 3,
-    "rcv_inr": 648,
-    "acv_inr": 334
+    "items": 1,
+    "rcv_inr": 150,
+    "acv_inr": 60
    }
   }
  },
  "leaderboard": {
   "local": {
    "identity": {
-    "contested": 32,
+    "contested": 34,
     "chosen": 3,
-    "mean_probability": 0.158
-   },
-   "price": {
-    "contested": 28,
-    "chosen": 11,
-    "mean_probability": 0.48
-   },
-   "items_found": 40,
-   "found_alone": 8
-  },
-  "frontier": {
-   "identity": {
-    "contested": 32,
-    "chosen": 28,
-    "mean_probability": 0.766
+    "mean_probability": 0.162
    },
    "price": {
     "contested": 30,
-    "chosen": 14,
-    "mean_probability": 0.424
+    "chosen": 15,
+    "mean_probability": 0.522
    },
-   "items_found": 47,
-   "found_alone": 15
+   "items_found": 41,
+   "found_alone": 7
+  },
+  "frontier": {
+   "identity": {
+    "contested": 34,
+    "chosen": 30,
+    "mean_probability": 0.769
+   },
+   "price": {
+    "contested": 32,
+    "chosen": 12,
+    "mean_probability": 0.397
+   },
+   "items_found": 43,
+   "found_alone": 9
   },
   "voice": {
    "identity": {
     "contested": 14,
     "chosen": 1,
-    "mean_probability": 0.174
+    "mean_probability": 0.166
    },
    "price": {
     "contested": 6,
     "chosen": 5,
-    "mean_probability": 0.64
+    "mean_probability": 0.603
    },
    "items_found": 14,
    "found_alone": 0
@@ -238,16 +238,15 @@
    "n": 0,
    "key": "frontier:opus-0|local:local-79|voice:voice-local-79",
    "category": "laptop",
-   "name": "HP Victus 15 gaming laptop (AMD Ryzen, NVIDIA GeForce RTX)",
+   "name": "HP Victus 15 gaming laptop",
    "brand": "HP",
-   "model": "Victus 15 (AMD, exact SKU not readable)",
+   "model": "Victus 15 (AMD Ryzen + NVIDIA GeForce RTX, exact SKU not readable)",
    "attributes": {
     "screen": "15.6 inch",
-    "cpu": "AMD Ryzen (sticker, tier not readable)",
-    "gpu": "NVIDIA GeForce RTX (sticker, model not readable)",
-    "keyboard": "full size with numpad, white backlight",
-    "accessories": "HP slim power adapter with cable",
-    "dealer_sticker": "Unitech"
+    "cpu": "AMD Ryzen (sticker)",
+    "gpu": "NVIDIA GeForce RTX (sticker)",
+    "keyboard": "backlit full-size with numpad",
+    "charger": "HP barrel-plug adapter included"
    },
    "quantity": 1,
    "condition": "good",
@@ -262,15 +261,15 @@
    "identity_from": "frontier",
    "identity_confidence": 0.97,
    "identity_probs": {
-    "local": 0.01,
-    "voice": 0.02,
-    "frontier": 0.97
+    "local": 0.0,
+    "voice": 0.01,
+    "frontier": 0.99
    },
    "price_from": "voice",
-   "price_confidence": 0.63,
+   "price_confidence": 0.53,
    "price_probs": {
-    "voice": 0.76,
-    "local": 0.22,
+    "local": 0.29,
+    "voice": 0.69,
     "frontier": 0.02
    },
    "rcv_unit_inr": 190000.0,
@@ -296,12 +295,12 @@
      ]
     },
     "frontier": {
-     "name": "HP Victus 15 gaming laptop (AMD Ryzen, NVIDIA GeForce RTX)",
+     "name": "HP Victus 15 gaming laptop",
      "brand": "HP",
-     "model": "Victus 15 (AMD, exact SKU not readable)",
-     "rcv_inr": 76021.0,
-     "price_source": "https://www.flipkart.com/hp-victus-amd-ryzen-5-hexa-core-5600h-8-gb-512-gb-ssd-windows-11-home-4-graphics-nvidia-geforce-gtx-1650-15-fb0040ax-gaming-laptop/p/itmc4100fb7234c4",
-     "price_note": "SKU, RAM and GPU tier cannot be read from the photos. Priced as the closest equivalent: Victus 15 Ryzen 5 5600H, 8GB/512GB, RTX 3050 (15-fb0050AX). Configurations with 16GB RAM sell for about Rs 99,000, so ask for the invoice.",
+     "model": "Victus 15 (AMD Ryzen + NVIDIA GeForce RTX, exact SKU not readable)",
+     "rcv_inr": 78858.0,
+     "price_source": "https://www.flipkart.com/hp-victus-amd-ryzen-5-hexa-core-5600h-16-gb-512-gb-ssd-windows-11-home-4-graphics-nvidia-geforce-rtx-3050-15-fb0136ax-gaming-laptop/p/itm20720e68e1331",
+     "price_note": "Could not read the exact SKU. Priced at the closest Victus 15 AMD + RTX configuration on sale (15-fb0136AX, Ryzen 5 5600H, RTX 3050, 16 GB/512 GB).",
      "photos": [
       "room_000.jpg",
       "room_video_frame_01.jpg",
@@ -341,14 +340,14 @@
    "n": 1,
    "key": "frontier:opus-1|local:local-2|voice:voice-local-2",
    "category": "monitor",
-   "name": "Acer flat-panel monitor, about 24 inch, resolution unknown",
+   "name": "Acer 24 inch class monitor (Nitro-style stand)",
    "brand": "Acer",
    "model": null,
    "attributes": {
-    "diagonal_estimate": "about 24 inch (compared against the 15.6 inch laptop beside it; 27 inch cannot be ruled out)",
-    "resolution": "resolution unknown (no sticker or info menu readable)",
-    "panel": "likely IPS (thin 3-side bezel, wide viewing angle in the angled shots)",
-    "stand": "black stand with red ring accent, Nitro-style"
+    "diagonal_in_est": "24",
+    "resolution": "resolution unknown (estimated FHD class)",
+    "panel": "likely IPS (thin bezels, wide viewing angle)",
+    "stand": "black stand with red ring on the column"
    },
    "quantity": 1,
    "condition": "good",
@@ -361,24 +360,24 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.28,
+   "identity_confidence": 0.55,
    "identity_probs": {
-    "voice": 0.45,
-    "local": 0.03,
-    "frontier": 0.52
+    "local": 0.02,
+    "voice": 0.28,
+    "frontier": 0.7
    },
-   "price_from": "local",
-   "price_confidence": 0.27,
+   "price_from": "frontier",
+   "price_confidence": 0.66,
    "price_probs": {
-    "local": 0.63,
-    "frontier": 0.37
+    "local": 0.17,
+    "frontier": 0.83
    },
-   "rcv_unit_inr": 12249,
-   "rcv_inr": 12249,
-   "acv_inr": 6124,
+   "rcv_unit_inr": 8635.0,
+   "rcv_inr": 8635.0,
+   "acv_inr": 4318,
    "acv_basis": "age 3 y of a 6 y life",
-   "price_source": "https://www.google.com/search?ibp=oshop&q=Acer+27+inches+monitor&prds=localAnnotatedOfferId:1,catalogid:3422622349037376899,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
-   "price_note": "median of 20 matching listings for 'Acer 27 inches monitor' (Acer Store - India, Amazon.in, Design Info, Flipkart, Zepto, shop.clarioncomputers.in)",
+   "price_source": "https://www.flipkart.com/acer-23-8-inch-full-hd-led-backlit-ips-panel-gaming-monitor-vg240y/p/itm0cedfb5040f99",
+   "price_note": "Model sticker unreadable and no settings or info menu on screen, so the resolution is unknown. The diagonal is about 1.4x the 15.6 inch laptop beside it, so about 24 inch. The red accent on the stand matches the Acer Nitro VG240Y family. Closest approximate price: Acer Nitro VG240Y E 24 inch FHD IPS, Rs 8,635 (other VG240Y variants sell for Rs 11,240 to 12,999).",
    "candidates": {
     "local": {
      "name": "monitor",
@@ -396,19 +395,18 @@
      ]
     },
     "frontier": {
-     "name": "Acer flat-panel monitor, about 24 inch, resolution unknown",
+     "name": "Acer 24 inch class monitor (Nitro-style stand)",
      "brand": "Acer",
      "model": null,
-     "rcv_inr": 12999.0,
-     "price_source": "https://www.flipkart.com/acer-nitro-60-45-cm-24-inch-full-hd-led-backlit-ips-panel-srgb-99-hdr10-support-2x2w-inbuilt-speakers-display-widget-visioncare-2-0-tilt-able-stand-gaming-monitor-vg240y-x1/p/itme6fa3745e4cc3",
-     "price_note": "Model unread. The red-accent stand suggests the Acer Nitro 24 inch line, so it is priced as the Nitro VG240Y X1 (24 inch FHD IPS). Other Nitro 24 inch variants list at Rs 8,600 to Rs 11,200. Resolution is not claimed.",
+     "rcv_inr": 8635.0,
+     "price_source": "https://www.flipkart.com/acer-23-8-inch-full-hd-led-backlit-ips-panel-gaming-monitor-vg240y/p/itm0cedfb5040f99",
+     "price_note": "Model sticker unreadable and no settings or info menu on screen, so the resolution is unknown. The diagonal is about 1.4x the 15.6 inch laptop beside it, so about 24 inch. The red accent on the stand matches the Acer Nitro VG240Y family. Closest approximate price: Acer Nitro VG240Y E 24 inch FHD IPS, Rs 8,635 (other VG240Y variants sell for Rs 11,240 to 12,999).",
      "photos": [
       "room_000.jpg",
       "room_video_frame_01.jpg",
       "room_video_frame_02.jpg",
       "room_video_frame_03.jpg",
-      "item_local-158_closeup_00.jpg",
-      "item_local-79_closeup_00.jpg"
+      "item_local-158_closeup_00.jpg"
      ]
     },
     "voice": {
@@ -423,33 +421,29 @@
    },
    "photos": [
     "item_local-158_closeup_00.jpg",
-    "item_local-79_closeup_00.jpg",
     "room_000.jpg",
     "room_video_frame_01.jpg",
     "room_video_frame_02.jpg",
     "room_video_frame_03.jpg",
     "room_video_frame_09.jpg"
    ],
-   "flags": [
-    "low Jev confidence on identity (0.28)",
-    "low Jev confidence on price (0.27)"
-   ]
+   "flags": []
   },
   {
    "n": 2,
    "key": "frontier:opus-7|local:local-160|voice:voice-local-160",
    "category": "appliance",
-   "name": "Carrier split air conditioner, indoor unit (with remote)",
+   "name": "Carrier split air conditioner (indoor unit, with remote)",
    "brand": "Carrier",
    "model": null,
    "attributes": {
-    "capacity_estimate": "1.5 ton (typical for this indoor unit size)",
-    "type": "wall split, likely inverter",
-    "remote": "white Carrier remote on the desk",
-    "note": "protective film still on, looks newly installed"
+    "type": "wall split",
+    "capacity_est": "1.5 ton",
+    "inverter": "assumed",
+    "remote": "Carrier white remote"
    },
    "quantity": 1,
-   "condition": "good",
+   "condition": "fair",
    "age_years": 1.0,
    "price_paid_inr": 35000.0,
    "book": null,
@@ -459,18 +453,18 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.81,
+   "identity_confidence": 0.9,
    "identity_probs": {
-    "voice": 0.12,
-    "local": 0.01,
-    "frontier": 0.87
+    "local": 0.0,
+    "voice": 0.06,
+    "frontier": 0.94
    },
    "price_from": "voice",
-   "price_confidence": 0.39,
+   "price_confidence": 0.35,
    "price_probs": {
-    "voice": 0.59,
-    "local": 0.07,
-    "frontier": 0.34
+    "local": 0.1,
+    "voice": 0.57,
+    "frontier": 0.33
    },
    "rcv_unit_inr": 35000.0,
    "rcv_inr": 35000.0,
@@ -492,17 +486,17 @@
      ]
     },
     "frontier": {
-     "name": "Carrier split air conditioner, indoor unit (with remote)",
+     "name": "Carrier split air conditioner (indoor unit, with remote)",
      "brand": "Carrier",
      "model": null,
      "rcv_inr": 35890.0,
      "price_source": "https://www.reliancedigital.in/collection/carrier-1-5-ton-3-star-ac",
-     "price_note": "Rating plate not visible. Priced as a Carrier 1.5 T 3-star inverter split (Xcel Edge GXI). The outdoor unit is not photographed, and installation (about Rs 1,500 to Rs 2,500) is extra.",
+     "price_note": "No rating plate visible. Priced at the Carrier 1.5 ton 3 star inverter split (Xcel Edge GXI), the common size for a room this big. The outdoor unit is included in the price.",
      "photos": [
       "item_local-160_closeup_00.jpg",
       "room_video_frame_10.jpg",
       "room_video_frame_09.jpg",
-      "room_video_frame_05.jpg"
+      "item_local-158_closeup_00.jpg"
      ]
     },
     "voice": {
@@ -516,27 +510,27 @@
     }
    },
    "photos": [
+    "item_local-158_closeup_00.jpg",
     "item_local-160_closeup_00.jpg",
-    "room_video_frame_05.jpg",
     "room_video_frame_09.jpg",
     "room_video_frame_10.jpg"
    ],
    "flags": [
     "frontier item matched by the owner's close-up",
-    "low Jev confidence on price (0.39)"
+    "low Jev confidence on price (0.35)"
    ]
   },
   {
    "n": 3,
-   "key": "frontier:opus-29|local:local-46",
+   "key": "frontier:opus-26|local:local-46",
    "category": "electrical_fixture",
-   "name": "Havells Eurobreaker MCB enclosure, 2 x SP B25",
+   "name": "MCB enclosure with 2 Havells Eurobreaker MCBs",
    "brand": "Havells",
-   "model": "Eurobreaker MCB SP 025, B25, 10 kA",
+   "model": "Eurobreaker MCB SP B25 (x2)",
    "attributes": {
-    "mcbs": "2",
-    "rating": "B25, 240 V, 10000 A",
-    "installed": "'2014' written on the box"
+    "poles": "2 x single pole",
+    "rating": "B25, 240 V, 10 kA",
+    "enclosure": "2-way surface box"
    },
    "quantity": 1,
    "condition": "fair",
@@ -548,20 +542,20 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.74,
+   "identity_confidence": 0.81,
    "identity_probs": {
-    "local": 0.13,
-    "frontier": 0.87
+    "local": 0.1,
+    "frontier": 0.9
    },
    "price_from": "frontier",
    "price_confidence": null,
    "price_probs": {},
-   "rcv_unit_inr": 800.0,
-   "rcv_inr": 800.0,
-   "acv_inr": 320,
+   "rcv_unit_inr": 900.0,
+   "rcv_inr": 900.0,
+   "acv_inr": 360,
    "acv_basis": "condition 'fair' read as 60% of a 15 y life used",
-   "price_source": "https://www.moglix.com/havells-25a-sp-b-curve-mcb-dhmgbspf025/mp/msn2r25dykxyuv",
-   "price_note": "2 MCBs at about Rs 100 each, a 2-way enclosure about Rs 300, and labour. This is part of the building wiring.",
+   "price_source": "https://www.moglix.com/brands/havells/electricals/circuit-breakers-fuses/mcb/211124500",
+   "price_note": "2 MCBs at about Rs 250 each, plus a 2-way box and fitting labour. The exposed wiring around it should be tidied.",
    "candidates": {
     "local": {
      "name": "electrical fixture",
@@ -576,16 +570,16 @@
      ]
     },
     "frontier": {
-     "name": "Havells Eurobreaker MCB enclosure, 2 x SP B25",
+     "name": "MCB enclosure with 2 Havells Eurobreaker MCBs",
      "brand": "Havells",
-     "model": "Eurobreaker MCB SP 025, B25, 10 kA",
-     "rcv_inr": 800.0,
-     "price_source": "https://www.moglix.com/havells-25a-sp-b-curve-mcb-dhmgbspf025/mp/msn2r25dykxyuv",
-     "price_note": "2 MCBs at about Rs 100 each, a 2-way enclosure about Rs 300, and labour. This is part of the building wiring.",
+     "model": "Eurobreaker MCB SP B25 (x2)",
+     "rcv_inr": 900.0,
+     "price_source": "https://www.moglix.com/brands/havells/electricals/circuit-breakers-fuses/mcb/211124500",
+     "price_note": "2 MCBs at about Rs 250 each, plus a 2-way box and fitting labour. The exposed wiring around it should be tidied.",
      "photos": [
       "item_local-46_closeup_00.jpg",
-      "room_005.jpg",
-      "item_local-35_closeup_00.jpg"
+      "item_local-35_closeup_00.jpg",
+      "room_005.jpg"
      ]
     }
    },
@@ -594,19 +588,22 @@
     "item_local-46_closeup_00.jpg",
     "room_005.jpg"
    ],
-   "flags": []
+   "flags": [
+    "merged on 'possibly the same' (1.42) as mutual best match"
+   ]
   },
   {
    "n": 4,
-   "key": "frontier:opus-11|local:local-36|voice:voice-local-36",
+   "key": "frontier:opus-13|local:local-36|voice:voice-local-36",
    "category": "furniture",
-   "name": "Steel almirah, 2-door, light green",
+   "name": "Steel almirah, 2 door",
    "brand": null,
    "model": null,
    "attributes": {
-    "height_estimate": "about 78 inch",
-    "width_estimate": "about 36 inch",
-    "features": "handle lock, raised plinth"
+    "material": "steel",
+    "colour": "pale green",
+    "size_est": "about 90 x 50 x 190 cm",
+    "lock": "handle with key lock"
    },
    "quantity": 1,
    "condition": "fair",
@@ -619,24 +616,24 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.32,
+   "identity_confidence": 0.49,
    "identity_probs": {
-    "voice": 0.44,
     "local": 0.01,
-    "frontier": 0.55
+    "voice": 0.33,
+    "frontier": 0.66
    },
    "price_from": "frontier",
-   "price_confidence": 0.65,
+   "price_confidence": 0.85,
    "price_probs": {
-    "local": 0.17,
-    "frontier": 0.83
+    "local": 0.08,
+    "frontier": 0.92
    },
-   "rcv_unit_inr": 18100.0,
-   "rcv_inr": 18100.0,
-   "acv_inr": 1810,
+   "rcv_unit_inr": 12000.0,
+   "rcv_inr": 12000.0,
+   "acv_inr": 1200,
    "acv_basis": "age 40 y of a 10 y life",
-   "price_source": "https://www.indiamart.com/proddetail/godrej-steel-almirah-2-door-24992491862.html",
-   "price_note": "Brand unread. Priced as a Godrej 2-door 78 inch (Kolkata dealer, nearest market). Unbranded equivalents start around Rs 11,000. Paint is chipped on the left door. Contents were not assessed.",
+   "price_source": "https://dir.indiamart.com/kolkata/godrej-steel-almirah.html",
+   "price_note": "No brand visible. Priced at the entry 2-door steel almirah (from Rs 12,000 in Kolkata; Godrej Rs 18,100). Paint chipped on the left door.",
    "candidates": {
     "local": {
      "name": "cupboard",
@@ -650,12 +647,12 @@
      ]
     },
     "frontier": {
-     "name": "Steel almirah, 2-door, light green",
+     "name": "Steel almirah, 2 door",
      "brand": null,
      "model": null,
-     "rcv_inr": 18100.0,
-     "price_source": "https://www.indiamart.com/proddetail/godrej-steel-almirah-2-door-24992491862.html",
-     "price_note": "Brand unread. Priced as a Godrej 2-door 78 inch (Kolkata dealer, nearest market). Unbranded equivalents start around Rs 11,000. Paint is chipped on the left door. Contents were not assessed.",
+     "rcv_inr": 12000.0,
+     "price_source": "https://dir.indiamart.com/kolkata/godrej-steel-almirah.html",
+     "price_note": "No brand visible. Priced at the entry 2-door steel almirah (from Rs 12,000 in Kolkata; Godrej Rs 18,100). Paint chipped on the left door.",
      "photos": [
       "room_004.jpg"
      ]
@@ -674,7 +671,7 @@
     "room_004.jpg"
    ],
    "flags": [
-    "low Jev confidence on identity (0.32)"
+    "low Jev confidence on identity (0.49)"
    ]
   },
   {
@@ -725,21 +722,17 @@
     "room_video_frame_13.jpg",
     "room_video_frame_15.jpg"
    ],
-   "flags": [
-    "possible double count with Eyelet window curtains, brown palm-tree print (set of 2 panels) (opus-17), Jev 1.70"
-   ],
-   "suggest_duplicate_of": "frontier:opus-17|local:local-35"
+   "flags": []
   },
   {
    "n": 6,
-   "key": "frontier:opus-19|local:local-51|voice:voice-local-51",
+   "key": "frontier:opus-15|local:local-51|voice:voice-local-51",
    "category": "furniture",
    "name": "Wooden stool with turned legs",
    "brand": null,
    "model": null,
    "attributes": {
-    "material": "solid wood, brown",
-    "height_estimate": "about 18 inch"
+    "material": "solid wood"
    },
    "quantity": 1,
    "condition": "fair",
@@ -752,24 +745,24 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.77,
+   "identity_confidence": 0.78,
    "identity_probs": {
-    "voice": 0.11,
-    "local": 0.04,
+    "local": 0.03,
+    "voice": 0.12,
     "frontier": 0.85
    },
    "price_from": "frontier",
-   "price_confidence": 0.56,
+   "price_confidence": 0.2,
    "price_probs": {
-    "local": 0.22,
-    "frontier": 0.78
+    "local": 0.4,
+    "frontier": 0.6
    },
-   "rcv_unit_inr": 1799.0,
-   "rcv_inr": 1799.0,
-   "acv_inr": 180,
+   "rcv_unit_inr": 1200.0,
+   "rcv_inr": 1200.0,
+   "acv_inr": 120,
    "acv_basis": "age 80 y of a 10 y life",
-   "price_source": "https://www.amazon.in/Sitting-Sheesham-Bedroom-Outdoor-Multipurpose/dp/B09RSJVNLQ",
-   "price_note": "Priced as an 18 inch sheesham stool.",
+   "price_source": "estimate",
+   "price_note": "A local carpenter-made stool.",
    "candidates": {
     "local": {
      "name": "stool",
@@ -788,12 +781,13 @@
      "name": "Wooden stool with turned legs",
      "brand": null,
      "model": null,
-     "rcv_inr": 1799.0,
-     "price_source": "https://www.amazon.in/Sitting-Sheesham-Bedroom-Outdoor-Multipurpose/dp/B09RSJVNLQ",
-     "price_note": "Priced as an 18 inch sheesham stool.",
+     "rcv_inr": 1200.0,
+     "price_source": "estimate",
+     "price_note": "A local carpenter-made stool.",
      "photos": [
       "room_006.jpg",
       "room_video_frame_11.jpg",
+      "room_video_frame_12.jpg",
       "item_added-2_closeup_00.jpg"
      ]
     },
@@ -813,18 +807,21 @@
     "room_video_frame_11.jpg",
     "room_video_frame_12.jpg"
    ],
-   "flags": []
+   "flags": [
+    "low Jev confidence on price (0.20)"
+   ]
   },
   {
    "n": 7,
-   "key": "frontier:opus-9|local:local-158|voice:voice-local-158",
+   "key": "frontier:opus-11|local:local-158|voice:voice-local-158",
    "category": "furniture",
-   "name": "L-shaped computer desk, black laminated top on black metal frame",
+   "name": "L-shaped study / computer table",
    "brand": null,
    "model": null,
    "attributes": {
-    "size_estimate": "long arm about 2.4 m, short arm about 1.5 m, 60 cm deep",
-    "material": "engineered wood top, black laminate; powder-coated steel legs"
+    "top": "black engineered wood",
+    "frame": "black metal",
+    "size_est": "about 180 x 150 cm L"
    },
    "quantity": 1,
    "condition": "good",
@@ -837,18 +834,18 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.93,
+   "identity_confidence": 0.88,
    "identity_probs": {
-    "voice": 0.04,
     "local": 0.0,
-    "frontier": 0.96
+    "voice": 0.07,
+    "frontier": 0.93
    },
    "price_from": "voice",
-   "price_confidence": 0.84,
+   "price_confidence": 0.72,
    "price_probs": {
-    "local": 0.03,
-    "voice": 0.89,
-    "frontier": 0.08
+    "local": 0.02,
+    "voice": 0.81,
+    "frontier": 0.16
    },
    "rcv_unit_inr": 8000.0,
    "rcv_inr": 8000.0,
@@ -870,18 +867,20 @@
      ]
     },
     "frontier": {
-     "name": "L-shaped computer desk, black laminated top on black metal frame",
+     "name": "L-shaped study / computer table",
      "brand": null,
      "model": null,
-     "rcv_inr": 12000.0,
-     "price_source": "estimate (https://www.amazon.in/l-shape-study-table/s?k=l+shape+study+table)",
-     "price_note": "Unbranded. Large metal-leg L desks without drawers cost about Rs 9,000 to Rs 15,000 in India. Storage models from Lakdi and others run Rs 19,000 and up.",
+     "rcv_inr": 7999.0,
+     "price_source": "https://www.amazon.in/l-shape-study-table/s?k=l+shape+study+table",
+     "price_note": "Closest equivalent: an Amazon.in L-shape study table with metal frame, Rs 7,999.",
      "photos": [
       "item_local-158_closeup_00.jpg",
       "room_000.jpg",
       "room_video_frame_05.jpg",
       "room_video_frame_06.jpg",
       "room_video_frame_09.jpg",
+      "room_001.jpg",
+      "room_002.jpg",
       "item_added-1_closeup_00.jpg"
      ]
     },
@@ -899,11 +898,15 @@
     "item_added-1_closeup_00.jpg",
     "item_local-158_closeup_00.jpg",
     "room_000.jpg",
+    "room_001.jpg",
+    "room_002.jpg",
     "room_video_frame_05.jpg",
     "room_video_frame_06.jpg",
     "room_video_frame_09.jpg"
    ],
-   "flags": []
+   "flags": [
+    "frontier item matched by the owner's close-up"
+   ]
   },
   {
    "n": 8,
@@ -953,14 +956,13 @@
   },
   {
    "n": 9,
-   "key": "frontier:opus-36|local:local-6-b0",
+   "key": "frontier:opus-32|local:local-6-b0",
    "category": "book",
    "name": "Torment",
    "brand": null,
    "model": null,
    "attributes": {
-    "publisher": "Doubleday",
-    "format": "paperback"
+    "publisher": "Doubleday"
    },
    "quantity": 1,
    "condition": "fair",
@@ -980,20 +982,20 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.5,
+   "identity_confidence": 0.21,
    "identity_probs": {
-    "local": 0.25,
-    "frontier": 0.75
+    "local": 0.4,
+    "frontier": 0.6
    },
    "price_from": "frontier",
-   "price_confidence": 0.06,
+   "price_confidence": 0.12,
    "price_probs": {
-    "local": 0.47,
-    "frontier": 0.53
+    "local": 0.44,
+    "frontier": 0.56
    },
-   "rcv_unit_inr": 383.0,
-   "rcv_inr": 383.0,
-   "acv_inr": 153,
+   "rcv_unit_inr": 333.0,
+   "rcv_inr": 333.0,
+   "acv_inr": 133,
    "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
    "price_source": "https://www.flipkart.com/torment/p/itmfc7r64zsfmhtg",
    "price_note": "",
@@ -1013,7 +1015,7 @@
      "name": "Torment",
      "brand": null,
      "model": null,
-     "rcv_inr": 383.0,
+     "rcv_inr": 333.0,
      "price_source": "https://www.flipkart.com/torment/p/itmfc7r64zsfmhtg",
      "price_note": "",
      "photos": [
@@ -1031,12 +1033,13 @@
     "room_video_frame_08.jpg"
    ],
    "flags": [
-    "low Jev confidence on price (0.06)"
+    "low Jev confidence on identity (0.21)",
+    "low Jev confidence on price (0.12)"
    ]
   },
   {
    "n": 10,
-   "key": "frontier:opus-40|local:local-6-b1",
+   "key": "frontier:opus-36|local:local-6-b1",
    "category": "book",
    "name": "Rock Paper Scissors",
    "brand": null,
@@ -1067,23 +1070,23 @@
     "local"
    ],
    "identity_from": "local",
-   "identity_confidence": 0.87,
+   "identity_confidence": 0.92,
    "identity_probs": {
-    "local": 0.93,
-    "frontier": 0.07
+    "local": 0.96,
+    "frontier": 0.04
    },
-   "price_from": "frontier",
+   "price_from": "local",
    "price_confidence": 0.48,
    "price_probs": {
-    "local": 0.26,
-    "frontier": 0.74
+    "local": 0.74,
+    "frontier": 0.26
    },
-   "rcv_unit_inr": 186.0,
-   "rcv_inr": 186.0,
-   "acv_inr": 74,
+   "rcv_unit_inr": 876,
+   "rcv_inr": 876,
+   "acv_inr": 350,
    "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
-   "price_source": "https://www.flipkart.com/rock-paper-scissors/p/itm2bdfe90ba2eac",
-   "price_note": "Flipkart paperback price range is Rs 154 to Rs 186.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=Rock+Paper+Scissors+Alice+Feeney+paperback&prds=localAnnotatedOfferId:1,catalogid:2427706469567953409,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 12 matching listings for 'Rock Paper Scissors Alice Feeney paperback' (BooksWagon, Flipkart, Meesho, Online Persian Store, TheIndianBookStore, amazon.in, desertcart.in)",
    "candidates": {
     "local": {
      "name": "Rock Paper Scissors",
@@ -1103,9 +1106,9 @@
      "name": "Rock Paper Scissors",
      "brand": null,
      "model": null,
-     "rcv_inr": 186.0,
+     "rcv_inr": 180.0,
      "price_source": "https://www.flipkart.com/rock-paper-scissors/p/itm2bdfe90ba2eac",
-     "price_note": "Flipkart paperback price range is Rs 154 to Rs 186.",
+     "price_note": "",
      "photos": [
       "room_001.jpg",
       "room_007.jpg",
@@ -1126,7 +1129,7 @@
   },
   {
    "n": 11,
-   "key": "frontier:opus-42|local:local-6-b2",
+   "key": "frontier:opus-38|local:local-6-b2",
    "category": "book",
    "name": "The thread",
    "brand": null,
@@ -1159,16 +1162,16 @@
     "local"
    ],
    "identity_from": "local",
-   "identity_confidence": 0.62,
+   "identity_confidence": 0.74,
    "identity_probs": {
-    "local": 0.81,
-    "frontier": 0.19
+    "local": 0.87,
+    "frontier": 0.13
    },
    "price_from": "local",
-   "price_confidence": 0.82,
+   "price_confidence": 0.84,
    "price_probs": {
-    "local": 0.91,
-    "frontier": 0.09
+    "local": 0.92,
+    "frontier": 0.08
    },
    "rcv_unit_inr": 160,
    "rcv_inr": 160,
@@ -1195,9 +1198,9 @@
      "name": "The Thread",
      "brand": null,
      "model": null,
-     "rcv_inr": 499.0,
-     "price_source": "estimate (https://www.amazon.in/Thread-Victoria-Hislop/dp/1445869497)",
-     "price_note": "Amazon.in has a listing, but its price did not load.",
+     "rcv_inr": 450.0,
+     "price_source": "https://www.amazon.in/Thread-Victoria-Hislop/dp/0755377753",
+     "price_note": "Estimate. The page did not show a price.",
      "photos": [
       "room_001.jpg",
       "room_007.jpg",
@@ -1216,15 +1219,13 @@
   },
   {
    "n": 12,
-   "key": "frontier:opus-46|local:local-6-b3",
+   "key": "frontier:opus-42|local:local-6-b3",
    "category": "book",
-   "name": "The Great Gatsby",
+   "name": "The Great Gatsby (film tie-in cover)",
    "brand": null,
    "model": null,
    "attributes": {
-    "publisher": "Picador",
-    "edition": "film tie-in cover (seen from the front in room_000)",
-    "format": "paperback"
+    "publisher": "Picador"
    },
    "quantity": 1,
    "condition": "fair",
@@ -1257,23 +1258,23 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.37,
+   "identity_confidence": 0.73,
    "identity_probs": {
-    "local": 0.32,
-    "frontier": 0.68
+    "local": 0.13,
+    "frontier": 0.87
    },
-   "price_from": "frontier",
-   "price_confidence": 0.13,
+   "price_from": "local",
+   "price_confidence": 0.1,
    "price_probs": {
-    "local": 0.43,
-    "frontier": 0.57
+    "local": 0.55,
+    "frontier": 0.45
    },
-   "rcv_unit_inr": 350.0,
-   "rcv_inr": 350.0,
-   "acv_inr": 140,
+   "rcv_unit_inr": 154,
+   "rcv_inr": 154,
+   "acv_inr": 62,
    "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
-   "price_source": "estimate (https://www.amazon.in/Great-Gatsby-F-Scott-Fitzgerald/dp/0140620184)",
-   "price_note": "The Picador film edition price did not load. Other editions sell for Rs 199 to Rs 399.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=The+Great+Gatsby+F.+Scott+Fitzgerald+paperback&prds=localAnnotatedOfferId:1,catalogid:2706962949958882123,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 20 matching listings for 'The Great Gatsby F. Scott Fitzgerald paperback' (Biblio, Buy Books India, Etsy, Flipkart, Rarewaves, The Bookworm, Thebookx, amazon.in, atlanticbooks.com)",
    "candidates": {
     "local": {
      "name": "The Great Gatsby",
@@ -1289,16 +1290,17 @@
      ]
     },
     "frontier": {
-     "name": "The Great Gatsby",
+     "name": "The Great Gatsby (film tie-in cover)",
      "brand": null,
      "model": null,
-     "rcv_inr": 350.0,
-     "price_source": "estimate (https://www.amazon.in/Great-Gatsby-F-Scott-Fitzgerald/dp/0140620184)",
-     "price_note": "The Picador film edition price did not load. Other editions sell for Rs 199 to Rs 399.",
+     "rcv_inr": 250.0,
+     "price_source": "https://www.amazon.in/Great-Gatsby-F-Scott-Fitzgerald/dp/0140620184",
+     "price_note": "Estimate. The Picador price was not shown; other paperback editions sell for Rs 199 to 299.",
      "photos": [
       "room_001.jpg",
       "room_007.jpg",
       "room_000.jpg",
+      "room_video_frame_07.jpg",
       "room_video_frame_08.jpg"
      ]
     }
@@ -1307,26 +1309,25 @@
     "room_000.jpg",
     "room_001.jpg",
     "room_007.jpg",
+    "room_video_frame_07.jpg",
     "room_video_frame_08.jpg"
    ],
    "flags": [
-    "low Jev confidence on identity (0.37)",
-    "low Jev confidence on price (0.13)"
+    "low Jev confidence on price (0.10)"
    ]
   },
   {
    "n": 13,
-   "key": "frontier:opus-38|local:local-6-b21",
+   "key": "frontier:opus-34|local:local-6-b21",
    "category": "book",
    "name": "The Hare with Amber Eyes",
    "brand": null,
    "model": null,
    "attributes": {
-    "publisher": "Vintage",
-    "format": "paperback"
+    "publisher": "Vintage"
    },
    "quantity": 1,
-   "condition": "good",
+   "condition": "fair",
    "age_years": null,
    "price_paid_inr": null,
    "book": {
@@ -1343,21 +1344,21 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.72,
+   "identity_confidence": 0.64,
    "identity_probs": {
-    "local": 0.14,
-    "frontier": 0.86
+    "local": 0.18,
+    "frontier": 0.82
    },
    "price_from": "local",
-   "price_confidence": 0.86,
+   "price_confidence": 0.84,
    "price_probs": {
-    "local": 0.93,
-    "frontier": 0.07
+    "local": 0.92,
+    "frontier": 0.08
    },
    "rcv_unit_inr": 429,
    "rcv_inr": 429,
-   "acv_inr": 279,
-   "acv_basis": "condition 'good' read as 35% of a 10 y life used",
+   "acv_inr": 172,
+   "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
    "price_source": "https://www.google.com/search?ibp=oshop&q=The+Hare+with+Amber+Eyes++paperback&prds=localAnnotatedOfferId:1,catalogid:7801795765836244420,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
    "price_note": "median of 4 matching listings for 'The Hare with Amber Eyes  paperback' (Flipkart, Rooke Books, amazon.in)",
    "candidates": {
@@ -1379,9 +1380,9 @@
      "name": "The Hare with Amber Eyes",
      "brand": null,
      "model": null,
-     "rcv_inr": 599.0,
+     "rcv_inr": 499.0,
      "price_source": "estimate",
-     "price_note": "No Indian price page loaded. Priced as an imported Vintage paperback.",
+     "price_note": "No Indian retail price found; typical price of an imported Vintage paperback.",
      "photos": [
       "room_001.jpg",
       "room_007.jpg",
@@ -1400,15 +1401,14 @@
   },
   {
    "n": 14,
-   "key": "frontier:opus-43|local:local-6-b4",
+   "key": "frontier:opus-39|local:local-6-b4",
    "category": "book",
    "name": "The 80/20 Principle",
    "brand": null,
    "model": null,
    "attributes": {
     "publisher": "Currency",
-    "edition": "New Updated Edition",
-    "format": "paperback"
+    "edition": "New Updated Edition"
    },
    "quantity": 1,
    "condition": "good",
@@ -1428,16 +1428,16 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.02,
+   "identity_confidence": 0.39,
    "identity_probs": {
-    "local": 0.49,
-    "frontier": 0.51
+    "frontier": 0.69,
+    "local": 0.31
    },
    "price_from": "frontier",
-   "price_confidence": 0.2,
+   "price_confidence": 0.21,
    "price_probs": {
-    "local": 0.4,
-    "frontier": 0.6
+    "frontier": 0.6,
+    "local": 0.4
    },
    "rcv_unit_inr": 376.0,
    "rcv_inr": 376.0,
@@ -1482,13 +1482,13 @@
     "room_video_frame_08.jpg"
    ],
    "flags": [
-    "low Jev confidence on identity (0.02)",
-    "low Jev confidence on price (0.20)"
+    "low Jev confidence on identity (0.39)",
+    "low Jev confidence on price (0.21)"
    ]
   },
   {
    "n": 15,
-   "key": "frontier:opus-45|local:local-6-b15",
+   "key": "frontier:opus-41|local:local-6-b15",
    "category": "book",
    "name": "Antony and Cleopatra",
    "brand": null,
@@ -1525,23 +1525,23 @@
     "local"
    ],
    "identity_from": "local",
-   "identity_confidence": 0.7,
+   "identity_confidence": 0.68,
    "identity_probs": {
-    "local": 0.85,
-    "frontier": 0.15
+    "frontier": 0.16,
+    "local": 0.84
    },
-   "price_from": "local",
-   "price_confidence": 0.24,
+   "price_from": "frontier",
+   "price_confidence": 0.42,
    "price_probs": {
-    "local": 0.62,
-    "frontier": 0.38
+    "frontier": 0.71,
+    "local": 0.29
    },
-   "rcv_unit_inr": 304,
-   "rcv_inr": 304,
-   "acv_inr": 122,
+   "rcv_unit_inr": 126.0,
+   "rcv_inr": 126.0,
+   "acv_inr": 50,
    "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
-   "price_source": "https://www.google.com/search?ibp=oshop&q=Antony+and+Cleopatra+William+Shakespeare+paperback&prds=localAnnotatedOfferId:1,catalogid:2161608887658255118,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
-   "price_note": "median of 19 matching listings for 'Antony and Cleopatra William Shakespeare paperback' (99Bookstore, Amazon.in, Anvis World, Biblio.co.uk, Etsy, Flipkart, MyPustak.com, Youthisthan Foundation, amazon.in, atlanticbooks.com)",
+   "price_source": "https://www.flipkart.com/antony-and-cleopatra/p/itmfbdhrf3qbrfp4",
+   "price_note": "",
    "candidates": {
     "local": {
      "name": "Antony and Cleopatra",
@@ -1560,9 +1560,9 @@
      "name": "Antony and Cleopatra",
      "brand": null,
      "model": null,
-     "rcv_inr": 199.0,
-     "price_source": "estimate (https://www.amazon.in/Antony-Cleopatra-William-Shakespeare/dp/9389225833)",
-     "price_note": "Publisher unreadable. Indian classics paperbacks cost about Rs 150 to Rs 250.",
+     "rcv_inr": 126.0,
+     "price_source": "https://www.flipkart.com/antony-and-cleopatra/p/itmfbdhrf3qbrfp4",
+     "price_note": "",
      "photos": [
       "room_001.jpg",
       "room_007.jpg",
@@ -1578,19 +1578,18 @@
     "room_video_frame_08.jpg"
    ],
    "flags": [
-    "low Jev confidence on price (0.24)"
+    "low Jev confidence on price (0.42)"
    ]
   },
   {
    "n": 16,
-   "key": "frontier:opus-37|local:local-6-b5",
+   "key": "frontier:opus-33|local:local-6-b5",
    "category": "book",
    "name": "Annie May's Black Book",
    "brand": null,
    "model": null,
    "attributes": {
-    "publisher": "Pocket Books",
-    "format": "paperback"
+    "publisher": "Pocket Books"
    },
    "quantity": 1,
    "condition": "fair",
@@ -1613,16 +1612,16 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.52,
+   "identity_confidence": 0.43,
    "identity_probs": {
-    "local": 0.24,
-    "frontier": 0.76
+    "frontier": 0.72,
+    "local": 0.28
    },
    "price_from": "local",
-   "price_confidence": 0.92,
+   "price_confidence": 0.95,
    "price_probs": {
-    "local": 0.96,
-    "frontier": 0.04
+    "frontier": 0.02,
+    "local": 0.98
    },
    "rcv_unit_inr": 695,
    "rcv_inr": 695,
@@ -1648,9 +1647,9 @@
      "name": "Annie May's Black Book",
      "brand": null,
      "model": null,
-     "rcv_inr": 499.0,
-     "price_source": "estimate (https://www.waterstones.com/book/annie-mays-black-book/debby-holt/9781416502456)",
-     "price_note": "UK import at GBP 6.99, so Rs 499 is estimated for a new copy in India. Used copies are Rs 99 on Bookchor.",
+     "rcv_inr": 350.0,
+     "price_source": "https://www.bookchor.com/book/9781847398208/annie-mays-black-book",
+     "price_note": "Estimate. Only a used-copy price (Rs 99, list Rs 199) was found in India; a new import is about GBP 6.99.",
      "photos": [
       "room_001.jpg",
       "room_007.jpg",
@@ -1665,18 +1664,19 @@
     "room_video_frame_07.jpg",
     "room_video_frame_08.jpg"
    ],
-   "flags": []
+   "flags": [
+    "low Jev confidence on identity (0.43)"
+   ]
   },
   {
    "n": 17,
-   "key": "frontier:opus-44|local:local-6-b6",
+   "key": "frontier:opus-40|local:local-6-b6",
    "category": "book",
    "name": "A History of the World in 10\u00bd Chapters",
    "brand": null,
    "model": null,
    "attributes": {
-    "publisher": "Picador",
-    "format": "paperback"
+    "publisher": "Picador"
    },
    "quantity": 1,
    "condition": "fair",
@@ -1704,14 +1704,14 @@
    "identity_from": "frontier",
    "identity_confidence": 0.8,
    "identity_probs": {
-    "local": 0.1,
-    "frontier": 0.9
+    "frontier": 0.9,
+    "local": 0.1
    },
    "price_from": "local",
-   "price_confidence": 0.85,
+   "price_confidence": 0.92,
    "price_probs": {
-    "local": 0.93,
-    "frontier": 0.07
+    "frontier": 0.04,
+    "local": 0.96
    },
    "rcv_unit_inr": 799,
    "rcv_inr": 799,
@@ -1737,9 +1737,9 @@
      "name": "A History of the World in 10\u00bd Chapters",
      "brand": null,
      "model": null,
-     "rcv_inr": 499.0,
-     "price_source": "estimate (https://www.amazon.in/History-World-Chapters-Vintage-International/dp/0679731377)",
-     "price_note": "Amazon.in has a listing, but its price did not load.",
+     "rcv_inr": 450.0,
+     "price_source": "https://www.amazon.in/History-World-Chapters-Vintage-International/dp/0679731377",
+     "price_note": "Estimate. The page did not show a price.",
      "photos": [
       "room_001.jpg",
       "room_007.jpg",
@@ -1758,15 +1758,14 @@
   },
   {
    "n": 18,
-   "key": "frontier:opus-41|local:local-6-b16",
+   "key": "frontier:opus-37|local:local-6-b16",
    "category": "book",
    "name": "Iron Horse",
    "brand": null,
    "model": null,
    "attributes": {
-    "publisher": "Allison & Busby (logo)",
-    "format": "paperback",
-    "note": "second-hand price sticker"
+    "publisher": "Allison & Busby",
+    "series": "Railway Detective"
    },
    "quantity": 1,
    "condition": "fair",
@@ -1789,20 +1788,20 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.9,
+   "identity_confidence": 0.89,
    "identity_probs": {
-    "local": 0.05,
-    "frontier": 0.95
+    "frontier": 0.94,
+    "local": 0.06
    },
    "price_from": "frontier",
    "price_confidence": null,
    "price_probs": {},
-   "rcv_unit_inr": 599.0,
-   "rcv_inr": 599.0,
-   "acv_inr": 240,
+   "rcv_unit_inr": 450.0,
+   "rcv_inr": 450.0,
+   "acv_inr": 180,
    "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
    "price_source": "estimate",
-   "price_note": "Railway Detective book 4. No Indian new price found. Priced as an imported paperback.",
+   "price_note": "No Indian retail price found; typical price of an imported paperback.",
    "candidates": {
     "local": {
      "name": "Iron Horse",
@@ -1822,9 +1821,9 @@
      "name": "Iron Horse",
      "brand": null,
      "model": null,
-     "rcv_inr": 599.0,
+     "rcv_inr": 450.0,
      "price_source": "estimate",
-     "price_note": "Railway Detective book 4. No Indian new price found. Priced as an imported paperback.",
+     "price_note": "No Indian retail price found; typical price of an imported paperback.",
      "photos": [
       "room_001.jpg",
       "room_007.jpg",
@@ -1839,18 +1838,19 @@
     "room_video_frame_07.jpg",
     "room_video_frame_08.jpg"
    ],
-   "flags": []
+   "flags": [
+    "merged on 'possibly the same' (1.48) as mutual best match"
+   ]
   },
   {
    "n": 19,
-   "key": "frontier:opus-39|local:local-6-b17",
+   "key": "frontier:opus-35|local:local-6-b17",
    "category": "book",
    "name": "Nonviolent Communication",
    "brand": null,
    "model": null,
    "attributes": {
-    "format": "paperback",
-    "edition": "Indian edition ('More than 1,00,000 copies', foreword by Deepak Chopra)"
+    "subtitle": "A Language of Life"
    },
    "quantity": 1,
    "condition": "good",
@@ -1874,16 +1874,16 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.88,
+   "identity_confidence": 0.87,
    "identity_probs": {
-    "local": 0.06,
-    "frontier": 0.94
+    "frontier": 0.94,
+    "local": 0.06
    },
    "price_from": "local",
-   "price_confidence": 0.57,
+   "price_confidence": 0.51,
    "price_probs": {
-    "local": 0.78,
-    "frontier": 0.22
+    "frontier": 0.24,
+    "local": 0.76
    },
    "rcv_unit_inr": 951,
    "rcv_inr": 951,
@@ -1910,8 +1910,8 @@
      "brand": null,
      "model": null,
      "rcv_inr": 399.0,
-     "price_source": "estimate (https://www.flipkart.com/nonviolent-communication-3rd-ed/p/itmea7c37f18df53)",
-     "price_note": "Flipkart has the listing, but its price did not load. Indian editions sell around Rs 350 to Rs 450.",
+     "price_source": "estimate",
+     "price_note": "Indian edition (ISBN 9789382400295) usually sells for about Rs 350 to 450; no page showed a live price.",
      "photos": [
       "room_001.jpg",
       "room_007.jpg",
@@ -1981,23 +1981,22 @@
     "room_video_frame_08.jpg"
    ],
    "flags": [
-    "possible double count with Torment (opus-36), Jev 1.29",
-    "possible double count with Nonviolent Communication (opus-39), Jev 0.80"
+    "possible double count with Torment (opus-32), Jev 1.40"
    ],
-   "suggest_duplicate_of": "frontier:opus-36|local:local-6-b0"
+   "suggest_duplicate_of": "frontier:opus-32|local:local-6-b0"
   },
   {
    "n": 21,
-   "key": "frontier:opus-4|local:local-26|voice:voice-local-26",
+   "key": "frontier:opus-6|local:local-26|voice:voice-local-26",
    "category": "phone",
-   "name": "USB phone charger with braided cable",
+   "name": "USB wall charger with braided cable",
    "brand": null,
    "model": null,
    "attributes": {
-    "type": "white USB-A wall adapter, grey braided cable"
+    "colour": "white adapter, grey braided cable"
    },
    "quantity": 1,
-   "condition": "fair",
+   "condition": "good",
    "age_years": null,
    "price_paid_inr": null,
    "book": null,
@@ -2007,24 +2006,24 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.75,
+   "identity_confidence": 0.61,
    "identity_probs": {
-    "voice": 0.14,
-    "local": 0.03,
-    "frontier": 0.83
+    "frontier": 0.75,
+    "voice": 0.18,
+    "local": 0.07
    },
-   "price_from": "frontier",
-   "price_confidence": 0.18,
+   "price_from": "local",
+   "price_confidence": 0.23,
    "price_probs": {
-    "local": 0.41,
-    "frontier": 0.59
+    "frontier": 0.38,
+    "local": 0.62
    },
-   "rcv_unit_inr": 699.0,
-   "rcv_inr": 699.0,
-   "acv_inr": 280,
-   "acv_basis": "condition 'fair' read as 60% of a 4 y life used",
-   "price_source": "estimate",
-   "price_note": "Brand unreadable. Priced as a generic fast charger with a braided cable.",
+   "rcv_unit_inr": 693,
+   "rcv_inr": 693,
+   "acv_inr": 450,
+   "acv_basis": "condition 'good' read as 35% of a 4 y life used",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=charger+computer&prds=localAnnotatedOfferId:1,productid:2907026749347334045,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 9 matching listings for 'charger computer' (Amazon.in, Flipkart, amazon.in)",
    "candidates": {
     "local": {
      "name": "charger",
@@ -2039,12 +2038,12 @@
      ]
     },
     "frontier": {
-     "name": "USB phone charger with braided cable",
+     "name": "USB wall charger with braided cable",
      "brand": null,
      "model": null,
-     "rcv_inr": 699.0,
+     "rcv_inr": 500.0,
      "price_source": "estimate",
-     "price_note": "Brand unreadable. Priced as a generic fast charger with a braided cable.",
+     "price_note": "Generic fast-charger brick plus cable.",
      "photos": [
       "room_002.jpg",
       "item_local-158_closeup_00.jpg"
@@ -2066,7 +2065,7 @@
     "room_video_frame_00.jpg"
    ],
    "flags": [
-    "low Jev confidence on price (0.18)",
+    "low Jev confidence on price (0.23)",
     "owner: free or provided (the owner said so); may not be the owner's to claim"
    ]
   },
@@ -2074,11 +2073,11 @@
    "n": 22,
    "key": "frontier:opus-2|local:local-1|voice:voice-local-1",
    "category": "computer_accessory",
-   "name": "Razer DeathAdder Essential wired gaming mouse",
+   "name": "Razer gaming mouse (DeathAdder Essential style)",
    "brand": "Razer",
-   "model": "DeathAdder Essential (by shape and green logo lighting)",
+   "model": "DeathAdder Essential (recognised by shape and green logo)",
    "attributes": {
-    "type": "wired, right-handed ergonomic",
+    "connection": "wired",
     "lighting": "green logo"
    },
    "quantity": 1,
@@ -2092,24 +2091,24 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.71,
+   "identity_confidence": 0.64,
    "identity_probs": {
-    "voice": 0.19,
-    "local": 0.0,
-    "frontier": 0.81
+    "frontier": 0.77,
+    "voice": 0.23,
+    "local": 0.0
    },
    "price_from": "frontier",
-   "price_confidence": 0.81,
+   "price_confidence": 0.77,
    "price_probs": {
-    "local": 0.09,
-    "frontier": 0.91
+    "frontier": 0.89,
+    "local": 0.11
    },
-   "rcv_unit_inr": 1649.0,
-   "rcv_inr": 1649.0,
-   "acv_inr": 165,
+   "rcv_unit_inr": 1749.0,
+   "rcv_inr": 1749.0,
+   "acv_inr": 175,
    "acv_basis": "age 4 y of a 4 y life",
-   "price_source": "https://computechstore.in/product/razer-deathadder-essential-black/",
-   "price_note": "Identified by shape and green lighting. Amazon.in lists the white edition at Rs 1,749.",
+   "price_source": "https://www.amazon.in/Razer-DeathAdder-RZ01-02540100-R3M1-Essential-Optical/dp/B07F2GC4S9",
+   "price_note": "Identified by shape; the model name is not printed where it can be seen.",
    "candidates": {
     "local": {
      "name": "mouse",
@@ -2127,12 +2126,12 @@
      ]
     },
     "frontier": {
-     "name": "Razer DeathAdder Essential wired gaming mouse",
+     "name": "Razer gaming mouse (DeathAdder Essential style)",
      "brand": "Razer",
-     "model": "DeathAdder Essential (by shape and green logo lighting)",
-     "rcv_inr": 1649.0,
-     "price_source": "https://computechstore.in/product/razer-deathadder-essential-black/",
-     "price_note": "Identified by shape and green lighting. Amazon.in lists the white edition at Rs 1,749.",
+     "model": "DeathAdder Essential (recognised by shape and green logo)",
+     "rcv_inr": 1749.0,
+     "price_source": "https://www.amazon.in/Razer-DeathAdder-RZ01-02540100-R3M1-Essential-Optical/dp/B07F2GC4S9",
+     "price_note": "Identified by shape; the model name is not printed where it can be seen.",
      "photos": [
       "room_000.jpg",
       "room_video_frame_02.jpg",
@@ -2162,7 +2161,7 @@
   },
   {
    "n": 23,
-   "key": "frontier:opus-6|local:local-30|voice:voice-local-30",
+   "key": "frontier:opus-4|local:local-30|voice:voice-local-30",
    "category": "networking",
    "name": "GeoDebt router",
    "brand": "GeoDebt",
@@ -2183,24 +2182,24 @@
     "voice"
    ],
    "identity_from": "voice",
-   "identity_confidence": 0.3,
+   "identity_confidence": 0.4,
    "identity_probs": {
-    "voice": 0.53,
-    "local": 0.04,
-    "frontier": 0.43
+    "frontier": 0.37,
+    "voice": 0.6,
+    "local": 0.03
    },
    "price_from": "frontier",
-   "price_confidence": 0.24,
+   "price_confidence": 0.43,
    "price_probs": {
-    "local": 0.38,
-    "frontier": 0.62
+    "frontier": 0.72,
+    "local": 0.28
    },
-   "rcv_unit_inr": 1999.0,
-   "rcv_inr": 1999.0,
-   "acv_inr": 1299,
+   "rcv_unit_inr": 2500.0,
+   "rcv_inr": 2500.0,
+   "acv_inr": 1625,
    "acv_basis": "condition 'good' read as 35% of a 5 y life used",
-   "price_source": "estimate (https://www.indiamart.com/proddetail/airtel-xstream-fiber-router-2850507937630.html)",
-   "price_note": "Looks like ISP-supplied fibre CPE, which the ISP usually owns. Excluding it from the claim may be appropriate. Resale listings run Rs 999 to Rs 1,999.",
+   "price_source": "estimate",
+   "price_note": "Brand unreadable. It looks like an ISP-supplied fibre home gateway (JioFiber or Airtel style), which may belong to the ISP. Priced as a comparable dual-band router.",
    "candidates": {
     "local": {
      "name": "router",
@@ -2215,12 +2214,12 @@
      ]
     },
     "frontier": {
-     "name": "Wall-mounted fibre Wi-Fi router / ONT",
+     "name": "Wall-mounted Wi-Fi router",
      "brand": null,
      "model": null,
-     "rcv_inr": 1999.0,
-     "price_source": "estimate (https://www.indiamart.com/proddetail/airtel-xstream-fiber-router-2850507937630.html)",
-     "price_note": "Looks like ISP-supplied fibre CPE, which the ISP usually owns. Excluding it from the claim may be appropriate. Resale listings run Rs 999 to Rs 1,999.",
+     "rcv_inr": 2500.0,
+     "price_source": "estimate",
+     "price_note": "Brand unreadable. It looks like an ISP-supplied fibre home gateway (JioFiber or Airtel style), which may belong to the ISP. Priced as a comparable dual-band router.",
      "photos": [
       "room_003.jpg",
       "room_video_frame_00.jpg",
@@ -2246,8 +2245,8 @@
     "room_video_frame_03.jpg"
    ],
    "flags": [
-    "low Jev confidence on identity (0.30)",
-    "low Jev confidence on price (0.24)",
+    "low Jev confidence on identity (0.40)",
+    "low Jev confidence on price (0.43)",
     "owner: free or provided (the owner said so); may not be the owner's to claim"
    ]
   },
@@ -2301,12 +2300,13 @@
    "n": 25,
    "key": "frontier:opus-5|local:local-25",
    "category": "electrical_fixture",
-   "name": "Extension board with universal sockets",
+   "name": "Extension board, multi-socket with switches",
    "brand": null,
    "model": null,
    "attributes": {
-    "sockets": "3 to 4 universal sockets each",
-    "notes": "one has a red cord and a red brand label; the other has red switches, at the right end of the desk"
+    "sockets_est": "4 to 6 universal",
+    "switches": "individual",
+    "colour": "white"
    },
    "quantity": 2,
    "condition": "fair",
@@ -2318,23 +2318,23 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.9,
+   "identity_confidence": 0.86,
    "identity_probs": {
-    "local": 0.05,
-    "frontier": 0.95
+    "frontier": 0.93,
+    "local": 0.07
    },
    "price_from": "frontier",
-   "price_confidence": 0.38,
+   "price_confidence": 0.08,
    "price_probs": {
-    "local": 0.31,
-    "frontier": 0.69
+    "frontier": 0.54,
+    "local": 0.46
    },
-   "rcv_unit_inr": 575.0,
-   "rcv_inr": 1150.0,
-   "acv_inr": 460,
+   "rcv_unit_inr": 450.0,
+   "rcv_inr": 900.0,
+   "acv_inr": 360,
    "acv_basis": "condition 'fair' read as 60% of a 15 y life used",
-   "price_source": "https://www.amazon.in/AMAZIO-Extension-Universal-Socket-Charging/dp/B0FD3X47RL",
-   "price_note": "Priced as a comparable 4-socket extension board.",
+   "price_source": "https://www.amazon.in/6-socket-extension-board/s?k=6+socket+extension+board",
+   "price_note": "Two boards: one near the books, one by the laptop. Estimated at the typical Amazon.in price for a 6-socket switched board.",
    "candidates": {
     "local": {
      "name": "extension board",
@@ -2350,18 +2350,19 @@
      ]
     },
     "frontier": {
-     "name": "Extension board with universal sockets",
+     "name": "Extension board, multi-socket with switches",
      "brand": null,
      "model": null,
-     "rcv_inr": 575.0,
-     "price_source": "https://www.amazon.in/AMAZIO-Extension-Universal-Socket-Charging/dp/B0FD3X47RL",
-     "price_note": "Priced as a comparable 4-socket extension board.",
+     "rcv_inr": 450.0,
+     "price_source": "https://www.amazon.in/6-socket-extension-board/s?k=6+socket+extension+board",
+     "price_note": "Two boards: one near the books, one by the laptop. Estimated at the typical Amazon.in price for a 6-socket switched board.",
      "photos": [
       "room_002.jpg",
       "room_video_frame_00.jpg",
       "room_video_frame_01.jpg",
       "room_video_frame_03.jpg",
       "item_local-158_closeup_00.jpg",
+      "item_local-79_closeup_00.jpg",
       "item_added-1_closeup_00.jpg"
      ]
     }
@@ -2369,33 +2370,32 @@
    "photos": [
     "item_added-1_closeup_00.jpg",
     "item_local-158_closeup_00.jpg",
+    "item_local-79_closeup_00.jpg",
     "room_002.jpg",
     "room_video_frame_00.jpg",
     "room_video_frame_01.jpg",
     "room_video_frame_03.jpg"
    ],
    "flags": [
-    "merged on 'possibly the same' (1.39) as mutual best match",
-    "low Jev confidence on price (0.38)"
+    "low Jev confidence on price (0.08)"
    ]
   },
   {
    "n": 26,
-   "key": "frontier:opus-27|local:local-29",
+   "key": "frontier:opus-24|local:local-29",
    "category": "electrical_fixture",
-   "name": "Switchboard near router (surface board)",
+   "name": "Switchboard by the router (piano switches, fan regulator)",
    "brand": null,
    "model": null,
    "attributes": {
-    "switches": "6",
+    "switches": "7",
     "sockets": "1",
     "regulators": "1",
-    "other": "1 small ivory module top-left (indicator or 2-pin socket, unclear)",
-    "plate": "custom surface sheet board, about 8 x 10 inch (roughly 8M equivalent)",
-    "wiring": "surface cable, plug in the socket"
+    "plate": "custom sheet board about 20 x 25 cm, about 12M equivalent",
+    "style": "old piano-type modules"
    },
    "quantity": 1,
-   "condition": "fair",
+   "condition": "poor",
    "age_years": null,
    "price_paid_inr": null,
    "book": null,
@@ -2404,21 +2404,21 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.89,
+   "identity_confidence": 0.92,
    "identity_probs": {
-    "local": 0.05,
-    "frontier": 0.95
+    "frontier": 0.96,
+    "local": 0.04
    },
    "price_from": "local",
-   "price_confidence": 0.8,
+   "price_confidence": 0.64,
    "price_probs": {
-    "local": 0.9,
-    "frontier": 0.1
+    "frontier": 0.18,
+    "local": 0.82
    },
    "rcv_unit_inr": 590,
    "rcv_inr": 590,
-   "acv_inr": 236,
-   "acv_basis": "condition 'fair' read as 60% of a 15 y life used",
+   "acv_inr": 89,
+   "acv_basis": "condition 'poor' read as 85% of a 15 y life used",
    "price_source": "https://www.google.com/search?ibp=oshop&q=12+inches+light+switch+board+*+*+*+*+*&prds=localAnnotatedOfferId:1,productid:2273427486966799367,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
    "price_note": "median of 14 matching listings for '12 inches light switch board' (Amazon.in, Flipkart, IBO, Meesho, Tradeindia.com, amazon.in, iotics technology)",
    "candidates": {
@@ -2435,12 +2435,12 @@
      ]
     },
     "frontier": {
-     "name": "Switchboard near router (surface board)",
+     "name": "Switchboard by the router (piano switches, fan regulator)",
      "brand": null,
      "model": null,
-     "rcv_inr": 1400.0,
+     "rcv_inr": 1500.0,
      "price_source": "estimate",
-     "price_note": "Board about Rs 300, 6 switches at Rs 40, socket Rs 80, fan regulator Rs 250, labour about Rs 500.",
+     "price_note": "Count: top row 2 switches, 1 rotary fan regulator; bottom row 5 switches and 1 socket (in use). Priced as supply and fitting of an equivalent 12M modular board.",
      "photos": [
       "room_003.jpg",
       "room_video_frame_00.jpg",
@@ -2457,23 +2457,22 @@
     "room_video_frame_11.jpg"
    ],
    "flags": [
-    "possible double count with Old wooden switchboard with bakelite round fittings (near window 2) (opus-28), Jev 1.35"
+    "possible double count with Old wooden switchboard with round bakelite fittings (opus-25), Jev 1.58"
    ],
-   "suggest_duplicate_of": "frontier:opus-28"
+   "suggest_duplicate_of": "frontier:opus-25"
   },
   {
    "n": 27,
-   "key": "frontier:opus-30|local:local-70",
+   "key": "frontier:opus-27|local:local-70",
    "category": "electrical_fixture",
-   "name": "Modular switchboard near the door",
+   "name": "White modular switchboard near the door",
    "brand": null,
    "model": null,
    "attributes": {
     "switches": "2",
     "sockets": "1",
     "regulators": "0",
-    "plate": "white modular, about 4M (estimated, blurred)",
-    "plug": "red plug inserted"
+    "plate": "about 4M"
    },
    "quantity": 1,
    "condition": "fair",
@@ -2485,16 +2484,16 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.9,
+   "identity_confidence": 0.93,
    "identity_probs": {
-    "local": 0.05,
-    "frontier": 0.95
+    "frontier": 0.96,
+    "local": 0.04
    },
    "price_from": "local",
-   "price_confidence": 0.83,
+   "price_confidence": 0.77,
    "price_probs": {
-    "local": 0.91,
-    "frontier": 0.09
+    "frontier": 0.11,
+    "local": 0.89
    },
    "rcv_unit_inr": 239,
    "rcv_inr": 239,
@@ -2516,29 +2515,30 @@
      ]
     },
     "frontier": {
-     "name": "Modular switchboard near the door",
+     "name": "White modular switchboard near the door",
      "brand": null,
      "model": null,
-     "rcv_inr": 700.0,
+     "rcv_inr": 600.0,
      "price_source": "estimate",
-     "price_note": "Module count is estimated from a blurred frame.",
+     "price_note": "Module count estimated from a blurred frame and the close-up. Supply and fitting of a 4M modular board.",
      "photos": [
       "room_video_frame_14.jpg",
+      "item_added-3_closeup_000.jpg",
       "item_local-35_closeup_00.jpg"
      ]
     }
    },
    "photos": [
+    "item_added-3_closeup_000.jpg",
     "item_local-35_closeup_00.jpg",
     "room_video_frame_00.jpg",
     "room_video_frame_14.jpg"
    ],
    "flags": [
-    "merged on 'possibly the same' (1.04) as mutual best match",
-    "possible double count with Switchboard near router (surface board) (opus-27), Jev 0.84",
-    "possible double count with Old wooden switchboard with bakelite round fittings (near window 2) (opus-28), Jev 0.84"
+    "merged on 'possibly the same' (1.39) as mutual best match",
+    "possible double count with Switchboard by the router (piano switches, fan regulator) (opus-24), Jev 1.07"
    ],
-   "suggest_duplicate_of": "frontier:opus-27|local:local-29"
+   "suggest_duplicate_of": "frontier:opus-24|local:local-29"
   },
   {
    "n": 28,
@@ -2585,19 +2585,19 @@
     "room_video_frame_01.jpg"
    ],
    "flags": [
-    "possible double count with Switchboard near router (surface board) (opus-27), Jev 1.43"
+    "possible double count with Switchboard by the router (piano switches, fan regulator) (opus-24), Jev 1.59"
    ],
-   "suggest_duplicate_of": "frontier:opus-27|local:local-29"
+   "suggest_duplicate_of": "frontier:opus-24|local:local-29"
   },
   {
    "n": 29,
    "key": "frontier:opus-23|local:local-32|voice:voice-local-32",
    "category": "other",
-   "name": "Roll-up whiteboard sheet on PVC pipes",
+   "name": "Roll-up whiteboard sheet on PVC rods",
    "brand": null,
    "model": null,
    "attributes": {
-    "size_estimate": "about 3 x 2 ft"
+    "size_est": "about 120 x 90 cm"
    },
    "quantity": 1,
    "condition": "fair",
@@ -2610,17 +2610,17 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.83,
+   "identity_confidence": 0.86,
    "identity_probs": {
-    "local": 0.07,
-    "frontier": 0.89,
-    "voice": 0.04
+    "frontier": 0.91,
+    "local": 0.06,
+    "voice": 0.03
    },
    "price_from": "voice",
-   "price_confidence": 0.3,
+   "price_confidence": 0.29,
    "price_probs": {
-    "local": 0.45,
-    "frontier": 0.02,
+    "frontier": 0.05,
+    "local": 0.42,
     "voice": 0.53
    },
    "rcv_unit_inr": 150.0,
@@ -2642,12 +2642,12 @@
      ]
     },
     "frontier": {
-     "name": "Roll-up whiteboard sheet on PVC pipes",
+     "name": "Roll-up whiteboard sheet on PVC rods",
      "brand": null,
      "model": null,
-     "rcv_inr": 450.0,
+     "rcv_inr": 400.0,
      "price_source": "estimate",
-     "price_note": "Generic whiteboard film sheet.",
+     "price_note": "Adhesive or roll-up whiteboard sheet.",
      "photos": [
       "room_003.jpg",
       "room_video_frame_00.jpg"
@@ -2668,22 +2668,22 @@
     "room_video_frame_00.jpg"
    ],
    "flags": [
-    "low Jev confidence on price (0.30)"
+    "low Jev confidence on price (0.29)"
    ]
   },
   {
    "n": 30,
-   "key": "frontier:opus-17|local:local-35",
+   "key": "frontier:opus-21|local:local-35",
    "category": "decor",
-   "name": "Eyelet window curtains, brown palm-tree print (set of 2 panels)",
+   "name": "Eyelet curtain panel, palm-beach print, brown",
    "brand": null,
    "model": null,
    "attributes": {
     "length": "about 5 ft",
-    "panels_per_set": "2",
-    "sets": "one per window"
+    "fabric": "polyester satin",
+    "windows": "2 windows, 2 panels each"
    },
-   "quantity": 2,
+   "quantity": 4,
    "condition": "fair",
    "age_years": null,
    "price_paid_inr": null,
@@ -2693,23 +2693,23 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.91,
+   "identity_confidence": 0.84,
    "identity_probs": {
-    "local": 0.04,
-    "frontier": 0.96
+    "frontier": 0.92,
+    "local": 0.08
    },
    "price_from": "frontier",
-   "price_confidence": 0.64,
+   "price_confidence": 0.25,
    "price_probs": {
-    "local": 0.18,
-    "frontier": 0.82
+    "frontier": 0.63,
+    "local": 0.37
    },
-   "rcv_unit_inr": 699.0,
-   "rcv_inr": 1398.0,
+   "rcv_unit_inr": 350.0,
+   "rcv_inr": 1400.0,
    "acv_inr": 560,
    "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
-   "price_source": "estimate (https://www.pepperfry.com/product/polyester-window-curtain-5-feet-pack-of-2-in-brown-color-by-cortina-1921518.html)",
-   "price_note": "Polyester 5 ft eyelet curtain pairs sell for about Rs 500 to Rs 900. The small cafe curtain behind window 1 is not counted.",
+   "price_source": "https://www.amazon.in/Cortina-Polyester-Decorative-Curtains-Gourment/dp/B07TQLGS65",
+   "price_note": "Per panel. 5 ft printed eyelet curtains sell at about Rs 500 to 1,000 for a set of 2.",
    "candidates": {
     "local": {
      "name": "curtain",
@@ -2730,19 +2730,18 @@
      ]
     },
     "frontier": {
-     "name": "Eyelet window curtains, brown palm-tree print (set of 2 panels)",
+     "name": "Eyelet curtain panel, palm-beach print, brown",
      "brand": null,
      "model": null,
-     "rcv_inr": 699.0,
-     "price_source": "estimate (https://www.pepperfry.com/product/polyester-window-curtain-5-feet-pack-of-2-in-brown-color-by-cortina-1921518.html)",
-     "price_note": "Polyester 5 ft eyelet curtain pairs sell for about Rs 500 to Rs 900. The small cafe curtain behind window 1 is not counted.",
+     "rcv_inr": 350.0,
+     "price_source": "https://www.amazon.in/Cortina-Polyester-Decorative-Curtains-Gourment/dp/B07TQLGS65",
+     "price_note": "Per panel. 5 ft printed eyelet curtains sell at about Rs 500 to 1,000 for a set of 2.",
      "photos": [
-      "item_local-35_closeup_00.jpg",
       "item_local-41_closeup_00.jpg",
+      "item_local-35_closeup_00.jpg",
       "room_004.jpg",
       "room_005.jpg",
       "room_video_frame_10.jpg",
-      "room_video_frame_13.jpg",
       "room_video_frame_14.jpg",
       "room_video_frame_15.jpg"
      ]
@@ -2756,38 +2755,49 @@
     "room_006.jpg",
     "room_video_frame_10.jpg",
     "room_video_frame_11.jpg",
-    "room_video_frame_13.jpg",
     "room_video_frame_14.jpg",
     "room_video_frame_15.jpg"
    ],
-   "flags": []
+   "flags": [
+    "frontier item matched by the owner's close-up",
+    "low Jev confidence on price (0.25)"
+   ]
   },
   {
    "n": 31,
-   "key": "local:local-41",
+   "key": "frontier:opus-22|local:local-41",
    "category": "decor",
-   "name": "curtain",
+   "name": "Steel curtain rod with brackets",
    "brand": null,
    "model": null,
-   "attributes": {},
-   "quantity": 1,
-   "condition": "poor",
+   "attributes": {
+    "length_est": "about 5 ft"
+   },
+   "quantity": 2,
+   "condition": "fair",
    "age_years": null,
    "price_paid_inr": null,
    "book": null,
    "sources": [
+    "frontier",
     "local"
    ],
-   "identity_from": "local",
-   "identity_confidence": null,
-   "identity_probs": {},
+   "identity_from": "frontier",
+   "identity_confidence": 0.57,
+   "identity_probs": {
+    "frontier": 0.78,
+    "local": 0.22
+   },
    "price_from": "local",
-   "price_confidence": null,
-   "price_probs": {},
+   "price_confidence": 0.26,
+   "price_probs": {
+    "frontier": 0.37,
+    "local": 0.63
+   },
    "rcv_unit_inr": 309,
-   "rcv_inr": 309,
-   "acv_inr": 46,
-   "acv_basis": "condition 'poor' read as 85% of a 10 y life used",
+   "rcv_inr": 618,
+   "acv_inr": 248,
+   "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
    "price_source": "https://www.google.com/search?ibp=oshop&q=curtain+home+decor&prds=localAnnotatedOfferId:1,productid:3944116203631919962,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
    "price_note": "median of 3 matching listings for 'curtain home decor' (Amazon.in)",
    "candidates": {
@@ -2802,27 +2812,40 @@
       "room_005.jpg",
       "item_local-41_closeup_00.jpg"
      ]
+    },
+    "frontier": {
+     "name": "Steel curtain rod with brackets",
+     "brand": null,
+     "model": null,
+     "rcv_inr": 600.0,
+     "price_source": "estimate",
+     "price_note": "Per rod, fitted.",
+     "photos": [
+      "item_local-41_closeup_00.jpg",
+      "item_local-35_closeup_00.jpg"
+     ]
     }
    },
    "photos": [
+    "item_local-35_closeup_00.jpg",
     "item_local-41_closeup_00.jpg",
     "room_005.jpg"
    ],
    "flags": [
-    "possible double count with Eyelet window curtains, brown palm-tree print (set of 2 panels) (opus-17), Jev 1.72"
-   ],
-   "suggest_duplicate_of": "frontier:opus-17|local:local-35"
+    "frontier item matched by the owner's close-up",
+    "low Jev confidence on price (0.26)"
+   ]
   },
   {
    "n": 32,
-   "key": "frontier:opus-12|local:local-39|voice:voice-local-39",
+   "key": "frontier:opus-14|local:local-39|voice:voice-local-39",
    "category": "furniture",
-   "name": "Box bed / diwan, laminated engineered wood, on castors",
+   "name": "Wooden box bed / diwan",
    "brand": null,
    "model": null,
    "attributes": {
-    "size_estimate": "about 6.25 x 4.5 ft (double)",
-    "material": "engineered wood, oak-look laminate",
+    "finish": "wood-grain laminate",
+    "size_est": "about 190 x 120 cm",
     "castors": "yes"
    },
    "quantity": 1,
@@ -2836,24 +2859,24 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.78,
+   "identity_confidence": 0.63,
    "identity_probs": {
-    "local": 0.03,
-    "frontier": 0.86,
-    "voice": 0.11
+    "frontier": 0.76,
+    "local": 0.05,
+    "voice": 0.19
    },
    "price_from": "frontier",
-   "price_confidence": 0.41,
+   "price_confidence": 0.42,
    "price_probs": {
-    "local": 0.29,
-    "frontier": 0.71
+    "frontier": 0.71,
+    "local": 0.29
    },
-   "rcv_unit_inr": 17989.0,
-   "rcv_inr": 17989.0,
-   "acv_inr": 1799,
+   "rcv_unit_inr": 9490.0,
+   "rcv_inr": 9490.0,
+   "acv_inr": 949,
    "acv_basis": "age 40 y of a 10 y life",
-   "price_source": "https://www.woodenstreet.com/divan-beds-with-storage",
-   "price_note": "Priced at the entry price for a storage diwan. Laminate edges are worn.",
+   "price_source": "https://www.amazon.in/single-diwan-with-storage/s?k=single+diwan+with+storage",
+   "price_note": "Closest equivalent: an engineered-wood diwan with storage on Amazon.in.",
    "candidates": {
     "local": {
      "name": "bed",
@@ -2870,12 +2893,12 @@
      ]
     },
     "frontier": {
-     "name": "Box bed / diwan, laminated engineered wood, on castors",
+     "name": "Wooden box bed / diwan",
      "brand": null,
      "model": null,
-     "rcv_inr": 17989.0,
-     "price_source": "https://www.woodenstreet.com/divan-beds-with-storage",
-     "price_note": "Priced at the entry price for a storage diwan. Laminate edges are worn.",
+     "rcv_inr": 9490.0,
+     "price_source": "https://www.amazon.in/single-diwan-with-storage/s?k=single+diwan+with+storage",
+     "price_note": "Closest equivalent: an engineered-wood diwan with storage on Amazon.in.",
      "photos": [
       "room_005.jpg",
       "room_004.jpg",
@@ -2902,18 +2925,18 @@
     "room_video_frame_15.jpg"
    ],
    "flags": [
-    "low Jev confidence on price (0.41)"
+    "low Jev confidence on price (0.42)"
    ]
   },
   {
    "n": 33,
-   "key": "frontier:opus-14|local:local-189",
+   "key": "frontier:opus-18|local:local-189",
    "category": "bedding",
-   "name": "Double bedsheet, patchwork print (red, black, beige)",
+   "name": "Patchwork bedsheet",
    "brand": null,
    "model": null,
    "attributes": {
-    "size": "double"
+    "pattern": "red, black, beige blocks"
    },
    "quantity": 1,
    "condition": "good",
@@ -2927,14 +2950,14 @@
    "identity_from": "frontier",
    "identity_confidence": 0.97,
    "identity_probs": {
-    "local": 0.02,
-    "frontier": 0.98
+    "frontier": 0.98,
+    "local": 0.02
    },
    "price_from": "local",
-   "price_confidence": 0.08,
+   "price_confidence": 0.04,
    "price_probs": {
-    "local": 0.54,
-    "frontier": 0.46
+    "frontier": 0.48,
+    "local": 0.52
    },
    "rcv_unit_inr": 1249,
    "rcv_inr": 1249,
@@ -2955,28 +2978,32 @@
      ]
     },
     "frontier": {
-     "name": "Double bedsheet, patchwork print (red, black, beige)",
+     "name": "Patchwork bedsheet",
      "brand": null,
      "model": null,
-     "rcv_inr": 499.0,
-     "price_source": "https://www.amazon.in/s?k=cotton+double+bedsheets+with+2+pillow+covers+combo",
-     "price_note": "Cotton double bedsheet combos sell for Rs 399 to Rs 650.",
+     "rcv_inr": 700.0,
+     "price_source": "estimate",
+     "price_note": "Cotton-blend printed bedsheet.",
      "photos": [
       "room_005.jpg",
+      "room_004.jpg",
       "room_006.jpg",
       "room_video_frame_15.jpg",
+      "item_local-41_closeup_00.jpg",
       "item_added-2_closeup_00.jpg"
      ]
     }
    },
    "photos": [
     "item_added-2_closeup_00.jpg",
+    "item_local-41_closeup_00.jpg",
+    "room_004.jpg",
     "room_005.jpg",
     "room_006.jpg",
     "room_video_frame_15.jpg"
    ],
    "flags": [
-    "low Jev confidence on price (0.08)"
+    "low Jev confidence on price (0.04)"
    ]
   },
   {
@@ -3023,7 +3050,10 @@
    "photos": [
     "room_004.jpg"
    ],
-   "flags": []
+   "flags": [
+    "possible double count with Patchwork bedsheet (opus-18), Jev 1.27"
+   ],
+   "suggest_duplicate_of": "frontier:opus-18|local:local-189"
   },
   {
    "n": 35,
@@ -3070,19 +3100,19 @@
     "room_video_frame_12.jpg"
    ],
    "flags": [
-    "possible double count with Pillow with peach cover (opus-16), Jev 0.77"
+    "possible double count with Pillow with peach cover (opus-19), Jev 0.93"
    ],
-   "suggest_duplicate_of": "frontier:opus-16|local:added-2"
+   "suggest_duplicate_of": "frontier:opus-19|local:added-2"
   },
   {
    "n": 36,
-   "key": "frontier:opus-21|local:local-48|voice:voice-local-48",
+   "key": "frontier:opus-17|local:local-48|voice:voice-local-48",
    "category": "bag_clothing",
-   "name": "Laptop backpack, navy blue",
+   "name": "Laptop backpack, navy",
    "brand": null,
    "model": null,
    "attributes": {
-    "capacity_estimate": "25 to 30 L"
+    "colour": "dark navy"
    },
    "quantity": 1,
    "condition": "good",
@@ -3095,24 +3125,24 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.67,
+   "identity_confidence": 0.71,
    "identity_probs": {
-    "local": 0.03,
-    "frontier": 0.78,
-    "voice": 0.19
+    "frontier": 0.8,
+    "local": 0.02,
+    "voice": 0.17
    },
-   "price_from": "frontier",
-   "price_confidence": 0.3,
+   "price_from": "local",
+   "price_confidence": 0.04,
    "price_probs": {
-    "local": 0.35,
-    "frontier": 0.65
+    "frontier": 0.48,
+    "local": 0.52
    },
-   "rcv_unit_inr": 1299.0,
-   "rcv_inr": 1299.0,
-   "acv_inr": 844,
+   "rcv_unit_inr": 1305,
+   "rcv_inr": 1305,
+   "acv_inr": 848,
    "acv_basis": "condition 'good' read as 35% of a 3 y life used",
-   "price_source": "estimate (https://www.amazon.in/15-6-inch-laptop-backpack/s?k=15.6+inch+laptop+backpack)",
-   "price_note": "Brand not visible. Priced as a mid-range 15.6 inch laptop backpack (Safari or Aristocrat class).",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=backpack&prds=localAnnotatedOfferId:1,catalogid:3902926389994849695,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 18 matching listings for 'backpack' (Amazon.in, Decathlon Sports India, Flipkart, Myntra, Samsonite, Swiss Military India, Wildcraft Official, mokobara)",
    "candidates": {
     "local": {
      "name": "backpack",
@@ -3128,16 +3158,16 @@
      ]
     },
     "frontier": {
-     "name": "Laptop backpack, navy blue",
+     "name": "Laptop backpack, navy",
      "brand": null,
      "model": null,
-     "rcv_inr": 1299.0,
-     "price_source": "estimate (https://www.amazon.in/15-6-inch-laptop-backpack/s?k=15.6+inch+laptop+backpack)",
-     "price_note": "Brand not visible. Priced as a mid-range 15.6 inch laptop backpack (Safari or Aristocrat class).",
+     "rcv_inr": 1200.0,
+     "price_source": "estimate",
+     "price_note": "No brand visible; priced as a mid-range laptop backpack.",
      "photos": [
       "room_006.jpg",
-      "room_005.jpg",
-      "room_video_frame_11.jpg"
+      "room_video_frame_11.jpg",
+      "room_005.jpg"
      ]
     },
     "voice": {
@@ -3156,20 +3186,20 @@
     "room_video_frame_11.jpg"
    ],
    "flags": [
-    "low Jev confidence on price (0.30)",
+    "low Jev confidence on price (0.04)",
     "owner: free or provided (the owner said so); may not be the owner's to claim"
    ]
   },
   {
    "n": 37,
-   "key": "frontier:opus-20|local:local-55|voice:voice-local-55",
+   "key": "frontier:opus-16|local:local-55|voice:voice-local-55",
    "category": "bag_clothing",
-   "name": "Uppercase hard-shell trolley suitcase with printed cover",
-   "brand": "uppercase",
+   "name": "Uppercase hard-shell trolley suitcase, LAX print",
+   "brand": "Uppercase",
    "model": null,
    "attributes": {
-    "size_estimate": "cabin/small, about 56 cm",
-    "cover": "LAX airport-print stretch cover",
+    "size_est": "cabin/medium",
+    "shell": "hard polycarbonate",
     "wheels": "4 spinner, red"
    },
    "quantity": 1,
@@ -3183,24 +3213,24 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.74,
+   "identity_confidence": 0.75,
    "identity_probs": {
-    "local": 0.13,
     "frontier": 0.83,
+    "local": 0.13,
     "voice": 0.04
    },
    "price_from": "frontier",
-   "price_confidence": 0.4,
+   "price_confidence": 0.58,
    "price_probs": {
-    "frontier": 0.7,
-    "voice": 0.3
+    "frontier": 0.79,
+    "voice": 0.21
    },
-   "rcv_unit_inr": 3499.0,
-   "rcv_inr": 3499.0,
-   "acv_inr": 1166,
+   "rcv_unit_inr": 4000.0,
+   "rcv_inr": 4000.0,
+   "acv_inr": 1333,
    "acv_basis": "age 2 y of a 3 y life",
-   "price_source": "estimate (https://www.amazon.in/uppercase-Hardsided-Polycarbonate-Luggage-Suitcase/dp/B0CH899D3D)",
-   "price_note": "Brand read. Size is estimated. Priced near an Uppercase Bullet small 56 cm, whose live price did not load.",
+   "price_source": "https://www.amazon.in/uppercase-cabin-trolley-bags/s?k=uppercase+cabin+trolley+bags",
+   "price_note": "Estimate. Uppercase printed hard cabin trolleys (Topo/Bullet) list at about Rs 3,500 to 4,500; the page gave no exact price.",
    "candidates": {
     "local": {
      "name": "suitcase",
@@ -3214,17 +3244,18 @@
      ]
     },
     "frontier": {
-     "name": "Uppercase hard-shell trolley suitcase with printed cover",
-     "brand": "uppercase",
+     "name": "Uppercase hard-shell trolley suitcase, LAX print",
+     "brand": "Uppercase",
      "model": null,
-     "rcv_inr": 3499.0,
-     "price_source": "estimate (https://www.amazon.in/uppercase-Hardsided-Polycarbonate-Luggage-Suitcase/dp/B0CH899D3D)",
-     "price_note": "Brand read. Size is estimated. Priced near an Uppercase Bullet small 56 cm, whose live price did not load.",
+     "rcv_inr": 4000.0,
+     "price_source": "https://www.amazon.in/uppercase-cabin-trolley-bags/s?k=uppercase+cabin+trolley+bags",
+     "price_note": "Estimate. Uppercase printed hard cabin trolleys (Topo/Bullet) list at about Rs 3,500 to 4,500; the page gave no exact price.",
      "photos": [
       "room_006.jpg",
       "room_005.jpg",
       "room_video_frame_11.jpg",
       "room_video_frame_12.jpg",
+      "room_video_frame_13.jpg",
       "item_added-2_closeup_00.jpg"
      ]
     },
@@ -3243,22 +3274,25 @@
     "room_005.jpg",
     "room_006.jpg",
     "room_video_frame_11.jpg",
-    "room_video_frame_12.jpg"
+    "room_video_frame_12.jpg",
+    "room_video_frame_13.jpg"
    ],
    "flags": [
-    "merged on 'possibly the same' (1.43) as mutual best match",
-    "low Jev confidence on price (0.40)"
+    "merged on 'possibly the same' (1.26) as mutual best match"
    ]
   },
   {
    "n": 38,
-   "key": "frontier:opus-10|local:added-1|voice:voice-added-1",
+   "key": "frontier:opus-12|local:added-1|voice:voice-added-1",
    "category": "furniture",
-   "name": "Green Soul high-back ergonomic mesh chair with headrest",
+   "name": "Green Soul high-back ergonomic mesh chair",
    "brand": "Green Soul",
-   "model": "Jupiter Superb class (not confirmed)",
+   "model": null,
    "attributes": {
-    "features": "mesh back, adjustable headrest, 2D armrests, chrome 5-star base, castors"
+    "headrest": "adjustable",
+    "armrests": "2D adjustable",
+    "base": "chrome 5-star with castors",
+    "back": "mesh"
    },
    "quantity": 1,
    "condition": "good",
@@ -3271,17 +3305,17 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.97,
+   "identity_confidence": 0.96,
    "identity_probs": {
-    "local": 0.01,
     "frontier": 0.98,
+    "local": 0.01,
     "voice": 0.01
    },
    "price_from": "voice",
-   "price_confidence": 0.54,
+   "price_confidence": 0.61,
    "price_probs": {
-    "frontier": 0.23,
-    "voice": 0.77
+    "frontier": 0.19,
+    "voice": 0.81
    },
    "rcv_unit_inr": 5500.0,
    "rcv_inr": 5500.0,
@@ -3302,12 +3336,12 @@
      ]
     },
     "frontier": {
-     "name": "Green Soul high-back ergonomic mesh chair with headrest",
+     "name": "Green Soul high-back ergonomic mesh chair",
      "brand": "Green Soul",
-     "model": "Jupiter Superb class (not confirmed)",
-     "rcv_inr": 8499.0,
-     "price_source": "https://www.amazon.in/Green-Jupiter-Superb-Multi-Tilt-2-Dimensional-Adjustable/dp/B0987V3K22",
-     "price_note": "Model name not readable. The design matches the Jupiter Superb high back (chrome base, 2D arms, headrest). Premium Green Soul models reach Rs 30,000.",
+     "model": null,
+     "rcv_inr": 8190.0,
+     "price_source": "https://www.greensoul.online/blogs/blog/best-ergonomic-office-chairs-in-india-buying-guide",
+     "price_note": "Exact model not readable. Closest Green Soul high-back chair with headrest and chrome base: Jupiter Superb Rs 8,190 (Inspire Rs 9,499).",
      "photos": [
       "item_added-1_closeup_00.jpg",
       "room_video_frame_04.jpg",
@@ -3335,14 +3369,14 @@
   },
   {
    "n": 39,
-   "key": "frontier:opus-16|local:added-2",
+   "key": "frontier:opus-19|local:added-2",
    "category": "bedding",
    "name": "Pillow with peach cover",
    "brand": null,
    "model": null,
    "attributes": {},
    "quantity": 1,
-   "condition": "good",
+   "condition": "fair",
    "age_years": null,
    "price_paid_inr": null,
    "book": null,
@@ -3353,19 +3387,19 @@
    "identity_from": "frontier",
    "identity_confidence": 0.9,
    "identity_probs": {
-    "local": 0.05,
-    "frontier": 0.95
+    "frontier": 0.95,
+    "local": 0.05
    },
    "price_from": "local",
-   "price_confidence": 0.21,
+   "price_confidence": 0.54,
    "price_probs": {
-    "local": 0.6,
-    "frontier": 0.4
+    "frontier": 0.23,
+    "local": 0.77
    },
    "rcv_unit_inr": 1030,
    "rcv_inr": 1030,
-   "acv_inr": 670,
-   "acv_basis": "condition 'good' read as 35% of a 5 y life used",
+   "acv_inr": 412,
+   "acv_basis": "condition 'fair' read as 60% of a 5 y life used",
    "price_source": "https://www.google.com/search?ibp=oshop&q=Pillow&prds=localAnnotatedOfferId:1,catalogid:3329639175523923390,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
    "price_note": "median of 18 matching listings for 'Pillow' (Amazon.in, Flo Mattress, Frido, IKEA.in, Meesho, Myntra, Myntra - MNow, Nykaa, PharmEasy, Slovic.com, Spaces, Springtek, Sunday Mattress, Wakefit)",
    "candidates": {
@@ -3384,36 +3418,105 @@
      "name": "Pillow with peach cover",
      "brand": null,
      "model": null,
-     "rcv_inr": 399.0,
+     "rcv_inr": 350.0,
      "price_source": "estimate",
-     "price_note": "Generic fibre pillow with cover.",
+     "price_note": "",
      "photos": [
       "item_added-2_closeup_00.jpg",
-      "room_006.jpg"
+      "room_005.jpg"
      ]
     }
    },
    "photos": [
     "item_added-2_closeup_00.jpg",
-    "room_006.jpg"
+    "room_005.jpg"
    ],
-   "flags": [
-    "low Jev confidence on price (0.21)"
-   ]
+   "flags": []
   },
   {
    "n": 40,
+   "key": "frontier:opus-8|local:added-3",
+   "category": "appliance",
+   "name": "Good Knight Flash liquid vaporiser",
+   "brand": "Godrej Good Knight",
+   "model": "Flash",
+   "attributes": {
+    "refill": "45 ml"
+   },
+   "quantity": 1,
+   "condition": "good",
+   "age_years": null,
+   "price_paid_inr": null,
+   "book": null,
+   "sources": [
+    "frontier",
+    "local"
+   ],
+   "identity_from": "frontier",
+   "identity_confidence": 0.45,
+   "identity_probs": {
+    "frontier": 0.73,
+    "local": 0.27
+   },
+   "price_from": "local",
+   "price_confidence": 0.89,
+   "price_probs": {
+    "frontier": 0.06,
+    "local": 0.94
+   },
+   "rcv_unit_inr": 160,
+   "rcv_inr": 160,
+   "acv_inr": 104,
+   "acv_basis": "condition 'good' read as 35% of a 8 y life used",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=Good+Knight+Flash+45+ml+liquid+mosquito+repellent&prds=localAnnotatedOfferId:1,catalogid:17268900652596201344,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 16 matching listings for 'Good Knight Flash 45 ml liquid mosquito repellent' (Agamya Store, Amazon.in, Apollo247, Bajarhaat, DMart Ready, Flipkart, HIBA, Mystore, Zepto, amazon.in)",
+   "candidates": {
+    "local": {
+     "name": "Good Knight liquid mosquito repellent",
+     "brand": "Good Knight",
+     "model": "Flash",
+     "rcv_inr": 160,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=Good+Knight+Flash+45+ml+liquid+mosquito+repellent&prds=localAnnotatedOfferId:1,catalogid:17268900652596201344,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 16 matching listings for 'Good Knight Flash 45 ml liquid mosquito repellent' (Agamya Store, Amazon.in, Apollo247, Bajarhaat, DMart Ready, Flipkart, HIBA, Mystore, Zepto, amazon.in)",
+     "photos": [
+      "item_added-3_closeup_000.jpg"
+     ]
+    },
+    "frontier": {
+     "name": "Good Knight Flash liquid vaporiser",
+     "brand": "Godrej Good Knight",
+     "model": "Flash",
+     "rcv_inr": 110.0,
+     "price_source": "https://blinkit.com/prn/good-knight-flash-liquid-vaporiser-mosquito-killer-machine-with-3-refills-combo-pack/prid/422973",
+     "price_note": "Machine about Rs 110. The combo with 3 refills is Rs 250.",
+     "photos": [
+      "item_added-3_closeup_000.jpg",
+      "room_video_frame_14.jpg"
+     ]
+    }
+   },
+   "photos": [
+    "item_added-3_closeup_000.jpg",
+    "room_video_frame_14.jpg"
+   ],
+   "flags": [
+    "frontier item matched by the owner's close-up",
+    "low Jev confidence on identity (0.45)"
+   ]
+  },
+  {
+   "n": 41,
    "key": "frontier:opus-3",
    "category": "computer_accessory",
    "name": "Extended gaming mouse pad, anime print",
    "brand": null,
    "model": null,
    "attributes": {
-    "size_estimate": "about 80 x 35 cm",
-    "print": "anime character, red and orange"
+    "size_est": "about 80 x 30 cm",
+    "print": "anime character (red and orange)"
    },
    "quantity": 1,
-   "condition": "fair",
+   "condition": "good",
    "age_years": null,
    "price_paid_inr": null,
    "book": null,
@@ -3426,23 +3529,24 @@
    "price_from": "frontier",
    "price_confidence": null,
    "price_probs": {},
-   "rcv_unit_inr": 599.0,
-   "rcv_inr": 599.0,
-   "acv_inr": 240,
-   "acv_basis": "condition 'fair' read as 60% of a 4 y life used",
-   "price_source": "estimate (https://www.amazon.in/gaming-mouse-900mm-x-400mm/s?k=gaming+mouse+pad+900mm+x+400mm)",
-   "price_note": "Unbranded extended pads sell for about Rs 400 to Rs 800 on Amazon.in. Branded 900x400 pads cost up to Rs 1,865.",
+   "rcv_unit_inr": 499.0,
+   "rcv_inr": 499.0,
+   "acv_inr": 324,
+   "acv_basis": "condition 'good' read as 35% of a 4 y life used",
+   "price_source": "estimate",
+   "price_note": "Generic printed XL desk mat; Amazon.in price range Rs 400 to 700.",
    "candidates": {
     "frontier": {
      "name": "Extended gaming mouse pad, anime print",
      "brand": null,
      "model": null,
-     "rcv_inr": 599.0,
-     "price_source": "estimate (https://www.amazon.in/gaming-mouse-900mm-x-400mm/s?k=gaming+mouse+pad+900mm+x+400mm)",
-     "price_note": "Unbranded extended pads sell for about Rs 400 to Rs 800 on Amazon.in. Branded 900x400 pads cost up to Rs 1,865.",
+     "rcv_inr": 499.0,
+     "price_source": "estimate",
+     "price_note": "Generic printed XL desk mat; Amazon.in price range Rs 400 to 700.",
      "photos": [
       "room_000.jpg",
       "room_video_frame_02.jpg",
+      "room_video_frame_03.jpg",
       "item_local-79_closeup_00.jpg"
      ]
     }
@@ -3450,266 +3554,23 @@
    "photos": [
     "item_local-79_closeup_00.jpg",
     "room_000.jpg",
-    "room_video_frame_02.jpg"
-   ],
-   "flags": []
-  },
-  {
-   "n": 41,
-   "key": "frontier:opus-8",
-   "category": "other",
-   "name": "Remote control, black (device unknown)",
-   "brand": null,
-   "model": null,
-   "attributes": {
-    "buttons": "red power button, D-pad, moon (sleep) key"
-   },
-   "quantity": 1,
-   "condition": "good",
-   "age_years": null,
-   "price_paid_inr": null,
-   "book": null,
-   "sources": [
-    "frontier"
-   ],
-   "identity_from": "frontier",
-   "identity_confidence": null,
-   "identity_probs": {},
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 299.0,
-   "rcv_inr": 299.0,
-   "acv_inr": 194,
-   "acv_basis": "condition 'good' read as 35% of a 5 y life used",
-   "price_source": "estimate",
-   "price_note": "Likely a fan or LED remote. The device it controls is not seen.",
-   "candidates": {
-    "frontier": {
-     "name": "Remote control, black (device unknown)",
-     "brand": null,
-     "model": null,
-     "rcv_inr": 299.0,
-     "price_source": "estimate",
-     "price_note": "Likely a fan or LED remote. The device it controls is not seen.",
-     "photos": [
-      "room_video_frame_09.jpg",
-      "room_video_frame_05.jpg"
-     ]
-    }
-   },
-   "photos": [
-    "room_video_frame_05.jpg",
-    "room_video_frame_09.jpg"
+    "room_video_frame_02.jpg",
+    "room_video_frame_03.jpg"
    ],
    "flags": []
   },
   {
    "n": 42,
-   "key": "frontier:opus-13",
-   "category": "bedding",
-   "name": "Foam mattress, double (under bedsheet)",
-   "brand": null,
-   "model": null,
-   "attributes": {
-    "size_estimate": "72 x 48 x 4 inch"
-   },
-   "quantity": 1,
-   "condition": "good",
-   "age_years": null,
-   "price_paid_inr": null,
-   "book": null,
-   "sources": [
-    "frontier"
-   ],
-   "identity_from": "frontier",
-   "identity_confidence": null,
-   "identity_probs": {},
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 4599.0,
-   "rcv_inr": 4599.0,
-   "acv_inr": 2989,
-   "acv_basis": "condition 'good' read as 35% of a 5 y life used",
-   "price_source": "https://www.amazon.in/mattress-72-48-4-inch/s?k=mattress+72+48+4+inch",
-   "price_note": "Not directly visible. The sheet sits a few cm above the box frame, so a thin mattress is inferred. Verify with the owner.",
-   "candidates": {
-    "frontier": {
-     "name": "Foam mattress, double (under bedsheet)",
-     "brand": null,
-     "model": null,
-     "rcv_inr": 4599.0,
-     "price_source": "https://www.amazon.in/mattress-72-48-4-inch/s?k=mattress+72+48+4+inch",
-     "price_note": "Not directly visible. The sheet sits a few cm above the box frame, so a thin mattress is inferred. Verify with the owner.",
-     "photos": [
-      "room_005.jpg"
-     ]
-    }
-   },
-   "photos": [
-    "room_005.jpg"
-   ],
-   "flags": []
-  },
-  {
-   "n": 43,
-   "key": "frontier:opus-15",
-   "category": "bedding",
-   "name": "Dohar / AC blanket, white with grey print, folded",
-   "brand": null,
-   "model": null,
-   "attributes": {
-    "size": "double (est.)"
-   },
-   "quantity": 1,
-   "condition": "good",
-   "age_years": null,
-   "price_paid_inr": null,
-   "book": null,
-   "sources": [
-    "frontier"
-   ],
-   "identity_from": "frontier",
-   "identity_confidence": null,
-   "identity_probs": {},
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 899.0,
-   "rcv_inr": 899.0,
-   "acv_inr": 584,
-   "acv_basis": "condition 'good' read as 35% of a 5 y life used",
-   "price_source": "https://www.amazon.in/ac-dohar-double-bed/s?k=ac+dohar+double+bed",
-   "price_note": "Cotton double dohars start around Rs 899.",
-   "candidates": {
-    "frontier": {
-     "name": "Dohar / AC blanket, white with grey print, folded",
-     "brand": null,
-     "model": null,
-     "rcv_inr": 899.0,
-     "price_source": "https://www.amazon.in/ac-dohar-double-bed/s?k=ac+dohar+double+bed",
-     "price_note": "Cotton double dohars start around Rs 899.",
-     "photos": [
-      "item_added-2_closeup_00.jpg",
-      "room_005.jpg",
-      "room_006.jpg"
-     ]
-    }
-   },
-   "photos": [
-    "item_added-2_closeup_00.jpg",
-    "room_005.jpg",
-    "room_006.jpg"
-   ],
-   "flags": []
-  },
-  {
-   "n": 44,
-   "key": "frontier:opus-22",
-   "category": "bag_clothing",
-   "name": "Footwear under the almirah",
-   "brand": null,
-   "model": null,
-   "attributes": {
-    "pairs_visible": "2"
-   },
-   "quantity": 2,
-   "condition": "fair",
-   "age_years": null,
-   "price_paid_inr": null,
-   "book": null,
-   "sources": [
-    "frontier"
-   ],
-   "identity_from": "frontier",
-   "identity_confidence": null,
-   "identity_probs": {},
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 600.0,
-   "rcv_inr": 1200.0,
-   "acv_inr": 480,
-   "acv_basis": "condition 'fair' read as 60% of a 3 y life used",
-   "price_source": "estimate",
-   "price_note": "Only partly visible under the almirah plinth.",
-   "candidates": {
-    "frontier": {
-     "name": "Footwear under the almirah",
-     "brand": null,
-     "model": null,
-     "rcv_inr": 600.0,
-     "price_source": "estimate",
-     "price_note": "Only partly visible under the almirah plinth.",
-     "photos": [
-      "room_004.jpg"
-     ]
-    }
-   },
-   "photos": [
-    "room_004.jpg"
-   ],
-   "flags": []
-  },
-  {
-   "n": 45,
-   "key": "frontier:opus-24",
-   "category": "other",
-   "name": "Floor mop / broom",
-   "brand": null,
-   "model": null,
-   "attributes": {},
-   "quantity": 1,
-   "condition": "fair",
-   "age_years": null,
-   "price_paid_inr": null,
-   "book": null,
-   "sources": [
-    "frontier"
-   ],
-   "identity_from": "frontier",
-   "identity_confidence": null,
-   "identity_probs": {},
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 199.0,
-   "rcv_inr": 199.0,
-   "acv_inr": 80,
-   "acv_basis": "condition 'fair' read as 60% of a 5 y life used",
-   "price_source": "estimate",
-   "price_note": "Only the handle is visible.",
-   "candidates": {
-    "frontier": {
-     "name": "Floor mop / broom",
-     "brand": null,
-     "model": null,
-     "rcv_inr": 199.0,
-     "price_source": "estimate",
-     "price_note": "Only the handle is visible.",
-     "photos": [
-      "room_004.jpg"
-     ]
-    }
-   },
-   "photos": [
-    "room_004.jpg"
-   ],
-   "flags": []
-  },
-  {
-   "n": 46,
-   "key": "frontier:opus-25",
+   "key": "frontier:opus-9",
    "category": "lighting",
-   "name": "LED bulb (yellow) in wall batten holder",
+   "name": "LED bulb on wall batten holder",
    "brand": null,
    "model": null,
    "attributes": {
-    "type": "B22 LED bulb, yellow"
+    "colour": "yellow"
    },
    "quantity": 1,
-   "condition": "good",
+   "condition": "fair",
    "age_years": null,
    "price_paid_inr": null,
    "book": null,
@@ -3722,42 +3583,42 @@
    "price_from": "frontier",
    "price_confidence": null,
    "price_probs": {},
-   "rcv_unit_inr": 150.0,
-   "rcv_inr": 150.0,
-   "acv_inr": 98,
-   "acv_basis": "condition 'good' read as 35% of a 5 y life used",
+   "rcv_unit_inr": 120.0,
+   "rcv_inr": 120.0,
+   "acv_inr": 48,
+   "acv_basis": "condition 'fair' read as 60% of a 5 y life used",
    "price_source": "estimate",
    "price_note": "Bulb plus holder.",
    "candidates": {
     "frontier": {
-     "name": "LED bulb (yellow) in wall batten holder",
+     "name": "LED bulb on wall batten holder",
      "brand": null,
      "model": null,
-     "rcv_inr": 150.0,
+     "rcv_inr": 120.0,
      "price_source": "estimate",
      "price_note": "Bulb plus holder.",
      "photos": [
       "item_local-160_closeup_00.jpg",
-      "room_video_frame_10.jpg",
-      "room_video_frame_13.jpg"
+      "room_video_frame_10.jpg"
      ]
     }
    },
    "photos": [
     "item_local-160_closeup_00.jpg",
-    "room_video_frame_10.jpg",
-    "room_video_frame_13.jpg"
+    "room_video_frame_10.jpg"
    ],
    "flags": []
   },
   {
-   "n": 47,
-   "key": "frontier:opus-26",
+   "n": 43,
+   "key": "frontier:opus-10",
    "category": "lighting",
-   "name": "Wall-mounted light above the desk (bracket fitting)",
+   "name": "Wall light fitting above the desk",
    "brand": null,
    "model": null,
-   "attributes": {},
+   "attributes": {
+    "type": "small wall-mounted LED fitting"
+   },
    "quantity": 1,
    "condition": "good",
    "age_years": null,
@@ -3772,20 +3633,20 @@
    "price_from": "frontier",
    "price_confidence": null,
    "price_probs": {},
-   "rcv_unit_inr": 250.0,
-   "rcv_inr": 250.0,
-   "acv_inr": 162,
+   "rcv_unit_inr": 300.0,
+   "rcv_inr": 300.0,
+   "acv_inr": 195,
    "acv_basis": "condition 'good' read as 35% of a 5 y life used",
    "price_source": "estimate",
-   "price_note": "Fitting mostly hidden by glare. Priced as an LED bulb in a wall bracket.",
+   "price_note": "Glare hides its shape; priced as a basic LED wall light.",
    "candidates": {
     "frontier": {
-     "name": "Wall-mounted light above the desk (bracket fitting)",
+     "name": "Wall light fitting above the desk",
      "brand": null,
      "model": null,
-     "rcv_inr": 250.0,
+     "rcv_inr": 300.0,
      "price_source": "estimate",
-     "price_note": "Fitting mostly hidden by glare. Priced as an LED bulb in a wall bracket.",
+     "price_note": "Glare hides its shape; priced as a basic LED wall light.",
      "photos": [
       "item_local-158_closeup_00.jpg"
      ]
@@ -3797,18 +3658,69 @@
    "flags": []
   },
   {
-   "n": 48,
-   "key": "frontier:opus-28",
+   "n": 44,
+   "key": "frontier:opus-20",
+   "category": "bedding",
+   "name": "Folded dohar / light blanket, white with grey print",
+   "brand": null,
+   "model": null,
+   "attributes": {},
+   "quantity": 1,
+   "condition": "good",
+   "age_years": null,
+   "price_paid_inr": null,
+   "book": null,
+   "sources": [
+    "frontier"
+   ],
+   "identity_from": "frontier",
+   "identity_confidence": null,
+   "identity_probs": {},
+   "price_from": "frontier",
+   "price_confidence": null,
+   "price_probs": {},
+   "rcv_unit_inr": 800.0,
+   "rcv_inr": 800.0,
+   "acv_inr": 520,
+   "acv_basis": "condition 'good' read as 35% of a 5 y life used",
+   "price_source": "estimate",
+   "price_note": "",
+   "candidates": {
+    "frontier": {
+     "name": "Folded dohar / light blanket, white with grey print",
+     "brand": null,
+     "model": null,
+     "rcv_inr": 800.0,
+     "price_source": "estimate",
+     "price_note": "",
+     "photos": [
+      "item_added-2_closeup_00.jpg",
+      "room_005.jpg",
+      "room_006.jpg",
+      "room_video_frame_12.jpg"
+     ]
+    }
+   },
+   "photos": [
+    "item_added-2_closeup_00.jpg",
+    "room_005.jpg",
+    "room_006.jpg",
+    "room_video_frame_12.jpg"
+   ],
+   "flags": []
+  },
+  {
+   "n": 45,
+   "key": "frontier:opus-25",
    "category": "electrical_fixture",
-   "name": "Old wooden switchboard with bakelite round fittings (near window 2)",
+   "name": "Old wooden switchboard with round bakelite fittings",
    "brand": null,
    "model": null,
    "attributes": {
     "switches": "2",
     "sockets": "1",
     "regulators": "0",
-    "plate": "wooden board, about 10 x 6 inch, 3 round surface fittings",
-    "hazard": "scorch marks around the 3-pin socket pins"
+    "plate": "wooden board about 25 x 15 cm (round surface fittings, about 4M equivalent)"
    },
    "quantity": 1,
    "condition": "poor",
@@ -3824,20 +3736,20 @@
    "price_from": "frontier",
    "price_confidence": null,
    "price_probs": {},
-   "rcv_unit_inr": 800.0,
-   "rcv_inr": 800.0,
-   "acv_inr": 120,
+   "rcv_unit_inr": 600.0,
+   "rcv_inr": 600.0,
+   "acv_inr": 90,
    "acv_basis": "condition 'poor' read as 85% of a 15 y life used",
    "price_source": "estimate",
-   "price_note": "Replacement cost as a modern 3M surface box with 2 switches and 1 socket, installed.",
+   "price_note": "1 three-pin socket, 1 small round switch, 1 large round (power) switch. The burnt socket is a fire risk and should be replaced.",
    "candidates": {
     "frontier": {
-     "name": "Old wooden switchboard with bakelite round fittings (near window 2)",
+     "name": "Old wooden switchboard with round bakelite fittings",
      "brand": null,
      "model": null,
-     "rcv_inr": 800.0,
+     "rcv_inr": 600.0,
      "price_source": "estimate",
-     "price_note": "Replacement cost as a modern 3M surface box with 2 switches and 1 socket, installed.",
+     "price_note": "1 three-pin socket, 1 small round switch, 1 large round (power) switch. The burnt socket is a fire risk and should be replaced.",
      "photos": [
       "item_local-46_closeup_00.jpg",
       "room_005.jpg",
@@ -3855,16 +3767,74 @@
    "flags": []
   },
   {
-   "n": 49,
-   "key": "frontier:opus-31",
+   "n": 46,
+   "key": "frontier:opus-28",
    "category": "building_fixture",
-   "name": "Main door: flush door, orange laminate, with frame and lever lockset",
+   "name": "Flush door, orange laminate, with wooden frame and lever lock",
    "brand": null,
    "model": null,
    "attributes": {
-    "size_estimate": "about 3 x 7 ft (0.9 x 2.1 m)",
-    "material": "flush shutter with laminate or enamel finish, light hardwood frame",
-    "hardware": "stainless lever handle, mortise lock with key cylinder, hinges"
+    "size_est": "about 0.9 x 2.1 m",
+    "material": "laminated flush shutter, wooden frame (chowkat)",
+    "hardware": "steel lever handle, keyed lock, hinges"
+   },
+   "quantity": 1,
+   "condition": "fair",
+   "age_years": null,
+   "price_paid_inr": null,
+   "book": null,
+   "sources": [
+    "frontier"
+   ],
+   "identity_from": "frontier",
+   "identity_confidence": null,
+   "identity_probs": {},
+   "price_from": "frontier",
+   "price_confidence": null,
+   "price_probs": {},
+   "rcv_unit_inr": 12000.0,
+   "rcv_inr": 12000.0,
+   "acv_inr": 4800,
+   "acv_basis": "condition 'fair' read as 60% of a 30 y life used",
+   "price_source": "https://www.studiomatrx.org/guides/flush-door-price-india",
+   "price_note": "Flush shutter, frame, hinges, lock and carpenter labour typically cost Rs 10,000 to 13,500 installed.",
+   "candidates": {
+    "frontier": {
+     "name": "Flush door, orange laminate, with wooden frame and lever lock",
+     "brand": null,
+     "model": null,
+     "rcv_inr": 12000.0,
+     "price_source": "https://www.studiomatrx.org/guides/flush-door-price-india",
+     "price_note": "Flush shutter, frame, hinges, lock and carpenter labour typically cost Rs 10,000 to 13,500 installed.",
+     "photos": [
+      "room_video_frame_04.jpg",
+      "room_video_frame_05.jpg",
+      "room_video_frame_09.jpg",
+      "room_video_frame_14.jpg",
+      "item_local-158_closeup_00.jpg"
+     ]
+    }
+   },
+   "photos": [
+    "item_local-158_closeup_00.jpg",
+    "room_video_frame_04.jpg",
+    "room_video_frame_05.jpg",
+    "room_video_frame_09.jpg",
+    "room_video_frame_14.jpg"
+   ],
+   "flags": []
+  },
+  {
+   "n": 47,
+   "key": "frontier:opus-29",
+   "category": "building_fixture",
+   "name": "Panel door, natural wood finish, with frame",
+   "brand": null,
+   "model": null,
+   "attributes": {
+    "size_est": "about 0.8 x 2.1 m",
+    "material": "wooden panel shutter, wooden frame",
+    "hardware": "hinges, bolt"
    },
    "quantity": 1,
    "condition": "good",
@@ -3884,72 +3854,16 @@
    "rcv_inr": 14000.0,
    "acv_inr": 9100,
    "acv_basis": "condition 'good' read as 35% of a 30 y life used",
-   "price_source": "https://www.studiomatrx.org/guides/flush-door-price-india",
-   "price_note": "A basic flush door installed runs about Rs 13,000 to Rs 13,500. The laminate finish and lever mortise lock justify a small uplift. Supply plus installation.",
+   "price_source": "https://www.studiomatrx.org/guides/door-installation-cost-india",
+   "price_note": "Seen only behind the chair. It may open into the next room; confirm it belongs to this room. Priced as a wooden panel door with frame, fitted.",
    "candidates": {
     "frontier": {
-     "name": "Main door: flush door, orange laminate, with frame and lever lockset",
+     "name": "Panel door, natural wood finish, with frame",
      "brand": null,
      "model": null,
      "rcv_inr": 14000.0,
-     "price_source": "https://www.studiomatrx.org/guides/flush-door-price-india",
-     "price_note": "A basic flush door installed runs about Rs 13,000 to Rs 13,500. The laminate finish and lever mortise lock justify a small uplift. Supply plus installation.",
-     "photos": [
-      "room_video_frame_04.jpg",
-      "room_video_frame_05.jpg",
-      "room_video_frame_09.jpg",
-      "room_video_frame_14.jpg"
-     ]
-    }
-   },
-   "photos": [
-    "room_video_frame_04.jpg",
-    "room_video_frame_05.jpg",
-    "room_video_frame_09.jpg",
-    "room_video_frame_14.jpg"
-   ],
-   "flags": []
-  },
-  {
-   "n": 50,
-   "key": "frontier:opus-32",
-   "category": "building_fixture",
-   "name": "Panel door, natural teak-finish wood, with frame",
-   "brand": null,
-   "model": null,
-   "attributes": {
-    "size_estimate": "about 3 x 7 ft",
-    "material": "solid wood panel shutter, wooden frame",
-    "hardware": "hinges, bolt, handle"
-   },
-   "quantity": 1,
-   "condition": "good",
-   "age_years": null,
-   "price_paid_inr": null,
-   "book": null,
-   "sources": [
-    "frontier"
-   ],
-   "identity_from": "frontier",
-   "identity_confidence": null,
-   "identity_probs": {},
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 20000.0,
-   "rcv_inr": 20000.0,
-   "acv_inr": 13000,
-   "acv_basis": "condition 'good' read as 35% of a 30 y life used",
-   "price_source": "estimate (https://www.studiomatrx.org/guides/home-doors-complete-guide-india-2026)",
-   "price_note": "Seen in only one photo. It may belong to an adjoining room or wardrobe, so verify it opens into this room. Supply plus installation.",
-   "candidates": {
-    "frontier": {
-     "name": "Panel door, natural teak-finish wood, with frame",
-     "brand": null,
-     "model": null,
-     "rcv_inr": 20000.0,
-     "price_source": "estimate (https://www.studiomatrx.org/guides/home-doors-complete-guide-india-2026)",
-     "price_note": "Seen in only one photo. It may belong to an adjoining room or wardrobe, so verify it opens into this room. Supply plus installation.",
+     "price_source": "https://www.studiomatrx.org/guides/door-installation-cost-india",
+     "price_note": "Seen only behind the chair. It may open into the next room; confirm it belongs to this room. Priced as a wooden panel door with frame, fitted.",
      "photos": [
       "item_added-1_closeup_00.jpg"
      ]
@@ -3961,64 +3875,17 @@
    "flags": []
   },
   {
-   "n": 51,
-   "key": "frontier:opus-33",
+   "n": 48,
+   "key": "frontier:opus-30",
    "category": "building_fixture",
-   "name": "PVC folding (accordion) door, beige",
+   "name": "Window above the bed, wooden frame, glass shutters, MS grill",
    "brand": null,
    "model": null,
    "attributes": {
-    "size_estimate": "about 3 x 7 ft",
-    "material": "PVC slats on top track"
-   },
-   "quantity": 1,
-   "condition": "good",
-   "age_years": null,
-   "price_paid_inr": null,
-   "book": null,
-   "sources": [
-    "frontier"
-   ],
-   "identity_from": "frontier",
-   "identity_confidence": null,
-   "identity_probs": {},
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 5500.0,
-   "rcv_inr": 5500.0,
-   "acv_inr": 3575,
-   "acv_basis": "condition 'good' read as 35% of a 30 y life used",
-   "price_source": "estimate",
-   "price_note": "About Rs 250 per sq ft installed for about 21 sq ft. Seen in only one photo, so verify it is part of this room.",
-   "candidates": {
-    "frontier": {
-     "name": "PVC folding (accordion) door, beige",
-     "brand": null,
-     "model": null,
-     "rcv_inr": 5500.0,
-     "price_source": "estimate",
-     "price_note": "About Rs 250 per sq ft installed for about 21 sq ft. Seen in only one photo, so verify it is part of this room.",
-     "photos": [
-      "item_added-1_closeup_00.jpg"
-     ]
-    }
-   },
-   "photos": [
-    "item_added-1_closeup_00.jpg"
-   ],
-   "flags": []
-  },
-  {
-   "n": 52,
-   "key": "frontier:opus-34",
-   "category": "building_fixture",
-   "name": "Window 1 (behind bed): wooden frame, glass casement shutters, MS decorative grill",
-   "brand": null,
-   "model": null,
-   "attributes": {
-    "size_estimate": "about 5 x 4 ft (1.5 x 1.2 m), 20 sq ft",
-    "material": "hardwood frame and shutters, clear glass, painted MS grill"
+    "size_est": "about 1.2 x 1.05 m (13.5 sq ft)",
+    "frame": "wood",
+    "glass": "clear float, side-hung shutters",
+    "grill": "decorative MS"
    },
    "quantity": 1,
    "condition": "fair",
@@ -4034,20 +3901,20 @@
    "price_from": "frontier",
    "price_confidence": null,
    "price_probs": {},
-   "rcv_unit_inr": 38000.0,
-   "rcv_inr": 38000.0,
-   "acv_inr": 15200,
+   "rcv_unit_inr": 22000.0,
+   "rcv_inr": 22000.0,
+   "acv_inr": 8800,
    "acv_basis": "condition 'fair' read as 60% of a 30 y life used",
    "price_source": "https://aecord.com/blog/window-cost-per-sq-ft-india-2026",
-   "price_note": "20 sq ft at Rs 1,500 per sq ft (low end of wooden windows) is Rs 30,000, plus a decorative MS grill at Rs 400 per sq ft (Rs 8,000). Supply plus installation. The frame paint is weathered.",
+   "price_note": "13.5 sq ft x (wooden window with glass about Rs 1,250 per sq ft, low end, plus decorative MS grill about Rs 400 per sq ft from the grill guide), installed.",
    "candidates": {
     "frontier": {
-     "name": "Window 1 (behind bed): wooden frame, glass casement shutters, MS decorative grill",
+     "name": "Window above the bed, wooden frame, glass shutters, MS grill",
      "brand": null,
      "model": null,
-     "rcv_inr": 38000.0,
+     "rcv_inr": 22000.0,
      "price_source": "https://aecord.com/blog/window-cost-per-sq-ft-india-2026",
-     "price_note": "20 sq ft at Rs 1,500 per sq ft (low end of wooden windows) is Rs 30,000, plus a decorative MS grill at Rs 400 per sq ft (Rs 8,000). Supply plus installation. The frame paint is weathered.",
+     "price_note": "13.5 sq ft x (wooden window with glass about Rs 1,250 per sq ft, low end, plus decorative MS grill about Rs 400 per sq ft from the grill guide), installed.",
      "photos": [
       "item_local-41_closeup_00.jpg",
       "room_005.jpg",
@@ -4065,15 +3932,17 @@
    "flags": []
   },
   {
-   "n": 53,
-   "key": "frontier:opus-35",
+   "n": 49,
+   "key": "frontier:opus-31",
    "category": "building_fixture",
-   "name": "Window 2 (near door): wooden frame, glass shutters, MS grill",
+   "name": "Window beside the MCB box, wooden frame, glass shutters, MS grill",
    "brand": null,
    "model": null,
    "attributes": {
-    "size_estimate": "about 4 x 4 ft (1.2 x 1.2 m), 16 sq ft",
-    "material": "hardwood frame, glass, MS grill"
+    "size_est": "about 1.2 x 1.05 m (13.5 sq ft)",
+    "frame": "wood",
+    "glass": "clear float",
+    "grill": "MS"
    },
    "quantity": 1,
    "condition": "fair",
@@ -4089,139 +3958,89 @@
    "price_from": "frontier",
    "price_confidence": null,
    "price_probs": {},
-   "rcv_unit_inr": 30400.0,
-   "rcv_inr": 30400.0,
-   "acv_inr": 12160,
+   "rcv_unit_inr": 22000.0,
+   "rcv_inr": 22000.0,
+   "acv_inr": 8800,
    "acv_basis": "condition 'fair' read as 60% of a 30 y life used",
    "price_source": "https://aecord.com/blog/window-cost-per-sq-ft-india-2026",
-   "price_note": "Mostly hidden by the curtain, so size is estimated from the rod. 16 sq ft at Rs 1,500 plus grill at Rs 400 per sq ft. Supply plus installation.",
+   "price_note": "Mostly hidden by the curtain. Size and grill assumed the same as the other window.",
    "candidates": {
     "frontier": {
-     "name": "Window 2 (near door): wooden frame, glass shutters, MS grill",
+     "name": "Window beside the MCB box, wooden frame, glass shutters, MS grill",
      "brand": null,
      "model": null,
-     "rcv_inr": 30400.0,
+     "rcv_inr": 22000.0,
      "price_source": "https://aecord.com/blog/window-cost-per-sq-ft-india-2026",
-     "price_note": "Mostly hidden by the curtain, so size is estimated from the rod. 16 sq ft at Rs 1,500 plus grill at Rs 400 per sq ft. Supply plus installation.",
+     "price_note": "Mostly hidden by the curtain. Size and grill assumed the same as the other window.",
      "photos": [
       "item_local-35_closeup_00.jpg",
       "room_video_frame_10.jpg",
-      "room_video_frame_13.jpg"
+      "room_video_frame_14.jpg",
+      "room_005.jpg"
      ]
     }
    },
    "photos": [
     "item_local-35_closeup_00.jpg",
+    "room_005.jpg",
     "room_video_frame_10.jpg",
-    "room_video_frame_13.jpg"
+    "room_video_frame_14.jpg"
    ],
    "flags": []
-  },
-  {
-   "n": 54,
-   "key": "frontier:opus-18",
-   "category": "decor",
-   "name": "Stainless steel curtain rod with brackets",
-   "brand": null,
-   "model": null,
-   "attributes": {
-    "length_estimate": "about 5 to 6 ft"
-   },
-   "quantity": 2,
-   "condition": "good",
-   "age_years": null,
-   "price_paid_inr": null,
-   "book": null,
-   "sources": [
-    "frontier"
-   ],
-   "identity_from": "frontier",
-   "identity_confidence": null,
-   "identity_probs": {},
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 600.0,
-   "rcv_inr": 1200.0,
-   "acv_inr": 780,
-   "acv_basis": "condition 'good' read as 35% of a 10 y life used",
-   "price_source": "estimate",
-   "price_note": "SS rod plus brackets, fitted.",
-   "candidates": {
-    "frontier": {
-     "name": "Stainless steel curtain rod with brackets",
-     "brand": null,
-     "model": null,
-     "rcv_inr": 600.0,
-     "price_source": "estimate",
-     "price_note": "SS rod plus brackets, fitted.",
-     "photos": [
-      "item_local-35_closeup_00.jpg",
-      "item_local-41_closeup_00.jpg"
-     ]
-    }
-   },
-   "photos": [
-    "item_local-35_closeup_00.jpg",
-    "item_local-41_closeup_00.jpg"
-   ],
-   "flags": [
-    "possible double count with Eyelet window curtains, brown palm-tree print (set of 2 panels), both tied to item local-35"
-   ]
   }
  ],
  "sources": {
-  "frontier": {
-   "items": 47,
-   "seconds": 344.5,
-   "notes": [
-    "Floor area is estimated at about 12.5 m2 (about 135 sq ft), roughly 3.7 x 3.4 m, from the bed, desk and almirah sizes and the terrazzo tiles. No tape measurement was taken.",
-    "No open shelving is visible. The 11 books stand on the desk. The almirah probably has internal shelves, but it was not opened.",
-    "Electrical risk: the old wooden switchboard has scorch marks around the 3-pin socket. Nearby wiring is loose surface cable with taped joints, and the Havells MCB enclosure is marked 2014. Recommend an electrician's inspection. This bears on fire-claim underwriting.",
-    "The wall-mounted fibre router looks ISP-supplied and is probably ISP-owned, so it may need to be excluded.",
-    "The Carrier AC still has its protective film on and looks newly installed. Ask for the invoice (model and tonnage not visible). The outdoor unit was not photographed.",
-    "Laptop and monitor exact models were not readable. The laptop is priced as a Victus 15 Ryzen 5 with RTX 3050 and 8GB RAM. An invoice could move RCV by about Rs 20,000.",
-    "The panel door and PVC folding door appear in only one photo (the chair close-up) and may belong to an adjoining space. Confirm before including them in the building claim.",
-    "The mattress is inferred, not seen, and the footwear is only partly visible.",
-    "The books are second-hand paperbacks (one has a used-book price sticker). RCV is priced as new copies.",
-    "No ceiling fan or ceiling light was captured in the photos.",
-    "claude -p reported cost $3.21, 86 turns"
-   ]
-  },
   "local": {
-   "items": 40,
-   "seconds": 35.1,
+   "items": 41,
+   "seconds": 13.6,
    "notes": [
-    "40 items after the owner's review and close-ups"
+    "41 items after the owner's review and close-ups"
    ]
   },
   "voice": {
    "items": 14,
-   "seconds": 51.7,
+   "seconds": 28.9,
    "notes": [
     "12 voice notes and 3 typed notes on 14 items"
+   ]
+  },
+  "frontier": {
+   "items": 43,
+   "seconds": 306.3,
+   "notes": [
+    "Area is estimated from the photos: about 4.2 x 3.7 m, a terrazzo floor, one bed, an L desk and an almirah along the walls.",
+    "There are no bookshelves. The 11 books stand in one row on the desk. The almirah probably has internal shelves, but none were photographed.",
+    "The monitor's model sticker is unreadable and no screen shows the resolution, so the resolution is unknown. It is priced as a 24 inch FHD IPS Acer Nitro equivalent.",
+    "The Carrier AC and the Uppercase suitcase still have protective film on them, so both look recently bought.",
+    "Electrical safety: the old wooden switchboard has a scorched socket, and the MCB box (dated 2014) has loose exposed wiring. The insurer may want these fixed.",
+    "A mattress probably sits under the bedsheet but none is visible, so it is not listed.",
+    "The router looks ISP-supplied and may be the provider's property.",
+    "The second, natural-wood panel door is seen only behind the chair; confirm it belongs to this room. A louvred wooden shutter to its right may be a cupboard or a door to the next room, and is not listed.",
+    "Small items not listed: sticky notes, a broom, footwear under the almirah, and a black remote of unknown make (the Carrier AC remote is counted with the AC).",
+    "Building fixtures (2 doors, 2 windows) are listed separately from contents, as the building policy requires. The switchboards and the MCB box are also fixed wiring.",
+    "claude -p reported cost $3.23, 83 turns"
    ]
   }
  },
  "review": {
-  "kept": 29,
+  "kept": 30,
   "removed": 21,
-  "added": 2,
-  "closeups": 9,
+  "added": 3,
+  "closeups": 10,
   "voice_notes": 12
  },
  "errors": {},
- "jev_pairs_scored": 118,
- "jev_pairs_skipped": 334,
+ "jev_pairs_scored": 109,
+ "jev_pairs_skipped": 231,
  "market": {
   "searched": 0,
   "priced": 0,
   "unreadable_books": 0
  },
- "seconds": 91.5,
+ "seconds": 309.7,
  "review_summary": {
   "removed": 0,
   "duplicates": 0,
-  "kept": 55
+  "kept": 50
  }
 }

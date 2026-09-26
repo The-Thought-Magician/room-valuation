@@ -177,11 +177,15 @@ web/demo.html    demo walkthrough of one real capture         /demo/{name}/     
   - 072711 (photos), 080711 (video), 090044 (merged)
   - The merged one's review page is /r/20260926-090044-d552ae.
 - **Merged result** (three price sources plus the market fallback):
-  - RCV Rs 4.52 lakh (contents 3.40, building fixtures 1.12), ACV Rs 3.10 lakh
+  - Latest full run (20260926-153315: every photo and all 10 close-ups through Opus, then Jev
+    and Serper), after the owner added the Good Knight with a close-up
+  - RCV Rs 3.90 lakh (contents 3.16, building fixtures 0.74), ACV Rs 2.82 lakh
   - Area 168 sq ft from tape
   - 11 of 11 books plus one flagged unidentified
-  - 12 of 13 ground-truth items; mean RCV error 10.0 percent on the 4 recent purchases
-    (laptop, table and AC at 0, suitcase +40)
+  - 13 of 13 ground-truth items; mean RCV error 15.0 percent on the 4 recent purchases
+    (laptop, table and AC at 0, suitcase +60)
+  - The previous Opus pass (run 20260926-110157) gave Rs 4.53 lakh and 10.0 percent; doors and
+    windows moved most (building fixtures 1.12 to 0.74 lakh). The demo uses the latest run.
 - **Other captures:** photos 31.0 percent, video 10.6 percent. Exported to
   docs/results/bedroom-{photos,video,merged} (report.md, report.json, score.json,
   floor_plan.png).
@@ -204,7 +208,7 @@ web/demo.html    demo walkthrough of one real capture         /demo/{name}/     
     10 to 20 book stack untested.
 - **Open:**
   - The house tour (multi-room), which the user will capture later.
-  - The "wardrobe" duplicate is to be marked "Same as" the almirah on the results page.
+  - The "wardrobe" duplicate (Rs 20k) is to be marked "Same as" the almirah on the results page.
   - The Astra backend is untested (no credits).
   - Demo preparation.
 

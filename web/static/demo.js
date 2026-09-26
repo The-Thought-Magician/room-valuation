@@ -11,7 +11,8 @@ const say = t => `<div class="say">${t}</div>`;
 const link = u => /^https?:/.test(u || "") ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(new URL(u).hostname.replace("www.", ""))}</a>` : esc(u || "");
 const bars = probs => Object.entries(probs || {}).sort((a, b) => b[1] - a[1])
   .map(([k, p]) => `<div class="pbar"><span style="min-width:90px;white-space:nowrap">${esc(k)}</span><i style="width:${Math.max(2, p * 220)}px"></i>${pct(p)}</div>`).join("");
-const nm = (brand, name) => [brand && !String(name || "").toLowerCase().startsWith(brand.toLowerCase()) ? brand : "", name].filter(Boolean).join(" ");
+// Brand words the name already says are not repeated ("Godrej Good Knight" + "Good Knight Flash").
+const nm = (brand, name) => [(brand || "").split(" ").filter(w => !String(name || "").toLowerCase().includes(w.toLowerCase())).join(" "), name].filter(Boolean).join(" ");
 const ago = y => y == null ? "" : y < 1 ? `about ${Math.max(1, Math.round(y * 12))} month${Math.round(y * 12) > 1 ? "s" : ""} ago` : `${y} years ago`;
 const label = ln => ln.book && ln.name !== "unidentified book" ? `${ln.book.title} <span class="muted">(${esc(ln.book.author || "author not read")})</span>`
   : esc(nm(ln.brand, ln.name));

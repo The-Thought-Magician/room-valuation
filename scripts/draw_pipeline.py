@@ -86,11 +86,11 @@ def main():
     # 5. Jev
     box(ax, 0.03, 0.245, 0.94, 0.105, "Jev (TypeSafe, jev-1.13): which items are the same, and which reading to trust",
         "links first: an owner's voice or typed note is tied to its item; a frontier item that lists an item's close-up (same category, shared word) is that item\n"
-        "similarity filter: only each item's 3 most similar comparable-category candidates per other source are scored (334 of 452 pairs skipped on the merged capture)\n"
+        "similarity filter: only each item's 3 most similar comparable-category candidates per other source are scored (231 of 340 pairs skipped on the merged capture)\n"
         "one Score per pair with spelled-out levels (different / possibly / same; books: same title allowing OCR slips)\n"
         "merge rules in code: Jev says same | possibly + mutual best | one of the category per source | same brand in the same photo; never two items from one source\n"
         "per merged item: Choice identity, Choice price (a recent owner price counts most), Score condition, Choice genre; confidence < 0.5 flags the line\n"
-        "all questions batched (40 per call, 6 in parallel): 246 questions in 7 calls, 88k input tokens, about 5 s", "jev")
+        "all questions batched (40 per call, 6 in parallel): 236 questions in 7 calls, 85k input tokens, about 5 s", "jev")
     arrow(ax, 0.5, 0.241, 0.5, 0.226)
     box(ax, 0.03, 0.178, 0.94, 0.044, "Market fallback after Jev (Serper)",
         "anything still unpriced after Jev (no listing, no frontier price, no owner price) is searched once more with the identity Jev chose", "local")

@@ -97,7 +97,7 @@ card once crashed one of them.
   - doors and windows as building fixtures
   - a new price in India per item, with the URL it came from
   - condition, room area, shelf count, and notes for the insurer
-- On the merged capture: 47 items in 344 s, reported as $3.21 of usage by `claude -p`.
+- On the merged capture: 43 items in 306 s, reported as $3.23 of usage by `claude -p`.
 - The raw output is kept in `out/opus_raw.json`.
 - `run_astra` is the same prompt through the OpenAI Responses API with `web_search`
   (`gpt-6-astra`). It is written but untested, because the key had no credits.
@@ -131,7 +131,7 @@ As its docs advise, it only judges; counting, thresholds and arithmetic stay in 
      comparable, since a bed was filed under both. Building fixtures are never compared
      across categories.
    - Only each item's 3 most similar candidates in each other source are scored.
-   - On the merged capture: 118 pairs scored, 334 skipped.
+   - On the merged capture: 109 pairs scored, 231 skipped.
 3. **One Score per pair.** The levels are spelled out, because Jev reads literally; a misread
    model name once made it call one laptop two.
 
@@ -166,15 +166,15 @@ As its docs advise, it only judges; counting, thresholds and arithmetic stay in 
 
    ```
    candidates: local    Rs 77,245  median of 18 listings for 'HP VICTUS 14 inches laptop'
-               frontier Rs 76,021  SKU and GPU tier not readable
+               frontier Rs 78,858  exact SKU not readable
                voice    Rs 1,90,000  what the owner says they paid, 0.08 years ago
    how_to_judge: "A price the owner paid within the last 12 months for this exact item is the strongest evidence ..."
-   answer: voice, probabilities {voice 0.78, local 0.20, frontier 0.02}, confidence 0.66
+   answer: voice, probabilities {voice 0.69, local 0.29, frontier 0.02}, confidence 0.53
    ```
 
    Confidence under 0.5 flags the line for review.
 6. **Batching:** 40 questions per call, 6 calls in parallel. On the merged capture that was
-   246 questions in 7 calls, 88k input tokens, about 5 s and well under a cent. Every call
+   236 questions in 7 calls, 85k input tokens, about 5 s and well under a cent. Every call
    (state, questions, answers, model, usage) is kept in `out/runs/<time>/jev_calls.jsonl`.
 
 ## 6. Market prices after Jev, for what is still unpriced (`market.py`)
@@ -191,7 +191,7 @@ room's median book price.
 
 **Why both.** At first Serper ran only after Jev, and pipeline 1 gave no prices. That scored
 worse, and it departs from the brief, where pipeline 1 produces values for Jev to rank against
-Astra's. Replayed on the three saved captures:
+Astra's. Replayed on the three saved captures (with the earlier Opus pass):
 
 | Capture | Mean RCV error on recent purchases, Serper only after Jev | Both |
 |---|---|---|
@@ -221,7 +221,7 @@ two captures and one item on the third.
   2. a floor plan the floor plan take-home already measured (its ARCore depth tier: 15.68 m²
      against the tape's 15.61 m²)
   3. that pipeline run on these photos (VGGT plus MoGe-2 scale: 11.6 m², too low)
-  4. the frontier model's estimate (12.5 m²)
+  4. the frontier model's estimate (15.5 m² on the latest pass, 12.5 m² on the one before)
 
   Every candidate is shown, and the plan picture comes from whichever has one.
 

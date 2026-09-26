@@ -1,12 +1,12 @@
 {
- "summary": "12/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 10.0%",
+ "summary": "13/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 15.0%",
  "items": [
   {
    "truth": "HP Victus gaming laptop (Ryzen 7 260, RTX 5050)",
    "paid_inr": 190000,
    "age_years": 0.08,
    "found": true,
-   "line": "HP HP Victus 15 gaming laptop (AMD Ryzen, NVIDIA GeForce RTX)",
+   "line": "HP HP Victus 15 gaming laptop",
    "sources": [
     "frontier",
     "local",
@@ -14,17 +14,17 @@
    ],
    "candidates_inr": {
     "local": 77245,
-    "frontier": 76021.0,
+    "frontier": 78858.0,
     "voice": 190000.0
    },
    "chosen_from": "voice",
    "rcv_inr": 190000.0,
    "acv_inr": 186960,
-   "price_confidence": 0.63,
+   "price_confidence": 0.53,
    "rcv_error_pct": 0.0,
    "per_source_error_pct": {
     "local": -59.3,
-    "frontier": -60.0,
+    "frontier": -58.5,
     "voice": 0.0
    }
   },
@@ -33,7 +33,7 @@
    "paid_inr": 16000,
    "age_years": 3,
    "found": true,
-   "line": "Acer Acer flat-panel monitor, about 24 inch, resolution unknown",
+   "line": "Acer Acer 24 inch class monitor (Nitro-style stand)",
    "sources": [
     "frontier",
     "local",
@@ -41,20 +41,20 @@
    ],
    "candidates_inr": {
     "local": 12249,
-    "frontier": 12999.0,
+    "frontier": 8635.0,
     "voice": null
    },
-   "chosen_from": "local",
-   "rcv_inr": 12249,
-   "acv_inr": 6124,
-   "price_confidence": 0.27
+   "chosen_from": "frontier",
+   "rcv_inr": 8635.0,
+   "acv_inr": 4318,
+   "price_confidence": 0.66
   },
   {
    "truth": "chair",
    "paid_inr": 5500,
    "age_years": null,
    "found": true,
-   "line": "Green Soul Green Soul high-back ergonomic mesh chair with headrest",
+   "line": "Green Soul Green Soul high-back ergonomic mesh chair",
    "sources": [
     "frontier",
     "local",
@@ -62,20 +62,20 @@
    ],
    "candidates_inr": {
     "local": null,
-    "frontier": 8499.0,
+    "frontier": 8190.0,
     "voice": 5500.0
    },
    "chosen_from": "voice",
    "rcv_inr": 5500.0,
    "acv_inr": 3575,
-   "price_confidence": 0.54
+   "price_confidence": 0.61
   },
   {
    "truth": "L-shaped study table (desk)",
    "paid_inr": 8000,
    "age_years": 0.75,
    "found": true,
-   "line": "L-shaped computer desk, black laminated top on black metal frame",
+   "line": "L-shaped study / computer table",
    "sources": [
     "frontier",
     "local",
@@ -83,17 +83,17 @@
    ],
    "candidates_inr": {
     "local": 2860,
-    "frontier": 12000.0,
+    "frontier": 7999.0,
     "voice": 8000.0
    },
    "chosen_from": "voice",
    "rcv_inr": 8000.0,
    "acv_inr": 7400,
-   "price_confidence": 0.84,
+   "price_confidence": 0.72,
    "rcv_error_pct": 0.0,
    "per_source_error_pct": {
     "local": -64.2,
-    "frontier": 50.0,
+    "frontier": -0.0,
     "voice": 0.0
    }
   },
@@ -102,7 +102,7 @@
    "paid_inr": 35000,
    "age_years": 1,
    "found": true,
-   "line": "Carrier Carrier split air conditioner, indoor unit (with remote)",
+   "line": "Carrier Carrier split air conditioner (indoor unit, with remote)",
    "sources": [
     "frontier",
     "local",
@@ -116,7 +116,7 @@
    "chosen_from": "voice",
    "rcv_inr": 35000.0,
    "acv_inr": 30625,
-   "price_confidence": 0.39,
+   "price_confidence": 0.35,
    "rcv_error_pct": 0.0,
    "per_source_error_pct": {
     "local": -6.4,
@@ -129,7 +129,7 @@
    "paid_inr": 450,
    "age_years": 35,
    "found": true,
-   "line": "Box bed / diwan, laminated engineered wood, on castors",
+   "line": "Wooden box bed / diwan",
    "sources": [
     "frontier",
     "local",
@@ -137,20 +137,20 @@
    ],
    "candidates_inr": {
     "local": 19190,
-    "frontier": 17989.0,
+    "frontier": 9490.0,
     "voice": null
    },
    "chosen_from": "frontier",
-   "rcv_inr": 17989.0,
-   "acv_inr": 1799,
-   "price_confidence": 0.41
+   "rcv_inr": 9490.0,
+   "acv_inr": 949,
+   "price_confidence": 0.42
   },
   {
    "truth": "steel almirah",
    "paid_inr": 350,
    "age_years": 40,
    "found": true,
-   "line": "Steel almirah, 2-door, light green",
+   "line": "Steel almirah, 2 door",
    "sources": [
     "frontier",
     "local",
@@ -158,20 +158,20 @@
    ],
    "candidates_inr": {
     "local": 7999,
-    "frontier": 18100.0,
+    "frontier": 12000.0,
     "voice": null
    },
    "chosen_from": "frontier",
-   "rcv_inr": 18100.0,
-   "acv_inr": 1810,
-   "price_confidence": 0.65
+   "rcv_inr": 12000.0,
+   "acv_inr": 1200,
+   "price_confidence": 0.85
   },
   {
    "truth": "Razer DeathAdder mouse",
    "paid_inr": 2500,
    "age_years": 4,
    "found": true,
-   "line": "Razer Razer DeathAdder Essential wired gaming mouse",
+   "line": "Razer Razer gaming mouse (DeathAdder Essential style)",
    "sources": [
     "frontier",
     "local",
@@ -179,20 +179,20 @@
    ],
    "candidates_inr": {
     "local": 4772,
-    "frontier": 1649.0,
+    "frontier": 1749.0,
     "voice": null
    },
    "chosen_from": "frontier",
-   "rcv_inr": 1649.0,
-   "acv_inr": 165,
-   "price_confidence": 0.81
+   "rcv_inr": 1749.0,
+   "acv_inr": 175,
+   "price_confidence": 0.77
   },
   {
    "truth": "suitcase",
    "paid_inr": 2500,
    "age_years": 2,
    "found": true,
-   "line": "uppercase Uppercase hard-shell trolley suitcase with printed cover",
+   "line": "Uppercase Uppercase hard-shell trolley suitcase, LAX print",
    "sources": [
     "frontier",
     "local",
@@ -200,16 +200,16 @@
    ],
    "candidates_inr": {
     "local": null,
-    "frontier": 3499.0,
+    "frontier": 4000.0,
     "voice": 2500.0
    },
    "chosen_from": "frontier",
-   "rcv_inr": 3499.0,
-   "acv_inr": 1166,
-   "price_confidence": 0.4,
-   "rcv_error_pct": 40.0,
+   "rcv_inr": 4000.0,
+   "acv_inr": 1333,
+   "price_confidence": 0.58,
+   "rcv_error_pct": 60.0,
    "per_source_error_pct": {
-    "frontier": 40.0,
+    "frontier": 60.0,
     "voice": 0.0
    }
   },
@@ -226,20 +226,20 @@
    ],
    "candidates_inr": {
     "local": 610,
-    "frontier": 1799.0,
+    "frontier": 1200.0,
     "voice": null
    },
    "chosen_from": "frontier",
-   "rcv_inr": 1799.0,
-   "acv_inr": 180,
-   "price_confidence": 0.56
+   "rcv_inr": 1200.0,
+   "acv_inr": 120,
+   "price_confidence": 0.2
   },
   {
    "truth": "whiteboard sheet",
    "paid_inr": 150,
    "age_years": null,
    "found": true,
-   "line": "Roll-up whiteboard sheet on PVC pipes",
+   "line": "Roll-up whiteboard sheet on PVC rods",
    "sources": [
     "frontier",
     "local",
@@ -247,13 +247,13 @@
    ],
    "candidates_inr": {
     "local": 10637,
-    "frontier": 450.0,
+    "frontier": 400.0,
     "voice": 150.0
    },
    "chosen_from": "voice",
    "rcv_inr": 150.0,
    "acv_inr": 60,
-   "price_confidence": 0.3
+   "price_confidence": 0.29
   },
   {
    "truth": "JioFiber router",
@@ -268,24 +268,37 @@
    ],
    "candidates_inr": {
     "local": 2035,
-    "frontier": 1999.0,
+    "frontier": 2500.0,
     "voice": null
    },
    "chosen_from": "frontier",
-   "rcv_inr": 1999.0,
-   "acv_inr": 1299,
-   "price_confidence": 0.24
+   "rcv_inr": 2500.0,
+   "acv_inr": 1625,
+   "price_confidence": 0.43
   },
   {
    "truth": "Good Knight liquid mosquito repellent",
    "paid_inr": null,
    "age_years": null,
-   "found": false
+   "found": true,
+   "line": "Godrej Good Knight Good Knight Flash liquid vaporiser",
+   "sources": [
+    "frontier",
+    "local"
+   ],
+   "candidates_inr": {
+    "local": 160,
+    "frontier": 110.0
+   },
+   "chosen_from": "local",
+   "rcv_inr": 160,
+   "acv_inr": 104,
+   "price_confidence": 0.89
   }
  ],
  "report_totals": {
-  "rcv_inr": 452593,
-  "acv_inr": 310875,
-  "items": 59
+  "rcv_inr": 389545,
+  "acv_inr": 281921,
+  "items": 55
  }
 }
