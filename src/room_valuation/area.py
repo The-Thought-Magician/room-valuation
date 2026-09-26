@@ -28,12 +28,14 @@ def from_floorplan(room: str, photos: list[Path], video: Path | None, workdir: P
     if video:
         shutil.copy(video, cap / f"video{video.suffix}")
     (cap / "capture.json").write_text(json.dumps({"captures": [], "upload": {"kind": "files", "room": room}}))
-    try:
-        subprocess.run(["uv", "run", "--project", str(FLOORPLAN_REPO), "python", "scripts/floorplan.py", str(cap)],
-                       cwd=FLOORPLAN_REPO, capture_output=True, text=True, timeout=timeout_s, check=True)
-    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
-        (workdir / "floorplan_error.txt").write_text(str(getattr(e, "stderr", e))[-4000:])
-        return None
+    # a replay: the floor plan was already computed from these photos
+    if not any((cap / n).exists() for n in ("plan_photos.json", "plan_video.json")):
+        try:
+            subprocess.run(["uv", "run", "--project", str(FLOORPLAN_REPO), "python", "scripts/floorplan.py", str(cap)],
+                           cwd=FLOORPLAN_REPO, capture_output=True, text=True, timeout=timeout_s, check=True)
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+            (workdir / "floorplan_error.txt").write_text(str(getattr(e, "stderr", e))[-4000:])
+            return None
     for name, tier in (("plan_video.json", "video"), ("plan_photos.json", "photos")):
         f = cap / name
         if not f.exists():
