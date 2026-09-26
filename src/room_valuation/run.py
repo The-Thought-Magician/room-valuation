@@ -100,7 +100,9 @@ def room_photos(capture: Path, workdir: Path) -> list[tuple[Path, str]]:
     return out
 
 
-def item_media(capture: Path, workdir: Path, entries: list[dict]) -> tuple[dict[str, list[Path]], list[tuple[dict, Path]]]:
+def item_media(capture: Path, workdir: Path,
+               entries: list[dict]) -> tuple[dict[str, list[Path]], list[tuple[dict, list[Path]]]]:
+    """Close-ups and every voice note of each item (an item can have several)."""
     closeups, notes = {}, []
     for e in entries:
         d = capture / "items" / e["id"]
@@ -108,9 +110,9 @@ def item_media(capture: Path, workdir: Path, entries: list[dict]) -> tuple[dict[
             continue
         shots = [p for p in sorted(d.glob("*")) if p.suffix.lower() in PHOTO]
         closeups[e["id"]] = [_normalize(p, workdir / "photos" / f"item_{e['id']}_{p.stem}.jpg") for p in shots]
-        note = next((p for p in sorted(d.glob("voice.*")) if p.suffix.lower() in AUDIO), None)
-        if note:
-            notes.append((e, note))
+        voices = [p for p in sorted(d.glob("voice*")) if p.suffix.lower() in AUDIO]
+        if voices:
+            notes.append((e, voices))
     return closeups, notes
 
 

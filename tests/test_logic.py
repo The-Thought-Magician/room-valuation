@@ -214,14 +214,18 @@ def test_book_matching_handles_run_together_and_misread_titles():
     assert not local._ocr_supports(Book(title="Anne of Green Gables"), ocr_words)
 
 
-def test_typed_note_is_an_owner_claim():
+def test_voice_and_typed_notes_are_read_together(tmp_path, monkeypatch):
     from room_valuation import voice
 
-    e = {"id": "added-1", "name": "L-shaped study table", "category": "furniture", "quantity": 1,
-         "note": "8k, 9 months old"}
-    (it,) = voice.typed_notes([e], set())
-    assert it.rcv_inr == 8000 and it.age_years == 0.75 and it.link == "added-1"
-    assert voice.typed_notes([e], {"added-1"}) == []  # a voice note on the item wins
+    monkeypatch.setattr(voice.models, "transcribe", lambda paths: {p: [{"text": "HP Victus, one month old"}] for p in paths})
+    monkeypatch.setattr(voice.models, "VLM", lambda: type("V", (), {"ask": lambda self, *a, **k: '{"brand": "HP"}'})())
+    monkeypatch.setattr(voice.models, "free", lambda: None)
+    lap = {"id": "local-9", "name": "laptop", "category": "laptop", "quantity": 1, "note": "paid 1.9 lakh"}
+    table = {"id": "added-1", "name": "study table", "category": "furniture", "quantity": 1, "note": "8k, 9 months old"}
+    res = voice.run_items([(lap, [tmp_path / "voice_00.webm"])], None, tmp_path, entries=[lap, table])
+    by = {i.link: i for i in res.items}
+    assert by["local-9"].rcv_inr == 190000 and by["local-9"].age_years == 0.08 and by["local-9"].brand == "HP"
+    assert by["added-1"].rcv_inr == 8000 and by["added-1"].age_years == 0.75
 
 
 def test_title_coverage_rejects_near_miss_records():

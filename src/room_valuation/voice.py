@@ -134,51 +134,56 @@ def _item_claim(d: dict, entry: dict, text: str) -> Item:
                 rcv_inr=paid if recent else None, price_source="said by owner" if recent else None, price_note=note)
 
 
-def typed_notes(entries: list[dict], voiced: set[str]) -> list[Item]:
-    """Owner facts typed on an item page, read by the same rules as a voice note. A voice note
-    on the same item wins; the typed text is then only extra evidence."""
-    return [_item_claim({}, e, e["note"]) for e in entries if e.get("note") and e["id"] not in voiced]
+def _claim_from(vlm, entry: dict, text: str) -> Item:
+    prompt = ITEM_NOTE.format(name=entry["name"], category=entry["category"], text=text)
+    raw = vlm.ask(prompt, max_new_tokens=220) if vlm else "{}"
+    m = re.search(r"\{.*\}", raw, re.S)
+    try:
+        d = json.loads(m.group(0)) if m else {}
+    except json.JSONDecodeError:
+        d = {}
+    return _item_claim(d if isinstance(d, dict) else {}, entry, text)
 
 
-def run_items(notes: list[tuple[dict, Path]], room_note: Path | None, workdir: Path, progress=None,
+def run_items(notes: list[tuple[dict, list[Path]]], room_note: Path | None, workdir: Path, progress=None,
               reuse_transcripts: bool = False, entries: list[dict] | None = None) -> SourceResult:
-    """One voice note per item page, typed notes, plus an optional room-level narration."""
+    """What the owner said and typed about each item, read as one statement per item: every
+    voice note on the item plus its typed note. Plus an optional room-level narration."""
     t0 = time.time()
     say = progress or (lambda **kw: None)
-    typed = typed_notes(entries or [], {e["id"] for e, _ in notes})
-    paths = [str(p) for _, p in notes] + ([str(room_note)] if room_note else [])
-    if not paths:
-        return SourceResult(source="voice", items=typed, seconds=0.0,
-                            notes=[f"no voice notes, {len(typed)} typed notes"])
+    paths = [str(p) for _, ps in notes for p in ps] + ([str(room_note)] if room_note else [])
     saved = workdir / "transcripts.json"
-    if reuse_transcripts and saved.exists() and all(p in json.loads(saved.read_text()) for p in paths):
-        segments = json.loads(saved.read_text())
-    else:
-        say(step="transcribing voice notes", done=0, total=len(paths))
-        segments = models.transcribe(paths)
-        saved.write_text(json.dumps(segments, indent=1))
+    segments: dict = {}
+    if paths:
+        if reuse_transcripts and saved.exists() and all(p in json.loads(saved.read_text()) for p in paths):
+            segments = json.loads(saved.read_text())
+        else:
+            say(step="transcribing voice notes", done=0, total=len(paths))
+            segments = models.transcribe(paths)
+            saved.write_text(json.dumps(segments, indent=1))
     texts = {p: " ".join(s["text"] for s in segs).strip() for p, segs in segments.items()}
+    said = {e["id"]: " ".join(texts.get(str(p), "") for p in ps).strip() for e, ps in notes}
+    by_id = {e["id"]: e for e, _ in notes} | {e["id"]: e for e in entries or [] if e.get("note")}
+    statements = {}
+    for iid, e in by_id.items():
+        parts = [said.get(iid, ""), (e.get("note") or "").strip()]
+        text = ". ".join(x.rstrip(".") for x in parts if x)
+        if text:
+            statements[iid] = text
     items = []
-    vlm = models.VLM()
-    for k, (entry, p) in enumerate(notes):
-        say(step="reading voice notes", done=k, total=len(notes))
-        text = texts.get(str(p), "")
-        if not text:
-            continue
-        raw = vlm.ask(ITEM_NOTE.format(name=entry["name"], category=entry["category"], text=text), max_new_tokens=220)
-        m = re.search(r"\{.*\}", raw, re.S)
-        try:
-            d = json.loads(m.group(0)) if m else {}
-        except json.JSONDecodeError:
-            d = {}
-        items.append(_item_claim(d if isinstance(d, dict) else {}, entry, text))
-    del vlm
-    models.free()
-    items += typed
+    vlm = models.VLM() if any(said.values()) else None  # typed notes alone need no model
+    for k, (iid, text) in enumerate(statements.items()):
+        say(step="reading notes", done=k, total=len(statements))
+        items.append(_claim_from(vlm if said.get(iid) else None, by_id[iid], text))
+    if vlm:
+        del vlm
+        models.free()
     if room_note and texts.get(str(room_note)):
         items += [it.model_copy(update={"id": f"voice-room-{i}"}) for i, it in enumerate(extract(texts[str(room_note)]))]
+    n_voice = sum(len(ps) for _, ps in notes)
+    n_typed = sum(1 for e in entries or [] if e.get("note"))
     return SourceResult(source="voice", items=items, seconds=round(time.time() - t0, 1),
-                        notes=[f"{len(notes)} voice notes, {len(typed)} typed notes"
+                        notes=[f"{n_voice} voice notes and {n_typed} typed notes on {len(statements)} items"
                                + (", one room narration" if room_note else "")])
 
 

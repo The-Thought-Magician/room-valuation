@@ -94,7 +94,7 @@ function render() {
       <div class="body" onclick="location.href='/c/${cid}/i/${e.id}'" style="cursor:pointer">
         <div class="name">${esc([e.brand, e.name].filter(Boolean).join(" "))}${(e.quantity || 1) > 1 ? " × " + e.quantity : ""}</div>
         <div class="muted" style="font-size:13px">${esc(e.category.replace("_", " "))}${e.state === "added" ? " · added by you" : ""}</div>
-        <div>${e.closeup_count ? `<span class="badge">${e.closeup_count} close-up${e.closeup_count > 1 ? "s" : ""}</span>` : ""}${e.has_voice ? `<span class="badge">voice note</span>` : ""}</div>
+        <div>${e.closeup_count ? `<span class="badge">${e.closeup_count} close-up${e.closeup_count > 1 ? "s" : ""}</span>` : ""}${e.voice_count ? `<span class="badge">${e.voice_count} voice note${e.voice_count > 1 ? "s" : ""}</span>` : ""}${e.note ? `<span class="badge">typed note</span>` : ""}</div>
       </div>
       ${e.state === "removed" ? `<button onclick="setState('${e.id}','restore')">Restore</button>` : `<button class="danger" onclick="setState('${e.id}','removed')">Remove</button>`}
     </div>`).join("");

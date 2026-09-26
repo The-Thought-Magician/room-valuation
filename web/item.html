@@ -40,7 +40,7 @@
     <span id="rectime" class="hint" style="margin-left:8px"></span>
     <audio id="playback" controls hidden></audio>
     <div class="hint" id="hadvoice"></div>
-    <label class="f" style="margin-top:10px">Or type it</label>
+    <label class="f" style="margin-top:10px">Typed note (read together with the voice notes)</label>
     <input type="text" id="note" placeholder="e.g. 8 thousand, 9 months old">
   </section>
   <progress id="prog" max="100" value="0" hidden></progress>
@@ -90,7 +90,7 @@ async function load() {
   document.getElementById("phototip").textContent = pt;
   document.getElementById("voicetip").textContent = "Say: " + vt;
   if (entry.closeup_count) document.getElementById("already").textContent = `${entry.closeup_count} close-up(s) already saved; new ones are added.`;
-  if (entry.has_voice) document.getElementById("hadvoice").textContent = "A voice note is already saved; recording again replaces it.";
+  if (entry.voice_count) document.getElementById("hadvoice").textContent = `${entry.voice_count} voice note(s) saved; a new recording is added to them.`;
   document.getElementById("remove").textContent = entry.state === "removed" ? "Restore" : "Not an item";
 }
 

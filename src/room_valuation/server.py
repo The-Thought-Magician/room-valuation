@@ -150,7 +150,8 @@ def get_session(cid: str):
     for e in data["items"]:
         d = cap / "items" / e["id"]
         e["closeup_count"] = len([p for p in d.glob("*") if p.suffix.lower() in PHOTO_EXT]) if d.is_dir() else 0
-        e["has_voice"] = d.is_dir() and any(p.stem == "voice" for p in d.glob("voice.*"))
+        e["voice_count"] = len([p for p in d.glob("voice*") if p.suffix.lower() in AUDIO_EXT]) if d.is_dir() else 0
+        e["has_voice"] = e["voice_count"] > 0
     data["categories"] = CATEGORIES
     return data
 
@@ -183,10 +184,8 @@ async def save_item(cid: str, iid: str, quantity: int | None = Form(None), name:
     start = len(list(d.glob("*"))) if d.is_dir() else 0
     for i, f in enumerate(closeups):
         await _save(f, d / f"closeup_{start + i:03d}", PHOTO_EXT)
-    if voice and voice.filename:
-        for old in d.glob("voice.*"):
-            old.unlink()
-        await _save(voice, d / "voice", AUDIO_EXT)
+    if voice and voice.filename:  # every recording is kept; all of an item's notes are read together
+        await _save(voice, d / f"voice_{len(list(d.glob('voice*'))):02d}", AUDIO_EXT)
 
     def edit(s):
         for e in s["items"]:
