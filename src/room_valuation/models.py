@@ -15,6 +15,27 @@ ASR_ID = "openai/whisper-large-v3-turbo"
 torch.backends.cuda.enable_cudnn_sdp(False)  # cuDNN SDPA is unreliable on Blackwell
 
 
+GPU_LOCK_FILE = "/tmp/room_valuation_gpu.lock"
+
+
+class gpu_lock:
+    """One GPU job at a time across every process (server jobs and command-line replays).
+    Two jobs sharing the 8 GB card crashed one with a CUDA illegal memory access (2026-09-26)."""
+
+    def __enter__(self):
+        import fcntl
+
+        self._f = open(GPU_LOCK_FILE, "w")
+        fcntl.flock(self._f, fcntl.LOCK_EX)
+        return self
+
+    def __exit__(self, *exc):
+        import fcntl
+
+        fcntl.flock(self._f, fcntl.LOCK_UN)
+        self._f.close()
+
+
 def free():
     if DEVICE == "cuda":
         torch.cuda.empty_cache()

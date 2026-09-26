@@ -40,9 +40,9 @@ jobs: queue.Queue = queue.Queue()
 
 def _worker():
     while True:
-        kind, cap, backend = jobs.get()
+        kind, cap, backend, reuse = jobs.get()
         try:
-            runner.detect(cap) if kind == "detect" else runner.value(cap, backend)
+            runner.detect(cap) if kind == "detect" else runner.value(cap, backend, reuse)
         except Exception as e:
             (cap / "out").mkdir(exist_ok=True)
             (cap / "out" / "failed.txt").write_text(f"{kind}: {type(e).__name__}: {e}")
@@ -135,7 +135,7 @@ async def create(room: str = Form("bedroom"), city: str = Form(""), length_cm: f
             "length_cm": length_cm, "width_cm": width_cm}
     (cap / "meta.json").write_text(json.dumps(meta))
     session.save(cap, {"stage": "queued", "items": [], "meta": meta})
-    jobs.put(("detect", cap, None))
+    jobs.put(("detect", cap, None, ()))
     return {"id": cid, "next": f"/c/{cid}"}
 
 
@@ -164,7 +164,7 @@ def retry_detect(cid: str):
     for f in ("status.json", "failed.txt"):
         (cap / "out" / f).unlink(missing_ok=True)
     session.update(cap, lambda d: d.update(stage="queued"))
-    jobs.put(("detect", cap, None))
+    jobs.put(("detect", cap, None, ()))
     return {"ok": True}
 
 
@@ -222,7 +222,7 @@ async def add_item(cid: str, name: str = Form(...), category: str = Form("other"
 
 
 @app.post("/api/captures/{cid}/submit")
-def submit(cid: str, backend: str = Form("opus")):
+def submit(cid: str, backend: str = Form("opus"), reuse: str = Form("")):
     cap = _capture_dir(cid)
     if backend not in runner.BACKEND_NAMES:
         raise HTTPException(400, "backend must be opus, astra or none")
@@ -231,7 +231,7 @@ def submit(cid: str, backend: str = Form("opus")):
     for f in ("status.json", "failed.txt", "report.json"):
         (cap / "out" / f).unlink(missing_ok=True)
     session.update(cap, lambda d: d.update(stage="queued_value"))
-    jobs.put(("value", cap, backend))
+    jobs.put(("value", cap, backend, tuple(s for s in reuse.split(",") if s in runner.REPLAYABLE + ("refine", "transcripts"))))
     return {"results": f"/r/{cid}"}
 
 

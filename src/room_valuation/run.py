@@ -21,7 +21,7 @@ from pathlib import Path
 
 from PIL import Image, ImageOps
 
-from room_valuation import area, frontier, jev, local, session, valuation, voice
+from room_valuation import area, frontier, jev, local, models, session, valuation, voice
 from room_valuation.schema import SourceResult
 
 BACKEND_NAMES = {"opus": "claude-opus-5-5", "astra": "gpt-6-astra", "none": "skipped (test run)"}
@@ -126,7 +126,9 @@ def detect(capture: Path) -> dict:
     photos = room_photos(capture, workdir)
     if not photos:
         raise ValueError("no room photos in the capture")
-    items, log = local.detect(photos, progress=lambda **kw: _status(workdir, "detect", "running", **kw))
+    _status(workdir, "detect", "running", step="waiting for the GPU", done=0, total=1)
+    with models.gpu_lock():
+        items, log = local.detect(photos, progress=lambda **kw: _status(workdir, "detect", "running", **kw))
     (workdir / "detect_log.json").write_text(json.dumps(log, indent=1, default=str))
     entries = session.from_detection(items, workdir / "photos", workdir / "thumbs")
     data = session.update(capture, lambda d: d.update(stage="review", items=entries, photos=[p.name for p, _ in photos]))
@@ -174,13 +176,15 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
     with ThreadPoolExecutor(1) as pool:  # the frontier model is remote, it runs beside the GPU work
         use_frontier = backend != "none" or ("frontier" in reuse and (workdir / "frontier.json").exists())
         remote = pool.submit(guarded, "frontier", frontier.run, backend, all_photos, city, workdir) if use_frontier else None
-        guarded("local", local.value, entries, closeups, by_name, workdir,
-                progress=lambda **kw: _status(workdir, "local", "running", **kw), reuse_refined="refine" in reuse)
-        room_note = _first(capture, "voice", AUDIO)
-        if notes or room_note:
-            guarded("voice", voice.run_items, notes, room_note, workdir,
-                    progress=lambda **kw: _status(workdir, "voice", "running", **kw),
-                    reuse_transcripts="transcripts" in reuse)
+        _status(workdir, "local", "running", step="waiting for the GPU", done=0, total=1)
+        with models.gpu_lock():
+            guarded("local", local.value, entries, closeups, by_name, workdir,
+                    progress=lambda **kw: _status(workdir, "local", "running", **kw), reuse_refined="refine" in reuse)
+            room_note = _first(capture, "voice", AUDIO)
+            if notes or room_note:
+                guarded("voice", voice.run_items, notes, room_note, workdir,
+                        progress=lambda **kw: _status(workdir, "voice", "running", **kw),
+                        reuse_transcripts="transcripts" in reuse)
         if remote:
             remote.result()
 
