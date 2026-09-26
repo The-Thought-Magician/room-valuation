@@ -3,7 +3,8 @@ live search at run time.
 
 1. OWLv2 proposes boxes for a general household vocabulary (not tuned to any one room).
 2. Qwen3-VL-2B identifies each crop: category, name, readable brand/model, printed text.
-3. Book photos also get a whole-image spine read; each spine goes to Open Library.
+3. Book photos: PP-OCR (RapidOCR) reads the spines, Qwen3-VL reads them too as a cross-check,
+   and each spine text goes to Open Library.
 4. The same object seen in several photos is merged into one item.
 5. Each item is priced live (prices.price_item).
 """
@@ -16,7 +17,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from room_valuation import books, models, prices
+from room_valuation import books, models, ocr, prices
 from room_valuation.schema import CATEGORIES, GENRES, Book, Item, SourceResult
 
 VOCAB = {
@@ -119,13 +120,13 @@ def _contain(a, b) -> float:
 def _same(a: Item, b: Item) -> bool:
     if a.category != b.category:
         return False
+    if a.category == "book":
+        ta, tb = (a.book.title if a.book else a.name), (b.book.title if b.book else b.name)
+        return _similar(ta or "", tb or "") > 0.7
     shared = set(a.photos) & set(b.photos)
     if shared:  # in one photo: the same object only if the boxes overlap heavily
         return any(_contain(ra["box"], rb["box"]) > 0.45 for ra in a.regions for rb in b.regions
                    if ra["photo"] == rb["photo"])  # 0.45: a screen box inside its monitor box
-    if a.category == "book":
-        ta, tb = (a.book.title if a.book else a.name), (b.book.title if b.book else b.name)
-        return _similar(ta or "", tb or "") > 0.7
     if a.brand and b.brand and a.brand.lower() != b.brand.lower():
         return False
     return (a.brand and b.brand) or _similar(a.name, b.name) > 0.6
@@ -182,22 +183,45 @@ def detect_and_identify(photos: list[tuple[Path, str]], threshold: float = 0.18,
             log.append({"photo": path.name, "detector": b, "vlm": ans})
             n += 1
         if tag == "books" or any(PROMPT_CATEGORY[b["prompt"]] == "book" for b in boxes):
-            reply = vlm.ask(SPINES, _downsize(image), 400)
-            log.append({"photo": path.name, "spines": reply})
-            for line in reply.splitlines():
-                if "|" not in line or line.strip().upper() == "NONE":
-                    continue
-                title, _, author = (s.strip(" -*•\t") for s in line.partition("|"))
-                if len(title) < 2:
-                    continue
-                found = books.lookup(f"{title} {author}")
-                book = found or Book(title=title, author=author or None, lookup="spine text only")
-                items.append(Item(id=f"local-{n}", source="local", category="book", name=book.title or title,
-                                  evidence=line.strip(), photos=[path.name], book=book))
+            for book, evidence in _read_spines(image, vlm, path.name, log):
+                items.append(Item(id=f"local-{n}", source="local", category="book", name=book.title,
+                                  evidence=evidence, photos=[path.name], book=book))
                 n += 1
     del vlm
     models.free()
     return _merge(items), log
+
+
+MIN_MATCH = 0.45  # below this the catalogue record is probably a different book
+
+
+def _read_spines(image: Image.Image, vlm, photo: str, log: list) -> list[tuple[Book, str]]:
+    """Spine texts from PP-OCR and from the VLM, each looked up in Open Library. A text whose
+    best record matches poorly is kept as the spine text itself, not as a wrong book."""
+    texts = [(f"ocr: {s['text']}", s["text"]) for s in ocr.spines(image)]
+    reply = vlm.ask(SPINES, _downsize(image), 400)
+    for line in reply.splitlines():
+        if "|" in line and line.strip().upper() != "NONE":
+            title, _, author = (s.strip(" -*•\t") for s in line.partition("|"))
+            if len(title) >= 2:
+                texts.append((f"vlm: {line.strip()}", f"{title} {author}".strip()))
+    log.append({"photo": photo, "spine_texts": [e for e, _ in texts]})
+    found = []
+    for evidence, query in texts:
+        book = books.lookup(query)
+        if not book or (book.match or 0) < MIN_MATCH:
+            book = Book(title=query, lookup="spine text only", match=book.match if book else None)
+        found.append((book, evidence))
+    # the OCR and VLM reads of one spine are one book: keep the better catalogue match
+    kept: list[tuple[Book, str]] = []
+    for book, ev in sorted(found, key=lambda f: -(f[0].match or 0)):
+        twin = next((k for k in kept if (book.isbn and k[0].isbn == book.isbn)
+                     or _similar(k[0].title or "", book.title or "") > 0.7), None)
+        if twin is None:
+            kept.append((book, ev))
+        else:
+            kept[kept.index(twin)] = (twin[0], f"{twin[1]}; {ev}")
+    return kept
 
 
 def _downsize(image: Image.Image, side: int = 1280) -> Image.Image:

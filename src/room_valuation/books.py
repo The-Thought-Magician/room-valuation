@@ -54,4 +54,4 @@ def lookup(spine_text: str, timeout: float = 15.0) -> Book | None:
     isbn13 = next((i for i in isbns if len(i) == 13), isbns[0] if isbns else None)
     subjects = (best.get("subject") or [])[:12]
     return Book(title=best.get("title"), author=", ".join(best.get("author_name") or []) or None, isbn=isbn13,
-                subjects=subjects, genre=rule_genre(subjects), lookup=f"openlibrary (match {sim(best):.2f})")
+                subjects=subjects, genre=rule_genre(subjects), lookup="openlibrary", match=round(sim(best), 2))

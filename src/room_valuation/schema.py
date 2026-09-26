@@ -23,6 +23,7 @@ class Book(BaseModel):
     genre: str | None = None
     subjects: list[str] = Field(default_factory=list)
     lookup: str | None = None  # where title/isbn came from, e.g. "openlibrary"
+    match: float | None = None  # similarity of the spine text to the catalogue record, 0..1
 
 
 class Item(BaseModel):
