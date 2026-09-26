@@ -35,6 +35,10 @@ function capture() {
       ${m.length_cm ? stat(`${m.length_cm} x ${m.width_cm} cm`, "tape, ceiling " + m.ceiling_cm + " cm") : ""}</div>
     ${m.merged_from ? `<p class="hint">Merged from captures ${m.merged_from.map(esc).join(" and ")} (a photo capture and a video capture of the same room).</p>` : ""}</section>
     <section><h2>Room photos</h2><div class="grid">${roomPhotos.map(p => pic(p)).join("")}</div></section>
+    <section><h2>Close-ups, taken on the item pages (step 4)</h2><div class="grid">${closeups.map(p => {
+      const it = byId[p.replace(/^item_/, "").replace(/_closeup_\d+\.jpg$/, "")];
+      return pic(p, it ? nm(it.brand, it.name) : p);
+    }).join("")}</div></section>
     ${D.video ? `<section><h2>Room video</h2><video src="media/video.mp4" controls preload="metadata"></video>
       <h2 style="margin-top:12px">The ${frames.length} frames kept from it</h2><div class="grid small">${frames.map(p => pic(p, false)).join("")}</div></section>` : ""}`;
 }
