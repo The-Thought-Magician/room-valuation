@@ -75,7 +75,8 @@ function showPhoto(p) {
 }
 
 function card(i) {
-  const img = i.thumb ? `<img src="media/thumbs/${esc(i.thumb)}">` : `<div class="noimg"></div>`;
+  // Items the owner added have no detection crop; their close-up stands in.
+  const img = i.thumb ? `<img src="media/thumbs/${esc(i.thumb)}">` : i.closeups.length ? `<img src="${photo(i.closeups[0])}">` : `<div class="noimg"></div>`;
   return `<div class="card ${i.state === "removed" ? "removed" : ""}">${img}<div class="body"><div class="name">${esc(nm(i.brand, i.name))}${i.quantity > 1 ? " x" + i.quantity : ""}</div>
     <div class="muted" style="font-size:13px">${esc(i.category)}${i.state === "added" ? ' · <span class="badge">added by the owner</span>' : ""}</div></div></div>`;
 }
