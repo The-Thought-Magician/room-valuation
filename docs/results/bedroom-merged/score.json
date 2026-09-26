@@ -1,5 +1,5 @@
 {
- "summary": "11/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 10.6%",
+ "summary": "11/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 10.0%",
  "items": [
   {
    "truth": "HP Victus gaming laptop (Ryzen 7 260, RTX 5050)",
@@ -13,16 +13,17 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 77245,
     "frontier": 76021.0,
     "voice": 190000.0
    },
    "chosen_from": "voice",
    "rcv_inr": 190000.0,
    "acv_inr": 186960,
-   "price_confidence": 0.61,
+   "price_confidence": 0.63,
    "rcv_error_pct": 0.0,
    "per_source_error_pct": {
+    "local": -59.3,
     "frontier": -60.0,
     "voice": 0.0
    }
@@ -39,14 +40,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 12249,
     "frontier": 12999.0,
     "voice": null
    },
-   "chosen_from": "frontier",
-   "rcv_inr": 12999.0,
-   "acv_inr": 6500,
-   "price_confidence": null
+   "chosen_from": "local",
+   "rcv_inr": 12249,
+   "acv_inr": 6124,
+   "price_confidence": 0.27
   },
   {
    "truth": "chair",
@@ -81,16 +82,17 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 2860,
     "frontier": 12000.0,
     "voice": 8000.0
    },
    "chosen_from": "voice",
    "rcv_inr": 8000.0,
    "acv_inr": 7400,
-   "price_confidence": 0.75,
+   "price_confidence": 0.84,
    "rcv_error_pct": 0.0,
    "per_source_error_pct": {
+    "local": -64.2,
     "frontier": 50.0,
     "voice": 0.0
    }
@@ -107,16 +109,17 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 32745,
     "frontier": 35890.0,
     "voice": 35000.0
    },
-   "chosen_from": "frontier",
-   "rcv_inr": 35890.0,
-   "acv_inr": 31404,
-   "price_confidence": 0.1,
-   "rcv_error_pct": 2.5,
+   "chosen_from": "voice",
+   "rcv_inr": 35000.0,
+   "acv_inr": 30625,
+   "price_confidence": 0.39,
+   "rcv_error_pct": 0.0,
    "per_source_error_pct": {
+    "local": -6.4,
     "frontier": 2.5,
     "voice": 0.0
    }
@@ -133,14 +136,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 19190,
     "frontier": 17989.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 17989.0,
    "acv_inr": 1799,
-   "price_confidence": null
+   "price_confidence": 0.41
   },
   {
    "truth": "steel almirah",
@@ -154,14 +157,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 7999,
     "frontier": 18100.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 18100.0,
    "acv_inr": 1810,
-   "price_confidence": null
+   "price_confidence": 0.65
   },
   {
    "truth": "Razer DeathAdder mouse",
@@ -175,14 +178,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 4772,
     "frontier": 1649.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 1649.0,
    "acv_inr": 165,
-   "price_confidence": null
+   "price_confidence": 0.81
   },
   {
    "truth": "suitcase",
@@ -203,7 +206,7 @@
    "chosen_from": "frontier",
    "rcv_inr": 3499.0,
    "acv_inr": 1166,
-   "price_confidence": 0.36,
+   "price_confidence": 0.4,
    "rcv_error_pct": 40.0,
    "per_source_error_pct": {
     "frontier": 40.0,
@@ -222,14 +225,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 610,
     "frontier": 1799.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 1799.0,
    "acv_inr": 180,
-   "price_confidence": null
+   "price_confidence": 0.56
   },
   {
    "truth": "whiteboard sheet",
@@ -249,14 +252,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 2035,
     "frontier": 1999.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 1999.0,
    "acv_inr": 1299,
-   "price_confidence": null
+   "price_confidence": 0.24
   },
   {
    "truth": "Good Knight liquid mosquito repellent",
@@ -266,8 +269,8 @@
   }
  ],
  "report_totals": {
-  "rcv_inr": 453440,
-  "acv_inr": 311214,
-  "items": 58
+  "rcv_inr": 452593,
+  "acv_inr": 310875,
+  "items": 59
  }
 }

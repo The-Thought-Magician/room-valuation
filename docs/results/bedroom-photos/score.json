@@ -13,16 +13,17 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 97699,
     "frontier": 84990.0,
     "voice": 190000.0
    },
    "chosen_from": "voice",
    "rcv_inr": 190000.0,
    "acv_inr": 186960,
-   "price_confidence": 0.55,
+   "price_confidence": 0.75,
    "rcv_error_pct": 0.0,
    "per_source_error_pct": {
+    "local": -48.6,
     "frontier": -55.3,
     "voice": 0.0
    }
@@ -39,14 +40,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 12249,
     "frontier": 11999.0,
     "voice": null
    },
-   "chosen_from": "frontier",
-   "rcv_inr": 11999.0,
-   "acv_inr": 6000,
-   "price_confidence": null
+   "chosen_from": "local",
+   "rcv_inr": 12249,
+   "acv_inr": 6124,
+   "price_confidence": 0.03
   },
   {
    "truth": "chair",
@@ -67,7 +68,7 @@
    "chosen_from": "voice",
    "rcv_inr": 5500.0,
    "acv_inr": 3575,
-   "price_confidence": 0.56
+   "price_confidence": 0.47
   },
   {
    "truth": "L-shaped study table (desk)",
@@ -108,14 +109,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 19190,
     "frontier": 12000.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 12000.0,
    "acv_inr": 1200,
-   "price_confidence": null
+   "price_confidence": 0.45
   },
   {
    "truth": "steel almirah",
@@ -129,14 +130,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 7999,
     "frontier": 18100.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 18100.0,
    "acv_inr": 1810,
-   "price_confidence": null
+   "price_confidence": 0.71
   },
   {
    "truth": "Razer DeathAdder mouse",
@@ -150,14 +151,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 4772,
     "frontier": 1749.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 1749.0,
    "acv_inr": 175,
-   "price_confidence": null
+   "price_confidence": 0.99
   },
   {
    "truth": "suitcase",
@@ -178,7 +179,7 @@
    "chosen_from": "frontier",
    "rcv_inr": 4200.0,
    "acv_inr": 1400,
-   "price_confidence": 0.66,
+   "price_confidence": 0.74,
    "rcv_error_pct": 68.0,
    "per_source_error_pct": {
     "frontier": 68.0,
@@ -197,14 +198,14 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 610,
     "frontier": 1500.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 1500.0,
    "acv_inr": 150,
-   "price_confidence": null
+   "price_confidence": 0.18
   },
   {
    "truth": "whiteboard sheet",
@@ -217,21 +218,21 @@
    "paid_inr": 0,
    "age_years": null,
    "found": true,
-   "line": "GeoDebt GeoDebt router",
+   "line": "Wall-mounted fibre broadband Wi-Fi router / ONT",
    "sources": [
     "frontier",
     "local",
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 2035,
     "frontier": 2500.0,
     "voice": null
    },
    "chosen_from": "frontier",
    "rcv_inr": 2500.0,
    "acv_inr": 1625,
-   "price_confidence": null
+   "price_confidence": 0.07
   },
   {
    "truth": "Good Knight liquid mosquito repellent",
@@ -241,8 +242,8 @@
   }
  ],
  "report_totals": {
-  "rcv_inr": 326889,
-  "acv_inr": 236383,
+  "rcv_inr": 326359,
+  "acv_inr": 236785,
   "items": 46
  }
 }

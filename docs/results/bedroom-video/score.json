@@ -1,5 +1,5 @@
 {
- "summary": "10/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 13.8%",
+ "summary": "10/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 10.6%",
  "items": [
   {
    "truth": "HP Victus gaming laptop (Ryzen 7 260, RTX 5050)",
@@ -13,16 +13,17 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 83566,
     "frontier": 78990.0,
     "voice": 190000.0
    },
    "chosen_from": "voice",
    "rcv_inr": 190000.0,
    "acv_inr": 186960,
-   "price_confidence": 0.58,
+   "price_confidence": 0.6,
    "rcv_error_pct": 0.0,
    "per_source_error_pct": {
+    "local": -56.0,
     "frontier": -58.4,
     "voice": 0.0
    }
@@ -38,13 +39,13 @@
     "local"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 9599,
     "frontier": 11589.0
    },
    "chosen_from": "frontier",
    "rcv_inr": 11589.0,
    "acv_inr": 4636,
-   "price_confidence": null
+   "price_confidence": 0.74
   },
   {
    "truth": "chair",
@@ -71,19 +72,22 @@
    "line": "L-shaped computer desk, wenge engineered-wood top, black metal legs",
    "sources": [
     "frontier",
-    "local"
+    "local",
+    "voice"
    ],
    "candidates_inr": {
     "local": null,
-    "frontier": 8999.0
+    "frontier": 8999.0,
+    "voice": 8000.0
    },
-   "chosen_from": "frontier",
-   "rcv_inr": 8999.0,
-   "acv_inr": 5849,
-   "price_confidence": null,
-   "rcv_error_pct": 12.5,
+   "chosen_from": "voice",
+   "rcv_inr": 8000.0,
+   "acv_inr": 7400,
+   "price_confidence": 0.45,
+   "rcv_error_pct": 0.0,
    "per_source_error_pct": {
-    "frontier": 12.5
+    "frontier": 12.5,
+    "voice": 0.0
    }
   },
   {
@@ -97,15 +101,16 @@
     "local"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 19346,
     "frontier": 35890.0
    },
    "chosen_from": "frontier",
    "rcv_inr": 35890.0,
    "acv_inr": 14356,
-   "price_confidence": null,
+   "price_confidence": 0.77,
    "rcv_error_pct": 2.5,
    "per_source_error_pct": {
+    "local": -44.7,
     "frontier": 2.5
    }
   },
@@ -120,13 +125,13 @@
     "local"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 19190,
     "frontier": 18000.0
    },
    "chosen_from": "frontier",
    "rcv_inr": 18000.0,
    "acv_inr": 11700,
-   "price_confidence": null
+   "price_confidence": 0.69
   },
   {
    "truth": "steel almirah",
@@ -145,13 +150,13 @@
     "local"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 4772,
     "frontier": 1749.0
    },
    "chosen_from": "frontier",
    "rcv_inr": 1749.0,
    "acv_inr": 700,
-   "price_confidence": null
+   "price_confidence": 0.95
   },
   {
    "truth": "suitcase",
@@ -164,15 +169,16 @@
     "local"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 1099,
     "frontier": 3500.0
    },
    "chosen_from": "frontier",
    "rcv_inr": 3500.0,
    "acv_inr": 1400,
-   "price_confidence": null,
+   "price_confidence": 0.61,
    "rcv_error_pct": 40.0,
    "per_source_error_pct": {
+    "local": -56.0,
     "frontier": 40.0
    }
   },
@@ -187,13 +193,13 @@
     "local"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 610,
     "frontier": 1500.0
    },
    "chosen_from": "frontier",
    "rcv_inr": 1500.0,
    "acv_inr": 600,
-   "price_confidence": null
+   "price_confidence": 0.45
   },
   {
    "truth": "whiteboard sheet",
@@ -226,8 +232,8 @@
   }
  ],
  "report_totals": {
-  "rcv_inr": 369528,
-  "acv_inr": 271182,
+  "rcv_inr": 361952,
+  "acv_inr": 266548,
   "items": 53
  }
 }

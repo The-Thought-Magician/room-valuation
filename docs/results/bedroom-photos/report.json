@@ -53,28 +53,29 @@
  "totals": {
   "contents": {
    "items": 37,
-   "rcv_inr": 268239,
-   "acv_inr": 213598
+   "rcv_inr": 268741,
+   "acv_inr": 214110
   },
   "building_fixtures": {
    "items": 9,
-   "rcv_inr": 58650,
-   "acv_inr": 22785
+   "rcv_inr": 57618,
+   "acv_inr": 22675
   },
-  "rcv_inr": 326889,
-  "acv_inr": 236383,
+  "rcv_inr": 326359,
+  "acv_inr": 236785,
   "items": 46,
   "unpriced": 0,
-  "needs_review": 15,
-  "possible_double_count_inr": 1800,
+  "needs_review": 22,
+  "possible_double_count_inr": 590,
   "books": {
    "count": 11,
-   "rcv_inr": 5092,
+   "rcv_inr": 5517,
    "by_genre": {
     "fiction": 5,
     "mystery_thriller": 2,
-    "self_help": 2,
+    "business_economics": 1,
     "classics": 1,
+    "self_help": 1,
     "biography_memoir": 1
    }
   },
@@ -96,43 +97,43 @@
    },
    "monitor": {
     "items": 1,
-    "rcv_inr": 11999,
-    "acv_inr": 6000
+    "rcv_inr": 12249,
+    "acv_inr": 6124
    },
    "bag_clothing": {
     "items": 4,
-    "rcv_inr": 7000,
-    "acv_inr": 2820
+    "rcv_inr": 7105,
+    "acv_inr": 2888
    },
    "book": {
     "items": 11,
-    "rcv_inr": 5092,
-    "acv_inr": 2288
+    "rcv_inr": 5517,
+    "acv_inr": 2525
    },
    "electrical_fixture": {
     "items": 5,
-    "rcv_inr": 4650,
-    "acv_inr": 1185
+    "rcv_inr": 3618,
+    "acv_inr": 1075
    },
-   "decor": {
-    "items": 6,
-    "rcv_inr": 3200,
-    "acv_inr": 1280
+   "bedding": {
+    "items": 3,
+    "rcv_inr": 2704,
+    "acv_inr": 1500
    },
    "networking": {
     "items": 1,
     "rcv_inr": 2500,
     "acv_inr": 1625
    },
+   "decor": {
+    "items": 6,
+    "rcv_inr": 2418,
+    "acv_inr": 968
+   },
    "computer_accessory": {
     "items": 2,
     "rcv_inr": 2248,
     "acv_inr": 375
-   },
-   "bedding": {
-    "items": 3,
-    "rcv_inr": 1950,
-    "acv_inr": 1005
    },
    "phone": {
     "items": 1,
@@ -141,8 +142,8 @@
    },
    "other": {
     "items": 2,
-    "rcv_inr": 550,
-    "acv_inr": 220
+    "rcv_inr": 300,
+    "acv_inr": 120
    }
   }
  },
@@ -151,12 +152,12 @@
    "identity": {
     "contested": 30,
     "chosen": 4,
-    "mean_probability": 0.167
+    "mean_probability": 0.175
    },
    "price": {
-    "contested": 0,
-    "chosen": 0,
-    "mean_probability": null
+    "contested": 26,
+    "chosen": 14,
+    "mean_probability": 0.543
    },
    "items_found": 30,
    "found_alone": 0
@@ -164,13 +165,13 @@
   "frontier": {
    "identity": {
     "contested": 30,
-    "chosen": 25,
-    "mean_probability": 0.767
+    "chosen": 26,
+    "mean_probability": 0.757
    },
    "price": {
-    "contested": 4,
-    "chosen": 2,
-    "mean_probability": 0.465
+    "contested": 28,
+    "chosen": 11,
+    "mean_probability": 0.415
    },
    "items_found": 41,
    "found_alone": 11
@@ -178,13 +179,13 @@
   "voice": {
    "identity": {
     "contested": 12,
-    "chosen": 1,
-    "mean_probability": 0.166
+    "chosen": 0,
+    "mean_probability": 0.17
    },
    "price": {
     "contested": 4,
-    "chosen": 2,
-    "mean_probability": 0.535
+    "chosen": 3,
+    "mean_probability": 0.568
    },
    "items_found": 12,
    "found_alone": 0
@@ -229,29 +230,32 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.59,
+   "identity_confidence": 0.54,
    "identity_probs": {
-    "local": 0.01,
-    "voice": 0.26,
-    "frontier": 0.73
+    "voice": 0.3,
+    "frontier": 0.69,
+    "local": 0.01
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 11999.0,
-   "rcv_inr": 11999.0,
-   "acv_inr": 6000,
+   "price_from": "local",
+   "price_confidence": 0.03,
+   "price_probs": {
+    "frontier": 0.48,
+    "local": 0.52
+   },
+   "rcv_unit_inr": 12249,
+   "rcv_inr": 12249,
+   "acv_inr": 6124,
    "acv_basis": "age 3 y of a 6 y life",
-   "price_source": "https://www.amazon.in/acer-nitro-monitor/s?k=acer+nitro+monitor",
-   "price_note": "The model sticker is not readable. The red stand accent suggests the Acer Nitro 24 inch line (e.g. VG240Y), priced from Rs 11,999 on Amazon.in. Resolution was not read.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=Acer+27+inches+monitor&prds=localAnnotatedOfferId:1,catalogid:3422622349037376899,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 20 matching listings for 'Acer 27 inches monitor' (Acer Store - India, Amazon.in, Design Info, Flipkart, Zepto, shop.clarioncomputers.in)",
    "candidates": {
     "local": {
      "name": "monitor",
      "brand": "Acer",
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 12249,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=Acer+27+inches+monitor&prds=localAnnotatedOfferId:1,catalogid:3422622349037376899,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 20 matching listings for 'Acer 27 inches monitor' (Acer Store - India, Amazon.in, Design Info, Flipkart, Zepto, shop.clarioncomputers.in)",
      "photos": [
       "room_000.jpg"
      ]
@@ -283,7 +287,8 @@
     "room_000.jpg"
    ],
    "flags": [
-    "merged on 'possibly the same' (1.33) as mutual best match"
+    "merged on 'possibly the same' (1.30) as mutual best match",
+    "low Jev confidence on price (0.03)"
    ]
   },
   {
@@ -308,10 +313,10 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.81,
+   "identity_confidence": 0.78,
    "identity_probs": {
-    "local": 0.1,
-    "frontier": 0.9
+    "frontier": 0.89,
+    "local": 0.11
    },
    "price_from": "frontier",
    "price_confidence": null,
@@ -329,7 +334,7 @@
      "model": "Eurobreaker",
      "rcv_inr": null,
      "price_source": null,
-     "price_note": null,
+     "price_note": "no listing matched the item well enough",
      "photos": [
       "room_005.jpg",
       "item_local-46_closeup_000.jpg"
@@ -380,15 +385,18 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.5,
+   "identity_confidence": 0.49,
    "identity_probs": {
-    "local": 0.01,
-    "voice": 0.32,
-    "frontier": 0.67
+    "voice": 0.33,
+    "frontier": 0.66,
+    "local": 0.01
    },
    "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
+   "price_confidence": 0.71,
+   "price_probs": {
+    "frontier": 0.85,
+    "local": 0.15
+   },
    "rcv_unit_inr": 18100.0,
    "rcv_inr": 18100.0,
    "acv_inr": 1810,
@@ -400,9 +408,9 @@
      "name": "cupboard",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 7999,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=cupboard&prds=localAnnotatedOfferId:1,catalogid:8526954924019169796,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 7 matching listings for 'cupboard' (Amazon.in, Caspian Furnitures, Flipkart, Urban Ladder, Wooden Street)",
      "photos": [
       "room_004.jpg"
      ]
@@ -431,7 +439,9 @@
    "photos": [
     "room_004.jpg"
    ],
-   "flags": []
+   "flags": [
+    "low Jev confidence on identity (0.49)"
+   ]
   },
   {
    "n": 3,
@@ -455,15 +465,18 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.78,
+   "identity_confidence": 0.76,
    "identity_probs": {
-    "local": 0.03,
-    "voice": 0.12,
-    "frontier": 0.85
+    "voice": 0.13,
+    "frontier": 0.84,
+    "local": 0.03
    },
    "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
+   "price_confidence": 0.18,
+   "price_probs": {
+    "frontier": 0.59,
+    "local": 0.41
+   },
    "rcv_unit_inr": 1500.0,
    "rcv_inr": 1500.0,
    "acv_inr": 150,
@@ -475,9 +488,9 @@
      "name": "stool",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 610,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=stool&prds=localAnnotatedOfferId:1,catalogid:16309284445526458650,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 19 matching listings for 'stool' (Amazon.in, Atrangi Studio, Flipkart, IKEA.in, JioMart Grocery, Velan Store, Zepto)",
      "photos": [
       "room_006.jpg"
      ]
@@ -508,7 +521,9 @@
     "item_added-3_closeup_000.jpg",
     "room_006.jpg"
    ],
-   "flags": []
+   "flags": [
+    "low Jev confidence on price (0.18)"
+   ]
   },
   {
    "n": 4,
@@ -539,28 +554,31 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.34,
+   "identity_confidence": 0.39,
    "identity_probs": {
-    "local": 0.33,
-    "frontier": 0.67
+    "frontier": 0.7,
+    "local": 0.3
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 450.0,
-   "rcv_inr": 450.0,
-   "acv_inr": 180,
+   "price_from": "local",
+   "price_confidence": 0.98,
+   "price_probs": {
+    "frontier": 0.01,
+    "local": 0.99
+   },
+   "rcv_unit_inr": 295,
+   "rcv_inr": 295,
+   "acv_inr": 118,
    "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
-   "price_source": "estimate",
-   "price_note": "Imported YA paperback, typical Amazon.in price.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=Torment+Lauren+Kate+paperback&prds=localAnnotatedOfferId:1,catalogid:1310840006471978368,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 2 matching listings for 'Torment Lauren Kate paperback' (amazon.in)",
    "candidates": {
     "local": {
      "name": "Torment",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 295,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=Torment+Lauren+Kate+paperback&prds=localAnnotatedOfferId:1,catalogid:1310840006471978368,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 2 matching listings for 'Torment Lauren Kate paperback' (amazon.in)",
      "photos": [
       "room_001.jpg"
      ]
@@ -583,7 +601,7 @@
     "room_007.jpg"
    ],
    "flags": [
-    "low Jev confidence on identity (0.34)"
+    "low Jev confidence on identity (0.39)"
    ]
   },
   {
@@ -619,14 +637,17 @@
     "local"
    ],
    "identity_from": "local",
-   "identity_confidence": 0.93,
+   "identity_confidence": 0.92,
    "identity_probs": {
-    "local": 0.97,
-    "frontier": 0.03
+    "frontier": 0.04,
+    "local": 0.96
    },
    "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
+   "price_confidence": 0.49,
+   "price_probs": {
+    "frontier": 0.75,
+    "local": 0.25
+   },
    "rcv_unit_inr": 400.0,
    "rcv_inr": 400.0,
    "acv_inr": 160,
@@ -638,9 +659,9 @@
      "name": "Rock Paper Scissors",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 876,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=Rock+Paper+Scissors+Alice+Feeney+paperback&prds=localAnnotatedOfferId:1,catalogid:2427706469567953409,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 12 matching listings for 'Rock Paper Scissors Alice Feeney paperback' (BooksWagon, Flipkart, Meesho, Online Persian Store, TheIndianBookStore, amazon.in, desertcart.in)",
      "photos": [
       "room_001.jpg",
       "room_007.jpg"
@@ -663,7 +684,9 @@
     "room_001.jpg",
     "room_007.jpg"
    ],
-   "flags": []
+   "flags": [
+    "low Jev confidence on price (0.49)"
+   ]
   },
   {
    "n": 6,
@@ -700,28 +723,31 @@
     "local"
    ],
    "identity_from": "local",
-   "identity_confidence": 0.51,
+   "identity_confidence": 0.59,
    "identity_probs": {
-    "local": 0.76,
-    "frontier": 0.24
+    "frontier": 0.2,
+    "local": 0.8
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 499.0,
-   "rcv_inr": 499.0,
-   "acv_inr": 200,
+   "price_from": "local",
+   "price_confidence": 0.75,
+   "price_probs": {
+    "frontier": 0.12,
+    "local": 0.88
+   },
+   "rcv_unit_inr": 160,
+   "rcv_inr": 160,
+   "acv_inr": 64,
    "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
-   "price_source": "https://www.amazon.in/Thread-Victoria-Hislop/dp/1445869497",
-   "price_note": "The page gave no price, so this is an estimate for a Headline paperback.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=The+thread+Victoria+Hislop+paperback&prds=localAnnotatedOfferId:1,catalogid:17670939401587088618,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 1 matching listings for 'The thread Victoria Hislop paperback' (Bookchor)",
    "candidates": {
     "local": {
      "name": "The thread",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 160,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=The+thread+Victoria+Hislop+paperback&prds=localAnnotatedOfferId:1,catalogid:17670939401587088618,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 1 matching listings for 'The thread Victoria Hislop paperback' (Bookchor)",
      "photos": [
       "room_001.jpg",
       "room_007.jpg"
@@ -785,14 +811,17 @@
     "local"
    ],
    "identity_from": "local",
-   "identity_confidence": 0.06,
+   "identity_confidence": 0.08,
    "identity_probs": {
-    "local": 0.53,
-    "frontier": 0.47
+    "frontier": 0.46,
+    "local": 0.54
    },
    "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
+   "price_confidence": 0.64,
+   "price_probs": {
+    "frontier": 0.82,
+    "local": 0.18
+   },
    "rcv_unit_inr": 299.0,
    "rcv_inr": 299.0,
    "acv_inr": 120,
@@ -804,9 +833,9 @@
      "name": "The Great Gatsby",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 154,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=The+Great+Gatsby+F.+Scott+Fitzgerald+paperback&prds=localAnnotatedOfferId:1,catalogid:2706962949958882123,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 20 matching listings for 'The Great Gatsby F. Scott Fitzgerald paperback' (Biblio, Buy Books India, Etsy, Flipkart, Rarewaves, The Bookworm, Thebookx, amazon.in, atlanticbooks.com)",
      "photos": [
       "room_001.jpg",
       "room_007.jpg"
@@ -832,7 +861,7 @@
     "room_007.jpg"
    ],
    "flags": [
-    "low Jev confidence on identity (0.06)"
+    "low Jev confidence on identity (0.08)"
    ]
   },
   {
@@ -854,7 +883,7 @@
     "title": "The 80/20 Principle",
     "author": "Richard Koch",
     "isbn": "9780385491747",
-    "genre": "self_help",
+    "genre": "business_economics",
     "subjects": [],
     "lookup": "openlibrary",
     "match": 0.98
@@ -864,28 +893,31 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.36,
+   "identity_confidence": 0.39,
    "identity_probs": {
-    "local": 0.32,
-    "frontier": 0.68
+    "frontier": 0.7,
+    "local": 0.3
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 499.0,
-   "rcv_inr": 499.0,
-   "acv_inr": 324,
+   "price_from": "local",
+   "price_confidence": 0.36,
+   "price_probs": {
+    "frontier": 0.32,
+    "local": 0.68
+   },
+   "rcv_unit_inr": 316,
+   "rcv_inr": 316,
+   "acv_inr": 205,
    "acv_basis": "condition 'good' read as 35% of a 10 y life used",
-   "price_source": "https://www.amazon.in/80-20-Principle-Secret-Achieving/dp/1857883993",
-   "price_note": "Estimate from Indian listings: Rs 550 regular, Rs 249 sale on bookstech.in.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=The+80%2F20+Principle+Richard+Koch+paperback&prds=localAnnotatedOfferId:1,catalogid:10755913174962224994,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 15 matching listings for 'The 80/20 Principle Richard Koch paperback' (99Bookstore, Amazon.in, Biblio, BookStation, Bookplanet.in, Flipkart, amazon.in)",
    "candidates": {
     "local": {
      "name": "The 80/20 Principle",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 316,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=The+80%2F20+Principle+Richard+Koch+paperback&prds=localAnnotatedOfferId:1,catalogid:10755913174962224994,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 15 matching listings for 'The 80/20 Principle Richard Koch paperback' (99Bookstore, Amazon.in, Biblio, BookStation, Bookplanet.in, Flipkart, amazon.in)",
      "photos": [
       "room_001.jpg",
       "room_007.jpg"
@@ -909,7 +941,8 @@
     "room_007.jpg"
    ],
    "flags": [
-    "low Jev confidence on identity (0.36)"
+    "low Jev confidence on identity (0.39)",
+    "low Jev confidence on price (0.36)"
    ]
   },
   {
@@ -956,23 +989,26 @@
     "frontier": 0.28,
     "local": 0.72
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 150.0,
-   "rcv_inr": 150.0,
-   "acv_inr": 60,
+   "price_from": "local",
+   "price_confidence": 0.82,
+   "price_probs": {
+    "frontier": 0.09,
+    "local": 0.91
+   },
+   "rcv_unit_inr": 304,
+   "rcv_inr": 304,
+   "acv_inr": 122,
    "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
-   "price_source": "estimate",
-   "price_note": "Budget classics edition.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=Antony+and+Cleopatra+William+Shakespeare+paperback&prds=localAnnotatedOfferId:1,catalogid:2161608887658255118,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 19 matching listings for 'Antony and Cleopatra William Shakespeare paperback' (99Bookstore, Amazon.in, Anvis World, Biblio.co.uk, Etsy, Flipkart, MyPustak.com, Youthisthan Foundation, amazon.in, atlanticbooks.com)",
    "candidates": {
     "local": {
      "name": "Antony and Cleopatra",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 304,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=Antony+and+Cleopatra+William+Shakespeare+paperback&prds=localAnnotatedOfferId:1,catalogid:2161608887658255118,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 19 matching listings for 'Antony and Cleopatra William Shakespeare paperback' (99Bookstore, Amazon.in, Anvis World, Biblio.co.uk, Etsy, Flipkart, MyPustak.com, Youthisthan Foundation, amazon.in, atlanticbooks.com)",
      "photos": [
       "room_001.jpg",
       "room_007.jpg"
@@ -1031,28 +1067,31 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.5,
+   "identity_confidence": 0.52,
    "identity_probs": {
-    "local": 0.25,
-    "frontier": 0.75
+    "frontier": 0.76,
+    "local": 0.24
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 499.0,
-   "rcv_inr": 499.0,
-   "acv_inr": 200,
+   "price_from": "local",
+   "price_confidence": 0.98,
+   "price_probs": {
+    "frontier": 0.01,
+    "local": 0.99
+   },
+   "rcv_unit_inr": 695,
+   "rcv_inr": 695,
+   "acv_inr": 278,
    "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
-   "price_source": "estimate",
-   "price_note": "UK import paperback.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=Annie+May's+Black+Book+Debby+Holt+paperback&prds=localAnnotatedOfferId:1,catalogid:10965943098382939173,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 1 matching listings for 'Annie May's Black Book Debby Holt paperback' (amazon.in)",
    "candidates": {
     "local": {
      "name": "Annie May's Black Book",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 695,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=Annie+May's+Black+Book+Debby+Holt+paperback&prds=localAnnotatedOfferId:1,catalogid:10965943098382939173,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 1 matching listings for 'Annie May's Black Book Debby Holt paperback' (amazon.in)",
      "photos": [
       "room_001.jpg",
       "room_007.jpg"
@@ -1112,28 +1151,31 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.76,
+   "identity_confidence": 0.69,
    "identity_probs": {
-    "local": 0.12,
-    "frontier": 0.88
+    "frontier": 0.84,
+    "local": 0.16
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 499.0,
-   "rcv_inr": 499.0,
-   "acv_inr": 200,
+   "price_from": "local",
+   "price_confidence": 0.85,
+   "price_probs": {
+    "local": 0.92,
+    "frontier": 0.08
+   },
+   "rcv_unit_inr": 799,
+   "rcv_inr": 799,
+   "acv_inr": 320,
    "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
-   "price_source": "estimate",
-   "price_note": "Picador paperback.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=A+History+of+the+World+in+10+1%2F2+Chapters+Julian+Barnes+paperback&prds=localAnnotatedOfferId:1,catalogid:5226918605444153546,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 5 matching listings for 'A History of the World in 10 1/2 Chapters Julian Barnes paperback' (TC Books, amazon.in)",
    "candidates": {
     "local": {
      "name": "A History of the World in 10 1/2 Chapters",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 799,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=A+History+of+the+World+in+10+1%2F2+Chapters+Julian+Barnes+paperback&prds=localAnnotatedOfferId:1,catalogid:5226918605444153546,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 5 matching listings for 'A History of the World in 10 1/2 Chapters Julian Barnes paperback' (TC Books, amazon.in)",
      "photos": [
       "room_001.jpg",
       "room_007.jpg"
@@ -1190,10 +1232,10 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.9,
+   "identity_confidence": 0.88,
    "identity_probs": {
-    "local": 0.05,
-    "frontier": 0.95
+    "local": 0.06,
+    "frontier": 0.94
    },
    "price_from": "frontier",
    "price_confidence": null,
@@ -1211,7 +1253,7 @@
      "model": null,
      "rcv_inr": null,
      "price_source": null,
-     "price_note": null,
+     "price_note": "no listing matched the item well enough",
      "photos": [
       "room_001.jpg",
       "room_007.jpg"
@@ -1235,7 +1277,7 @@
     "room_007.jpg"
    ],
    "flags": [
-    "merged on 'possibly the same' (1.33) as mutual best match"
+    "merged on 'possibly the same' (1.38) as mutual best match"
    ]
   },
   {
@@ -1270,28 +1312,31 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.84,
+   "identity_confidence": 0.79,
    "identity_probs": {
-    "local": 0.08,
-    "frontier": 0.92
+    "local": 0.1,
+    "frontier": 0.9
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 499.0,
-   "rcv_inr": 499.0,
-   "acv_inr": 324,
+   "price_from": "local",
+   "price_confidence": 0.66,
+   "price_probs": {
+    "local": 0.83,
+    "frontier": 0.17
+   },
+   "rcv_unit_inr": 951,
+   "rcv_inr": 951,
+   "acv_inr": 618,
    "acv_basis": "condition 'good' read as 35% of a 10 y life used",
-   "price_source": "https://www.amazon.in/non-violent-communication/s?k=non-violent+communication",
-   "price_note": "Amazon.in paperback Rs 495 to 499.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=Living+nonviolent+communication+Marshall+B.+Rosenberg+paperback&prds=localAnnotatedOfferId:1,productid:16768834145592956947,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 8 matching listings for 'Living nonviolent communication Marshall B. Rosenberg paperback' (Best Book Centre, Flipkart, Pagdandi Bookstore & Coffee, amazon.in, ubuy.co.in)",
    "candidates": {
     "local": {
      "name": "Living nonviolent communication",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 951,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=Living+nonviolent+communication+Marshall+B.+Rosenberg+paperback&prds=localAnnotatedOfferId:1,productid:16768834145592956947,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 8 matching listings for 'Living nonviolent communication Marshall B. Rosenberg paperback' (Best Book Centre, Flipkart, Pagdandi Bookstore & Coffee, amazon.in, ubuy.co.in)",
      "photos": [
       "room_001.jpg",
       "room_007.jpg"
@@ -1345,14 +1390,17 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.65,
+   "identity_confidence": 0.67,
    "identity_probs": {
-    "local": 0.18,
-    "frontier": 0.82
+    "local": 0.17,
+    "frontier": 0.83
    },
    "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
+   "price_confidence": 0.96,
+   "price_probs": {
+    "local": 0.02,
+    "frontier": 0.98
+   },
    "rcv_unit_inr": 699.0,
    "rcv_inr": 699.0,
    "acv_inr": 280,
@@ -1364,9 +1412,9 @@
      "name": "unidentified book",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
+     "rcv_inr": 316,
      "price_source": null,
-     "price_note": null,
+     "price_note": "median of the 9 identified books in this room",
      "photos": [
       "room_001.jpg",
       "room_007.jpg"
@@ -1412,15 +1460,18 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.76,
+   "identity_confidence": 0.75,
    "identity_probs": {
     "voice": 0.14,
-    "frontier": 0.84,
-    "local": 0.02
+    "frontier": 0.83,
+    "local": 0.03
    },
    "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
+   "price_confidence": 0.03,
+   "price_probs": {
+    "local": 0.48,
+    "frontier": 0.52
+   },
    "rcv_unit_inr": 600.0,
    "rcv_inr": 600.0,
    "acv_inr": 390,
@@ -1432,9 +1483,9 @@
      "name": "charger",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 693,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=charger+computer&prds=localAnnotatedOfferId:1,productid:2907026749347334045,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 9 matching listings for 'charger computer' (Amazon.in, Flipkart, amazon.in)",
      "photos": [
       "room_002.jpg"
      ]
@@ -1466,7 +1517,8 @@
     "room_002.jpg"
    ],
    "flags": [
-    "merged on 'possibly the same' (1.48) as mutual best match",
+    "merged on 'possibly the same' (1.49) as mutual best match",
+    "low Jev confidence on price (0.03)",
     "owner: free or provided (the owner said so); may not be the owner's to claim"
    ]
   },
@@ -1492,15 +1544,18 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.6,
+   "identity_confidence": 0.52,
    "identity_probs": {
-    "voice": 0.27,
-    "frontier": 0.73,
+    "voice": 0.32,
+    "frontier": 0.68,
     "local": 0.0
    },
    "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
+   "price_confidence": 0.99,
+   "price_probs": {
+    "local": 0.01,
+    "frontier": 0.99
+   },
    "rcv_unit_inr": 1749.0,
    "rcv_inr": 1749.0,
    "acv_inr": 175,
@@ -1512,9 +1567,9 @@
      "name": "mouse",
      "brand": "Razer",
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 4772,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=Razer+mouse+computer&prds=localAnnotatedOfferId:1,catalogid:13279686171764674466,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 20 matching listings for 'Razer mouse computer' (ADS Store, Amazon.in, Dealcliq.com, Easyshoppi, Flipkart, GameLoot, Nayejaisa.com, Zepto, mdcomputers.in, vplak.com)",
      "photos": [
       "room_000.jpg"
      ]
@@ -1551,13 +1606,12 @@
    "n": 17,
    "key": "frontier:opus-8|local:local-30|voice:voice-local-30",
    "category": "networking",
-   "name": "GeoDebt router",
-   "brand": "GeoDebt",
-   "model": "Router",
+   "name": "Wall-mounted fibre broadband Wi-Fi router / ONT",
+   "brand": null,
+   "model": null,
    "attributes": {
-    "size": "Small",
-    "facts": "It came for free and company provided it",
-    "acquired": "free or provided (the owner said so); may not be the owner's to claim"
+    "colour": "black, rounded square with circular top pattern",
+    "mount": "wall"
    },
    "quantity": 1,
    "condition": "good",
@@ -1569,16 +1623,19 @@
     "local",
     "voice"
    ],
-   "identity_from": "voice",
-   "identity_confidence": 0.28,
+   "identity_from": "frontier",
+   "identity_confidence": 0.27,
    "identity_probs": {
-    "voice": 0.52,
-    "frontier": 0.47,
-    "local": 0.01
+    "voice": 0.47,
+    "frontier": 0.51,
+    "local": 0.02
    },
    "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
+   "price_confidence": 0.07,
+   "price_probs": {
+    "local": 0.46,
+    "frontier": 0.54
+   },
    "rcv_unit_inr": 2500.0,
    "rcv_inr": 2500.0,
    "acv_inr": 1625,
@@ -1590,9 +1647,9 @@
      "name": "router",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 2035,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=router+wifi&prds=localAnnotatedOfferId:1,catalogid:8705652351561988547,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 19 matching listings for 'router wifi' (Amazon.in, Computech Store, Flipkart, JioMart Electronics, Reliance Digital, Tradeindia.com, desertcart.in, vlebazaar.in)",
      "photos": [
       "room_003.jpg"
      ]
@@ -1622,7 +1679,8 @@
     "room_003.jpg"
    ],
    "flags": [
-    "low Jev confidence on identity (0.28)",
+    "low Jev confidence on identity (0.27)",
+    "low Jev confidence on price (0.07)",
     "owner: free or provided (the owner said so); may not be the owner's to claim"
    ]
   },
@@ -1647,28 +1705,31 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.92,
+   "identity_confidence": 0.89,
    "identity_probs": {
-    "frontier": 0.96,
-    "local": 0.04
+    "local": 0.05,
+    "frontier": 0.95
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 450.0,
-   "rcv_inr": 450.0,
-   "acv_inr": 180,
+   "price_from": "local",
+   "price_confidence": 0.41,
+   "price_probs": {
+    "local": 0.71,
+    "frontier": 0.29
+   },
+   "rcv_unit_inr": 628,
+   "rcv_inr": 628,
+   "acv_inr": 251,
    "acv_basis": "condition 'fair' read as 60% of a 15 y life used",
-   "price_source": "estimate",
-   "price_note": "A generic 4-socket spike guard or extension board is Rs 350 to 600.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=extension+board+electrical+wall+*+*+*+*&prds=localAnnotatedOfferId:1,productid:640519796673579619,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 20 matching listings for 'extension board electrical wall' (Amazon.in, Computech Store, FirstCry India, Havells, Indrico.in, Orient Electric, Palfrey, PineKart.com, addmecart, amazon.in)",
    "candidates": {
     "local": {
      "name": "extension board",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 628,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=extension+board+electrical+wall+*+*+*+*&prds=localAnnotatedOfferId:1,productid:640519796673579619,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 20 matching listings for 'extension board electrical wall' (Amazon.in, Computech Store, FirstCry India, Havells, Indrico.in, Orient Electric, Palfrey, PineKart.com, addmecart, amazon.in)",
      "photos": [
       "room_002.jpg"
      ]
@@ -1694,7 +1755,9 @@
     "room_000.jpg",
     "room_002.jpg"
    ],
-   "flags": []
+   "flags": [
+    "low Jev confidence on price (0.41)"
+   ]
   },
   {
    "n": 19,
@@ -1723,26 +1786,29 @@
    "identity_from": "frontier",
    "identity_confidence": 0.97,
    "identity_probs": {
-    "frontier": 0.99,
-    "local": 0.01
+    "local": 0.01,
+    "frontier": 0.99
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 1800.0,
-   "rcv_inr": 1800.0,
-   "acv_inr": 270,
+   "price_from": "local",
+   "price_confidence": 0.61,
+   "price_probs": {
+    "local": 0.81,
+    "frontier": 0.19
+   },
+   "rcv_unit_inr": 590,
+   "rcv_inr": 590,
+   "acv_inr": 89,
    "acv_basis": "condition 'poor' read as 85% of a 15 y life used",
-   "price_source": "estimate",
-   "price_note": "Replacement cost: a 12M modular plate and box, 6 switches, a 6A socket, a fan regulator, and installation.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=12+inches+light+switch+board+*+*+*+*+*&prds=localAnnotatedOfferId:1,productid:2273427486966799367,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 14 matching listings for '12 inches light switch board' (Amazon.in, Flipkart, IBO, Meesho, Tradeindia.com, amazon.in, iotics technology)",
    "candidates": {
     "local": {
      "name": "light switch board",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 590,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=12+inches+light+switch+board+*+*+*+*+*&prds=localAnnotatedOfferId:1,productid:2273427486966799367,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 14 matching listings for '12 inches light switch board' (Amazon.in, Flipkart, IBO, Meesho, Tradeindia.com, amazon.in, iotics technology)",
      "photos": [
       "room_003.jpg"
      ]
@@ -1763,7 +1829,7 @@
     "room_003.jpg"
    ],
    "flags": [
-    "possible double count with Small white modular switchboard right of window (opus-12), Jev 0.93"
+    "possible double count with Small white modular switchboard right of window (opus-12), Jev 0.95"
    ],
    "suggest_duplicate_of": "frontier:opus-12"
   },
@@ -1788,32 +1854,33 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.87,
+   "identity_confidence": 0.78,
    "identity_probs": {
-    "voice": 0.03,
-    "frontier": 0.91,
-    "local": 0.06
+    "voice": 0.02,
+    "frontier": 0.86,
+    "local": 0.12
    },
-   "price_from": "frontier",
-   "price_confidence": 0.17,
+   "price_from": "voice",
+   "price_confidence": 0.35,
    "price_probs": {
-    "voice": 0.42,
-    "frontier": 0.58
+    "voice": 0.57,
+    "frontier": 0.04,
+    "local": 0.39
    },
-   "rcv_unit_inr": 400.0,
-   "rcv_inr": 400.0,
-   "acv_inr": 160,
+   "rcv_unit_inr": 150.0,
+   "rcv_inr": 150.0,
+   "acv_inr": 60,
    "acv_basis": "condition 'fair' read as 60% of a 5 y life used",
-   "price_source": "estimate",
-   "price_note": "Roll-up whiteboard film.",
+   "price_source": "said by owner",
+   "price_note": null,
    "candidates": {
     "local": {
      "name": "whiteboard",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 10637,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=large+whiteboard+house&prds=localAnnotatedOfferId:1,productid:989797625731337466,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 5 matching listings for 'large whiteboard house' (Amazon.in, Etsy, desertcart.in, ubuy.co.in)",
      "photos": [
       "room_003.jpg"
      ]
@@ -1843,7 +1910,7 @@
     "room_003.jpg"
    ],
    "flags": [
-    "low Jev confidence on price (0.17)"
+    "low Jev confidence on price (0.35)"
    ]
   },
   {
@@ -1866,28 +1933,31 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.54,
+   "identity_confidence": 0.42,
    "identity_probs": {
-    "frontier": 0.77,
-    "local": 0.23
+    "local": 0.29,
+    "frontier": 0.71
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 700.0,
-   "rcv_inr": 1400.0,
-   "acv_inr": 560,
+   "price_from": "local",
+   "price_confidence": 0.7,
+   "price_probs": {
+    "local": 0.85,
+    "frontier": 0.15
+   },
+   "rcv_unit_inr": 309,
+   "rcv_inr": 618,
+   "acv_inr": 248,
    "acv_basis": "condition 'fair' read as 60% of a 10 y life used",
-   "price_source": "estimate",
-   "price_note": "One rod per window.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=curtain+home+decor&prds=localAnnotatedOfferId:1,productid:3944116203631919962,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 3 matching listings for 'curtain home decor' (Amazon.in)",
    "candidates": {
     "local": {
      "name": "curtain",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 309,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=curtain+home+decor&prds=localAnnotatedOfferId:1,productid:3944116203631919962,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 3 matching listings for 'curtain home decor' (Amazon.in)",
      "photos": [
       "room_004.jpg",
       "room_005.jpg",
@@ -1916,7 +1986,8 @@
     "room_006.jpg"
    ],
    "flags": [
-    "frontier item matched by the owner's close-up"
+    "frontier item matched by the owner's close-up",
+    "low Jev confidence on identity (0.42)"
    ]
   },
   {
@@ -1942,12 +2013,15 @@
    "identity_from": "frontier",
    "identity_confidence": 0.92,
    "identity_probs": {
-    "frontier": 0.96,
-    "local": 0.04
+    "local": 0.04,
+    "frontier": 0.96
    },
    "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
+   "price_confidence": 0.31,
+   "price_probs": {
+    "local": 0.35,
+    "frontier": 0.65
+   },
    "rcv_unit_inr": 450.0,
    "rcv_inr": 1800.0,
    "acv_inr": 720,
@@ -1959,9 +2033,9 @@
      "name": "curtain",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 309,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=curtain+home+decor&prds=localAnnotatedOfferId:1,productid:3944116203631919962,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 3 matching listings for 'curtain home decor' (Amazon.in)",
      "photos": [
       "room_005.jpg",
       "item_local-41_closeup_000.jpg"
@@ -1991,7 +2065,8 @@
     "room_006.jpg"
    ],
    "flags": [
-    "frontier item matched by the owner's close-up"
+    "frontier item matched by the owner's close-up",
+    "low Jev confidence on price (0.31)"
    ]
   },
   {
@@ -2020,12 +2095,15 @@
    "identity_confidence": 0.82,
    "identity_probs": {
     "voice": 0.1,
-    "frontier": 0.88,
-    "local": 0.02
+    "frontier": 0.87,
+    "local": 0.03
    },
    "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
+   "price_confidence": 0.45,
+   "price_probs": {
+    "local": 0.28,
+    "frontier": 0.72
+   },
    "rcv_unit_inr": 12000.0,
    "rcv_inr": 12000.0,
    "acv_inr": 1200,
@@ -2037,9 +2115,9 @@
      "name": "bed",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 19190,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=bed&prds=localAnnotatedOfferId:1,catalogid:39780652404969865,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 19 matching listings for 'bed' (Amazon.in, Durian Furniture, Flipkart, Home Centre, IKEA.in, Nilkamal Furniture, Pepperfry, Urban Ladder, Wooden Street, WoodenTwist)",
      "photos": [
       "room_005.jpg",
       "room_006.jpg"
@@ -2073,7 +2151,9 @@
     "room_005.jpg",
     "room_006.jpg"
    ],
-   "flags": []
+   "flags": [
+    "low Jev confidence on price (0.45)"
+   ]
   },
   {
    "n": 24,
@@ -2086,7 +2166,7 @@
     "pattern": "red, black, beige blocks"
    },
    "quantity": 1,
-   "condition": "fair",
+   "condition": "good",
    "age_years": null,
    "price_paid_inr": null,
    "book": null,
@@ -2095,28 +2175,31 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.96,
+   "identity_confidence": 0.95,
    "identity_probs": {
-    "frontier": 0.98,
-    "local": 0.02
+    "local": 0.02,
+    "frontier": 0.98
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 700.0,
-   "rcv_inr": 700.0,
-   "acv_inr": 280,
-   "acv_basis": "condition 'fair' read as 60% of a 5 y life used",
-   "price_source": "estimate",
-   "price_note": "Cotton-blend printed bedsheet or cover.",
+   "price_from": "local",
+   "price_confidence": 0.34,
+   "price_probs": {
+    "local": 0.67,
+    "frontier": 0.33
+   },
+   "rcv_unit_inr": 774,
+   "rcv_inr": 774,
+   "acv_inr": 503,
+   "acv_basis": "condition 'good' read as 35% of a 5 y life used",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=bedspread+bed&prds=localAnnotatedOfferId:1,productid:10267060217486587008,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 18 matching listings for 'bedspread bed' (Amazon.in, IKEA.in, Myntra, Nykaa, Thehomedresser, amazon.in)",
    "candidates": {
     "local": {
      "name": "bedspread",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 774,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=bedspread+bed&prds=localAnnotatedOfferId:1,productid:10267060217486587008,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 18 matching listings for 'bedspread bed' (Amazon.in, IKEA.in, Myntra, Nykaa, Thehomedresser, amazon.in)",
      "photos": [
       "room_004.jpg"
      ]
@@ -2144,7 +2227,9 @@
     "room_005.jpg",
     "room_006.jpg"
    ],
-   "flags": []
+   "flags": [
+    "low Jev confidence on price (0.34)"
+   ]
   },
   {
    "n": 25,
@@ -2167,27 +2252,30 @@
    "identity_from": "frontier",
    "identity_confidence": 0.68,
    "identity_probs": {
-    "voice": 0.2,
-    "frontier": 0.78,
-    "local": 0.02
+    "local": 0.02,
+    "frontier": 0.79,
+    "voice": 0.19
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 1200.0,
-   "rcv_inr": 1200.0,
-   "acv_inr": 780,
+   "price_from": "local",
+   "price_confidence": 0.36,
+   "price_probs": {
+    "local": 0.68,
+    "frontier": 0.32
+   },
+   "rcv_unit_inr": 1305,
+   "rcv_inr": 1305,
+   "acv_inr": 848,
    "acv_basis": "condition 'good' read as 35% of a 3 y life used",
-   "price_source": "estimate",
-   "price_note": "Brand not visible.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=backpack&prds=localAnnotatedOfferId:1,catalogid:3902926389994849695,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 18 matching listings for 'backpack' (Amazon.in, Decathlon Sports India, Flipkart, Myntra, Samsonite, Swiss Military India, Wildcraft Official, mokobara)",
    "candidates": {
     "local": {
      "name": "backpack",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 1305,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=backpack&prds=localAnnotatedOfferId:1,catalogid:3902926389994849695,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 18 matching listings for 'backpack' (Amazon.in, Decathlon Sports India, Flipkart, Myntra, Samsonite, Swiss Military India, Wildcraft Official, mokobara)",
      "photos": [
       "room_005.jpg",
       "room_006.jpg"
@@ -2222,6 +2310,7 @@
     "room_006.jpg"
    ],
    "flags": [
+    "low Jev confidence on price (0.36)",
     "owner: free or provided (the owner said so); may not be the owner's to claim"
    ]
   },
@@ -2250,15 +2339,15 @@
    "identity_from": "frontier",
    "identity_confidence": 0.93,
    "identity_probs": {
-    "voice": 0.01,
-    "frontier": 0.96,
-    "local": 0.03
+    "local": 0.04,
+    "frontier": 0.95,
+    "voice": 0.01
    },
    "price_from": "frontier",
-   "price_confidence": 0.66,
+   "price_confidence": 0.74,
    "price_probs": {
-    "voice": 0.17,
-    "frontier": 0.83
+    "frontier": 0.87,
+    "voice": 0.13
    },
    "rcv_unit_inr": 4200.0,
    "rcv_inr": 4200.0,
@@ -2273,7 +2362,7 @@
      "model": "LAX 21-54",
      "rcv_inr": null,
      "price_source": null,
-     "price_note": null,
+     "price_note": "no listing matched the item well enough",
      "photos": [
       "room_006.jpg"
      ]
@@ -2332,17 +2421,17 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.99,
+   "identity_confidence": 0.98,
    "identity_probs": {
-    "voice": 0.0,
-    "frontier": 1.0,
-    "local": 0.0
+    "local": 0.01,
+    "frontier": 0.98,
+    "voice": 0.01
    },
    "price_from": "voice",
-   "price_confidence": 0.56,
+   "price_confidence": 0.47,
    "price_probs": {
-    "voice": 0.78,
-    "frontier": 0.22
+    "frontier": 0.26,
+    "voice": 0.74
    },
    "rcv_unit_inr": 5500.0,
    "rcv_inr": 5500.0,
@@ -2357,7 +2446,7 @@
      "model": "TROL",
      "rcv_inr": null,
      "price_source": null,
-     "price_note": null,
+     "price_note": "no listing matched the item well enough",
      "photos": [
       "item_added-1_closeup_000.jpg"
      ]
@@ -2387,7 +2476,8 @@
     "item_added-1_closeup_000.jpg"
    ],
    "flags": [
-    "frontier item matched by the owner's close-up"
+    "frontier item matched by the owner's close-up",
+    "low Jev confidence on price (0.47)"
    ]
   },
   {
@@ -2415,17 +2505,18 @@
     "voice"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.95,
+   "identity_confidence": 0.96,
    "identity_probs": {
-    "voice": 0.02,
+    "local": 0.01,
     "frontier": 0.97,
-    "local": 0.01
+    "voice": 0.02
    },
    "price_from": "voice",
-   "price_confidence": 0.55,
+   "price_confidence": 0.75,
    "price_probs": {
-    "voice": 0.77,
-    "frontier": 0.23
+    "local": 0.04,
+    "frontier": 0.13,
+    "voice": 0.83
    },
    "rcv_unit_inr": 190000.0,
    "rcv_inr": 190000.0,
@@ -2438,9 +2529,9 @@
      "name": "Hp Victus Laptop",
      "brand": "HP",
      "model": "VICTUS",
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 97699,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=HP+VICTUS+Laptop&prds=localAnnotatedOfferId:1,catalogid:8349465901706012240,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 17 matching listings for 'HP VICTUS Laptop' (Amazon.in, Flipkart, Gadgets Now, Reliance Digital, Vijay Sales, amazon.in)",
      "photos": [
       "item_added-2_closeup_000.jpg",
       "item_added-2_closeup_001.jpg"
@@ -2498,28 +2589,31 @@
     "local"
    ],
    "identity_from": "frontier",
-   "identity_confidence": 0.92,
+   "identity_confidence": 0.91,
    "identity_probs": {
-    "frontier": 0.96,
-    "local": 0.04
+    "local": 0.05,
+    "frontier": 0.95
    },
-   "price_from": "frontier",
-   "price_confidence": null,
-   "price_probs": {},
-   "rcv_unit_inr": 350.0,
-   "rcv_inr": 350.0,
-   "acv_inr": 140,
+   "price_from": "local",
+   "price_confidence": 0.31,
+   "price_probs": {
+    "local": 0.65,
+    "frontier": 0.35
+   },
+   "rcv_unit_inr": 1030,
+   "rcv_inr": 1030,
+   "acv_inr": 412,
    "acv_basis": "condition 'fair' read as 60% of a 5 y life used",
-   "price_source": "estimate",
-   "price_note": "Standard fibre pillow with cover.",
+   "price_source": "https://www.google.com/search?ibp=oshop&q=Pillow&prds=localAnnotatedOfferId:1,catalogid:3329639175523923390,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+   "price_note": "median of 18 matching listings for 'Pillow' (Amazon.in, Flo Mattress, Frido, IKEA.in, Meesho, Myntra, Myntra - MNow, Nykaa, PharmEasy, Slovic.com, Spaces, Springtek, Sunday Mattress, Wakefit)",
    "candidates": {
     "local": {
      "name": "Pillow",
      "brand": null,
      "model": null,
-     "rcv_inr": null,
-     "price_source": null,
-     "price_note": null,
+     "rcv_inr": 1030,
+     "price_source": "https://www.google.com/search?ibp=oshop&q=Pillow&prds=localAnnotatedOfferId:1,catalogid:3329639175523923390,pvo:2,pvt:hg,rds:PC_6027158597472037202%7CPROD_PC_6027158597472037202&gl=in&udm=28&pvorigin=2",
+     "price_note": "median of 18 matching listings for 'Pillow' (Amazon.in, Flo Mattress, Frido, IKEA.in, Meesho, Myntra, Myntra - MNow, Nykaa, PharmEasy, Slovic.com, Spaces, Springtek, Sunday Mattress, Wakefit)",
      "photos": [
       "item_added-3_closeup_000.jpg"
      ]
@@ -2543,7 +2637,9 @@
     "room_005.jpg",
     "room_006.jpg"
    ],
-   "flags": []
+   "flags": [
+    "low Jev confidence on price (0.31)"
+   ]
   },
   {
    "n": 30,
@@ -3134,14 +3230,14 @@
   },
   "local": {
    "items": 30,
-   "seconds": 0.0,
+   "seconds": 10.0,
    "notes": [
     "30 items after the owner's review and close-ups"
    ]
   },
   "voice": {
    "items": 12,
-   "seconds": 24.3,
+   "seconds": 31.0,
    "notes": [
     "12 voice notes and 0 typed notes on 12 items"
    ]
@@ -3162,7 +3258,7 @@
   "priced": 0,
   "unreadable_books": 0
  },
- "seconds": 27.8,
+ "seconds": 46.0,
  "review_summary": {
   "removed": 0,
   "duplicates": 0,
