@@ -8,19 +8,17 @@ and 270 degrees and the rotation with the most confident text wins. In that fram
 spine is a horizontal band, so text lines are grouped by vertical overlap: one band, one book.
 """
 
+import functools
+
 import numpy as np
 from PIL import Image
 
-_ENGINE = None
 
-
+@functools.cache
 def _engine():
-    global _ENGINE
-    if _ENGINE is None:
-        from rapidocr import RapidOCR
+    from rapidocr import RapidOCR
 
-        _ENGINE = RapidOCR()
-    return _ENGINE
+    return RapidOCR()
 
 
 def _lines(image: Image.Image, min_score: float) -> list[dict]:

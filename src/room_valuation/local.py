@@ -14,13 +14,14 @@ live search at run time.
 import difflib
 import json
 import re
+import statistics
 import time
 from pathlib import Path
 
 from PIL import Image
 
 from room_valuation import books, models, ocr, prices
-from room_valuation.schema import CATEGORIES, GENRES, Book, Item, SourceResult
+from room_valuation.schema import CATEGORIES, GENRES, Book, Item, SourceResult, json_object
 
 VOCAB = {
     "laptop": ["a laptop", "a notebook computer"],
@@ -61,20 +62,15 @@ SPINES = (
 )
 
 
-def _iou(a, b) -> float:
-    ix = max(0, min(a[2], b[2]) - max(a[0], b[0]))
-    iy = max(0, min(a[3], b[3]) - max(a[1], b[1]))
-    inter = ix * iy
-    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
-    return inter / union if union > 0 else 0.0
-
-
 def _nms(dets: list[dict], iou: float = 0.5) -> list[dict]:
-    kept = []
-    for d in sorted(dets, key=lambda d: -d["score"]):
-        if all(_iou(d["box"], k["box"]) < iou for k in kept):
-            kept.append(d)
-    return kept
+    """Class-agnostic non-maximum suppression, best score first."""
+    import torch
+    from torchvision.ops import nms
+
+    if not dets:
+        return []
+    keep = nms(torch.tensor([d["box"] for d in dets]), torch.tensor([d["score"] for d in dets]), iou)
+    return [dets[i] for i in keep.tolist()]
 
 
 def _crop(image: Image.Image, box, margin: float = 0.1) -> Image.Image:
@@ -85,16 +81,6 @@ def _crop(image: Image.Image, box, margin: float = 0.1) -> Image.Image:
                     int(min(1, x1 + margin * bw) * w), int(min(1, y1 + margin * bh) * h)))
     c.thumbnail((768, 768))
     return c
-
-
-def _json(text: str) -> dict:
-    m = re.search(r"\{.*\}", text, re.S)
-    if not m:
-        return {}
-    try:
-        return json.loads(m.group(0))
-    except json.JSONDecodeError:
-        return {}
 
 
 # values from the prompts' own examples: a small model sometimes copies them back as answers
@@ -189,7 +175,8 @@ def detect(photos: list[tuple[Path, str]], progress=None, threshold: float = 0.1
                                   photos=[path.name], regions=region))
                 n += 1
                 continue
-            ans = _json(vlm.ask(IDENTIFY.format(categories=", ".join(CATEGORIES), hint=b["prompt"]), _crop(image, b["box"]), 160))
+            prompt = IDENTIFY.format(categories=", ".join(CATEGORIES), hint=b["prompt"])
+            ans = json_object(vlm.ask(prompt, _crop(image, b["box"]), 160))
             cat = ans.get("category") if ans.get("category") in CATEGORIES else hint
             name = _null(ans.get("name")) or b["prompt"][2:]
             if name.lower() in NOT_CONTENTS:
@@ -247,12 +234,12 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
                 for book, evidence in _read_spines(image, vlm, photo, log):
                     books_found.append(Item(id=f"{e['id']}-b{len(books_found)}", source="local", category="book",
                                             name=book.title, evidence=evidence, photos=[photo], book=book))
-            items.extend(_settle_books(_dedupe_books(books_found), e["id"], it) )
+            items.extend(_settle_books(_dedupe_books(books_found), it) )
             continue
         for p in shots:
             image = Image.open(p).convert("RGB")
             text = ocr.read_text(image)
-            ans = _json(vlm.ask(CLOSEUP.format(name=it.name, ocr=text or "nothing"), _downsize(image), 200))
+            ans = json_object(vlm.ask(CLOSEUP.format(name=it.name, ocr=text or "nothing"), _downsize(image), 200))
             log.append({"item": it.id, "closeup": p.name, "ocr": text, "vlm": ans})
             for key in ("brand", "model"):
                 if _null(ans.get(key)):
@@ -388,7 +375,7 @@ def _dedupe_books(items: list[Item]) -> list[Item]:
     return kept
 
 
-def _settle_books(found: list[Item], card_id: str, card: Item) -> list[Item]:
+def _settle_books(found: list[Item], card: Item) -> list[Item]:
     """Catalogue-matched books stay. Unmatched spine text that shares a word with a matched
     book is a partial read of it and goes. What is left is an unidentified book each."""
     matched = [b for b in found if b.book and b.book.lookup == "openlibrary"]
@@ -432,21 +419,12 @@ def price_items(items: list[Item], log: list) -> None:
     for it in items:
         if it.book and it.book.genre not in GENRES:
             it.book.genre = "other"
-        if it in unread:
-            continue
-        q, must = prices.query_for(it)
-        try:
-            p = prices.price_item(q, it.category, must)
-        except Exception as e:  # one bad lookup costs one price, not the pipeline
-            p = {"query": q, "rcv_inr": None, "note": f"price lookup failed: {type(e).__name__}"}
-        it.rcv_inr = p.get("rcv_inr")
-        it.price_source = p.get("url")
-        it.price_note = (f"median of {p['matched']} matching listings for '{q}'"
-                         + (f" ({', '.join(p['sellers'])})" if p.get("sellers") else "")) if it.rcv_inr else p.get("note")
-        log.append({"item": it.id, "price": p})
-    known = sorted(it.rcv_inr for it in items if it.category == "book" and it not in unread and it.rcv_inr)
+        if it not in unread:
+            it.rcv_inr, it.price_source, it.price_note, raw = prices.lookup(it)
+            log.append({"item": it.id, "price": raw})
+    known = [it.rcv_inr for it in items if it.category == "book" and it not in unread and it.rcv_inr]
     for it in unread:
-        it.rcv_inr = known[len(known) // 2] if known else None
+        it.rcv_inr = statistics.median_high(known) if known else None
         it.price_note = f"median of the {len(known)} identified books in this room" if known else "no identified books to compare"
 
 

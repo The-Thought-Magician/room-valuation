@@ -28,20 +28,22 @@ def load(capture: Path) -> dict:
     return json.loads(f.read_text()) if f.exists() else {"stage": "new", "items": []}
 
 
+def _write(capture: Path, data: dict) -> None:
+    tmp = path(capture).with_suffix(".tmp")
+    tmp.write_text(json.dumps(data, indent=1, default=str))
+    tmp.replace(path(capture))
+
+
 def save(capture: Path, data: dict) -> None:
     with LOCK:
-        tmp = path(capture).with_suffix(".tmp")
-        tmp.write_text(json.dumps(data, indent=1, default=str))
-        tmp.replace(path(capture))
+        _write(capture, data)
 
 
 def update(capture: Path, fn) -> dict:
     with LOCK:
         data = load(capture)
         fn(data)
-        tmp = path(capture).with_suffix(".tmp")
-        tmp.write_text(json.dumps(data, indent=1, default=str))
-        tmp.replace(path(capture))
+        _write(capture, data)
     return data
 
 
@@ -68,7 +70,7 @@ def from_detection(items: list[Item], photo_dir: Path, thumbs: Path) -> list[dic
             crop_thumbnail(photo_dir / r["photo"], r["box"], thumbs / thumb)
         out.append({"id": it.id, "state": "detected", "category": it.category, "name": it.name,
                     "brand": it.brand, "model": it.model, "quantity": it.quantity, "thumb": thumb,
-                    "closeups": [], "voice": None, "note": "", "detected": it.model_dump()})
+                    "note": "", "detected": it.model_dump()})
     rank = {c: i for i, c in enumerate(PRIORITY)}
     out.sort(key=lambda e: (rank.get(e["category"], 99), e["name"]))
     return out

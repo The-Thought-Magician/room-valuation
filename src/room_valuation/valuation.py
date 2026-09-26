@@ -1,13 +1,15 @@
 """Turn Jev's judgments into line items, totals, and a ranking of the three sources."""
 
+from collections import Counter
+
 from room_valuation import prices
 from room_valuation.jev import CONDITION_LEVELS, Group
-from room_valuation.schema import BUILDING, Item
+from room_valuation.schema import BUILDING
 
 REVIEW_CONFIDENCE = 0.5  # below this Jev confidence a line is flagged for a human
 
 
-def _pick(answer, members: dict[str, Item]) -> tuple[str, float, dict]:
+def _pick(answer) -> tuple[str, float, dict]:
     probs = {k: float(v) for k, v in answer.probabilities.items()}
     return answer.choice, float(answer.confidence), probs
 
@@ -19,13 +21,13 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
         flags = list(g.flags)
         # identity
         if f"id_{n}" in answers:
-            id_src, id_conf, id_probs = _pick(answers[f"id_{n}"], m)
+            id_src, id_conf, id_probs = _pick(answers[f"id_{n}"])
         else:
             id_src, id_conf, id_probs = next(iter(m)), None, {}
         item = m[id_src]
         # price
         if f"price_{n}" in answers:
-            price_src, price_conf, price_probs = _pick(answers[f"price_{n}"], m)
+            price_src, price_conf, price_probs = _pick(answers[f"price_{n}"])
         else:
             price_src = next((s for s, it in m.items() if it.rcv_inr), None)
             price_conf, price_probs = None, {}
@@ -139,28 +141,20 @@ def totals(lines: list[dict]) -> dict:
     contents = [ln for ln in lines if ln["category"] not in BUILDING]
     fixtures = [ln for ln in lines if ln["category"] in BUILDING]
     return {
-        "contents": {"items": sum(ln["quantity"] for ln in contents),
-                     "rcv_inr": round(sum(ln["rcv_inr"] or 0 for ln in contents)),
-                     "acv_inr": round(sum(ln["acv_inr"] or 0 for ln in contents))},
-        "building_fixtures": {"items": sum(ln["quantity"] for ln in fixtures),
-                              "rcv_inr": round(sum(ln["rcv_inr"] or 0 for ln in fixtures)),
-                              "acv_inr": round(sum(ln["acv_inr"] or 0 for ln in fixtures))},
-        "rcv_inr": round(sum(ln["rcv_inr"] or 0 for ln in lines)),
-        "acv_inr": round(sum(ln["acv_inr"] or 0 for ln in lines)),
-        "items": sum(ln["quantity"] for ln in lines),
+        "contents": _sum(contents),
+        "building_fixtures": _sum(fixtures),
+        **_sum(lines),
         "unpriced": sum(1 for ln in lines if not ln["rcv_inr"]),
         "needs_review": sum(1 for ln in lines if ln["flags"]),
         "possible_double_count_inr": round(sum(ln["rcv_inr"] or 0 for ln in lines
                                                if any(f.startswith("possible double count") for f in ln["flags"]))),
         "books": {"count": len(books), "rcv_inr": round(sum(ln["rcv_inr"] or 0 for ln in books)),
-                  "by_genre": _count(ln["book"]["genre"] for ln in books if ln["book"])},
+                  "by_genre": dict(Counter(ln["book"]["genre"] or "other" for ln in books if ln["book"]))},
         "by_category": {k: {**v, "rcv_inr": round(v["rcv_inr"]), "acv_inr": round(v["acv_inr"])}
                         for k, v in sorted(by_cat.items(), key=lambda kv: -kv[1]["rcv_inr"])},
     }
 
 
-def _count(values) -> dict:
-    out = {}
-    for v in values:
-        out[v or "other"] = out.get(v or "other", 0) + 1
-    return out
+def _sum(lines: list[dict]) -> dict:
+    return {"items": sum(ln["quantity"] for ln in lines), "rcv_inr": round(sum(ln["rcv_inr"] or 0 for ln in lines)),
+            "acv_inr": round(sum(ln["acv_inr"] or 0 for ln in lines))}

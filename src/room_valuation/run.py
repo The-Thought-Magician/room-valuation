@@ -7,8 +7,7 @@ Capture folder layout (what the capture pages upload):
     meta.json                  {"room": "bedroom", "city": "Pune", "length_cm": null, "width_cm": null}
     photos/room/*.jpg          photos covering the room
     items/<item id>/*.jpg      close-ups taken on that item's page (labels, stickers, spines)
-    items/<item id>/voice.*    the owner's voice note about that item
-    voice.*                    optional room-level narration
+    items/<item id>/voice*     the owner's voice notes about that item
     video.*                    optional walkthrough, used only for floor area
 """
 
@@ -26,7 +25,7 @@ from room_valuation.schema import SourceResult
 
 BACKEND_NAMES = {"opus": "claude-opus-5-5", "astra": "gpt-6-astra", "none": "skipped (test run)"}
 AUDIO = (".webm", ".m4a", ".mp3", ".wav", ".ogg", ".aac")
-VIDEO = (".mp4", ".mov", ".mkv")
+VIDEO = (".mp4", ".mov", ".mkv", ".webm", ".3gp")  # one list: upload, frames and area all accept the same
 PHOTO = (".jpg", ".jpeg", ".png", ".webp")
 
 
@@ -89,7 +88,7 @@ def room_photos(capture: Path, workdir: Path) -> list[tuple[Path, str]]:
         if p.suffix.lower() in PHOTO:
             dst = workdir / "photos" / f"room_{p.stem}.jpg"
             out.append((dst if dst.exists() else _normalize(p, dst), "room"))
-    video = _first(capture, "video", VIDEO + (".webm",))
+    video = _first(capture, "video", VIDEO)
     if video:
         for f in video_frames(video, workdir):
             dst = workdir / "photos" / f"room_video_{f.stem}.jpg"
@@ -182,9 +181,8 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
         with models.gpu_lock():
             guarded("local", local.value, entries, closeups, by_name, workdir,
                     progress=lambda **kw: _status(workdir, "local", "running", **kw), reuse_refined="refine" in reuse)
-            room_note = _first(capture, "voice", AUDIO)
-            if notes or room_note or any(e.get("note") for e in entries):
-                guarded("voice", voice.run_items, notes, room_note, workdir,
+            if notes or any(e.get("note") for e in entries):
+                guarded("voice", voice.run_items, notes, workdir,
                         progress=lambda **kw: _status(workdir, "voice", "running", **kw),
                         reuse_transcripts="transcripts" in reuse, entries=entries)
         if remote:
@@ -201,7 +199,7 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
         # computed on an earlier run: still shown as a candidate next to the tape
         fp = area.from_floorplan(room, [], None, workdir)
     fr = results.get("frontier")
-    area_info = area.pick(tape, fp, fr.room_area_m2 if fr else None, measured)
+    area_info = area.pick(tape, fp, fr.room_area_m2 if fr else None, measured=measured)
     _status(workdir, "area", "done", source=area_info.get("source"))
 
     _status(workdir, "jev", "running")

@@ -1,8 +1,6 @@
 """Local model wrappers. One model on the GPU at a time: 8 GB does not hold all three."""
 
-import os
-
-os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
+import contextlib
 
 import torch
 from PIL import Image
@@ -18,22 +16,15 @@ torch.backends.cuda.enable_cudnn_sdp(False)  # cuDNN SDPA is unreliable on Black
 GPU_LOCK_FILE = "/tmp/room_valuation_gpu.lock"
 
 
-class gpu_lock:
+@contextlib.contextmanager
+def gpu_lock():
     """One GPU job at a time across every process (server jobs and command-line replays).
     Two jobs sharing the 8 GB card crashed one with a CUDA illegal memory access (2026-09-26)."""
+    import fcntl
 
-    def __enter__(self):
-        import fcntl
-
-        self._f = open(GPU_LOCK_FILE, "w")
-        fcntl.flock(self._f, fcntl.LOCK_EX)
-        return self
-
-    def __exit__(self, *exc):
-        import fcntl
-
-        fcntl.flock(self._f, fcntl.LOCK_UN)
-        self._f.close()
+    with open(GPU_LOCK_FILE, "w") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        yield  # the lock goes with the file when it closes
 
 
 def free():

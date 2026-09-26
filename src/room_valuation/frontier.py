@@ -17,7 +17,7 @@ from pathlib import Path
 
 import httpx
 
-from room_valuation.schema import CATEGORIES, GENRES, Book, Item, SourceResult
+from room_valuation.schema import CATEGORIES, GENRES, Book, Item, SourceResult, number
 
 PROMPT = """You are valuing the contents of a room in {city}, India, for a home insurance claim.
 Photos (read every one with the Read tool; tag = what the photographer meant it to show):
@@ -87,23 +87,12 @@ def _to_result(data: dict, source: str, seconds: float) -> SourceResult:
             attributes={str(k): str(v) for k, v in (raw.get("attributes") or {}).items()},
             quantity=int(raw.get("quantity") or 1), condition=raw.get("condition"),
             evidence=raw.get("evidence"), photos=[Path(p).name for p in raw.get("photos") or []],
-            book=book, rcv_inr=_num(raw.get("rcv_inr")), price_source=raw.get("price_source"),
+            book=book, rcv_inr=number(raw.get("rcv_inr")), price_source=raw.get("price_source"),
             price_note=raw.get("price_note"),
         ))
-    return SourceResult(source=source, items=items, room_area_m2=_num(data.get("room_area_m2")),
+    return SourceResult(source=source, items=items, room_area_m2=number(data.get("room_area_m2")),
                         shelves=int(data["shelves"]) if data.get("shelves") is not None else None,
                         notes=data.get("notes") or [], seconds=round(seconds, 1))
-
-
-def _num(v) -> float | None:
-    if v in (None, ""):
-        return None
-    if isinstance(v, str):
-        v = re.sub(r"[^\d.]", "", v)
-    try:
-        return float(v)
-    except ValueError:
-        return None
 
 
 def run_opus(photos: list[tuple[Path, str]], city: str, workdir: Path, timeout_s: int = 1200) -> SourceResult:

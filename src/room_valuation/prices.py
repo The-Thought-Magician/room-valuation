@@ -5,8 +5,8 @@ new things works the same way. Two searches per item:
 - Google Shopping, India: listings from Amazon.in, Flipkart, Croma, Reliance and others
 - Google web search restricted to blinkit.com and zeptonow.com: quick-commerce product pages
   (both block direct scripted access, so their indexed pages are the legitimate route)
-Provider: Serper.dev (2,500 free searches, no card) when SERPER_API_KEY is set, otherwise
-SerpAPI (250 free a month). Every query is cached on disk, so reruns cost nothing.
+Provider: Serper.dev (2,500 free searches, no card), SERPER_API_KEY. Every query is cached on
+disk, so reruns cost nothing.
 """
 
 import hashlib
@@ -34,11 +34,8 @@ SALVAGE_FLOOR = 0.10
 
 
 def provider() -> str | None:
-    if os.environ.get("SERPER_API_KEY"):
-        return "serper"
-    if os.environ.get("SERPAPI_API_KEY"):
-        return "serpapi"
-    return None
+    """Part of every cache key, so a saved search stays valid across code changes."""
+    return "serper" if os.environ.get("SERPER_API_KEY") else None
 
 
 def _cached(kind: str, query: str, fetch) -> dict:
@@ -75,12 +72,6 @@ def _serper(endpoint: str, query: str, attempts: int = 3) -> dict:
     return {"error": last}
 
 
-def _serpapi(params: dict) -> dict:
-    r = httpx.get("https://serpapi.com/search.json", params={**params, "api_key": os.environ["SERPAPI_API_KEY"]},
-                  timeout=30)
-    return r.json()
-
-
 def _rupees(text: str) -> list[float]:
     return [float(m.replace(",", "")) for m in re.findall(r"(?:₹|Rs\.?|INR)\s?([\d,]{2,9}(?:\.\d+)?)", text or "")]
 
@@ -91,33 +82,20 @@ def _tokens(text: str) -> set[str]:
 
 def shopping(query: str, limit: int = 20) -> list[dict]:
     """Google Shopping listings for India: [{title, price, seller, url}]."""
-    p = provider()
-    if p == "serper":
-        rows = _cached("shopping", query, lambda: _serper("shopping", query)).get("shopping") or []
-        pairs = [(r, (_rupees(r.get("price", "")) or [None])[0], r.get("link")) for r in rows]
-    elif p == "serpapi":
-        data = _cached("shopping", query, lambda: _serpapi(
-            {"engine": "google_shopping", "q": query, "gl": "in", "hl": "en", "location": "India"}))
-        rows = data.get("shopping_results") or []
-        pairs = [(r, r.get("extracted_price") or (_rupees(r.get("price", "")) or [None])[0],
-                  r.get("product_link") or r.get("link")) for r in rows]
-    else:
+    if not provider():
         return []
-    return [{"title": r.get("title"), "price": float(price), "seller": r.get("source"), "url": url,
-             "engine": f"{p} shopping"} for r, price, url in pairs[:limit] if price]
+    rows = _cached("shopping", query, lambda: _serper("shopping", query)).get("shopping") or []
+    pairs = [(r, (_rupees(r.get("price", "")) or [None])[0]) for r in rows]
+    return [{"title": r.get("title"), "price": float(price), "seller": r.get("source"), "url": r.get("link"),
+             "engine": "serper shopping"} for r, price in pairs[:limit] if price]
 
 
 def quick_commerce(query: str) -> list[dict]:
     """Blinkit and Zepto product pages that Google indexed with a price."""
     q = f"{query} ({' OR '.join(f'site:{s}' for s in QUICK_COMMERCE)})"
-    p = provider()
-    if p == "serper":
-        rows = _cached("site_search", q, lambda: _serper("search", q)).get("organic") or []
-    elif p == "serpapi":
-        rows = _cached("site_search", q, lambda: _serpapi(
-            {"engine": "google", "q": q, "gl": "in", "hl": "en", "num": 10})).get("organic_results") or []
-    else:
+    if not provider():
         return []
+    rows = _cached("site_search", q, lambda: _serper("search", q)).get("organic") or []
     out = []
     for r in rows:
         extra = {k: v for k, v in r.items() if k not in ("title", "link", "snippet")}
@@ -125,7 +103,7 @@ def quick_commerce(query: str) -> list[dict]:
         seller = next((s for s in QUICK_COMMERCE if s in (r.get("link") or "")), None)
         if prices and seller:
             out.append({"title": r.get("title"), "price": prices[0], "seller": seller, "url": r.get("link"),
-                        "engine": f"{p} site search"})
+                        "engine": "serper site search"})
     return out
 
 
@@ -191,3 +169,16 @@ def query_for(item) -> tuple[str, list[str]]:
         name = f"{name} {hint}"
     must = [item.brand.split()[0]] if item.brand else []
     return name, must
+
+
+def lookup(item) -> tuple[float | None, str | None, str | None, dict]:
+    """One search for an item: (price, url, note, raw result). A failed lookup costs one price."""
+    q, must = query_for(item)
+    try:
+        p = price_item(q, item.category, must)
+    except Exception as e:
+        p = {"query": q, "rcv_inr": None, "note": f"price lookup failed: {type(e).__name__}"}
+    if not p.get("rcv_inr"):
+        return None, None, p.get("note"), p
+    note = f"median of {p['matched']} matching listings for '{q}'" + (f" ({', '.join(p['sellers'])})" if p.get("sellers") else "")
+    return p["rcv_inr"], p.get("url"), note, p

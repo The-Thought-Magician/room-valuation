@@ -30,7 +30,7 @@ ID_RE = re.compile(r"^[0-9]{8}-[0-9]{6}-[0-9a-f]{6}$")
 ITEM_RE = re.compile(r"^(local|added)-[0-9]+$")
 PHOTO_EXT = set(runner.PHOTO)
 AUDIO_EXT = set(runner.AUDIO)
-VIDEO_EXT = set(runner.VIDEO) | {".webm", ".3gp"}
+VIDEO_EXT = set(runner.VIDEO)
 MAX_BYTES = 300 * 1024 * 1024
 
 app = FastAPI(title="room-valuation")
@@ -120,15 +120,13 @@ def health():
 @app.post("/api/captures")
 async def create(room: str = Form("bedroom"), city: str = Form(""), length_cm: float | None = Form(None),
                  width_cm: float | None = Form(None), room_photos: list[UploadFile] = File(default=[]),
-                 voice: UploadFile | None = File(None), video: UploadFile | None = File(None)):
+                 video: UploadFile | None = File(None)):
     if not room_photos and not (video and video.filename):
         raise HTTPException(400, "record a room video or take at least one room photo")
     cid = time.strftime("%Y%m%d-%H%M%S") + "-" + secrets.token_hex(3)
     cap = DATA / cid
     for i, f in enumerate(room_photos):
         await _save(f, cap / "photos" / "room" / f"{i:03d}", PHOTO_EXT)
-    if voice and voice.filename:
-        await _save(voice, cap / "voice", AUDIO_EXT)
     if video and video.filename:
         await _save(video, cap / "video", VIDEO_EXT)
     meta = {"room": re.sub(r"[^\w -]", "", room)[:40] or "room", "city": re.sub(r"[^\w -]", "", city)[:40],
@@ -151,7 +149,6 @@ def get_session(cid: str):
         d = cap / "items" / e["id"]
         e["closeup_count"] = len([p for p in d.glob("*") if p.suffix.lower() in PHOTO_EXT]) if d.is_dir() else 0
         e["voice_count"] = len([p for p in d.glob("voice*") if p.suffix.lower() in AUDIO_EXT]) if d.is_dir() else 0
-        e["has_voice"] = e["voice_count"] > 0
     data["categories"] = CATEGORIES
     return data
 
@@ -216,7 +213,7 @@ async def add_item(cid: str, name: str = Form(...), category: str = Form("other"
         n = 1 + sum(1 for e in s["items"] if e["id"].startswith("added-"))
         new.update({"id": f"added-{n}", "state": "added", "category": category,
                     "name": re.sub(r"[^\w .,'()/-]", "", name)[:80] or category, "brand": None, "model": None,
-                    "quantity": max(1, min(999, quantity)), "thumb": None, "closeups": [], "voice": None, "note": ""})
+                    "quantity": max(1, min(999, quantity)), "thumb": None, "note": ""})
         s["items"].append(dict(new))
 
     session.update(cap, add)

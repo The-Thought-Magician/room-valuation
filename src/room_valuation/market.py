@@ -8,9 +8,10 @@ The result joins the item as a "market" candidate. A spine nobody could read is 
 median of the room's identified books.
 """
 
+import statistics
+
 from room_valuation import prices
 from room_valuation.jev import Group
-from room_valuation.prices import query_for
 from room_valuation.schema import Item
 
 
@@ -35,24 +36,18 @@ def fill_missing(groups: list[Group], answers: dict, log: list) -> dict:
         if _unreadable(ident):
             unread.append((n, g, ident))
             continue
-        q, must = query_for(ident)
         searched += 1
-        try:
-            p = prices.price_item(q, ident.category, must)
-        except Exception as e:  # one bad lookup costs one price, not the valuation
-            p = {"query": q, "rcv_inr": None, "note": f"price lookup failed: {type(e).__name__}"}
-        log.append({"group": n, "identity": ident.id, "price": p})
-        if not p.get("rcv_inr"):
+        rcv, url, note, raw = prices.lookup(ident)
+        log.append({"group": n, "identity": ident.id, "price": raw})
+        if not rcv:
             continue
         priced += 1
-        note = f"median of {p['matched']} matching listings for '{q}'" + (
-            f" ({', '.join(p['sellers'])})" if p.get("sellers") else "")
-        g.members["market"] = _market_item(n, ident, p["rcv_inr"], p.get("url"), note)
-    known = sorted(it.rcv_inr for g in groups if not any(_unreadable(m) for m in g.members.values())
-                   for it in g.members.values() if it.category == "book" and it.rcv_inr)
+        g.members["market"] = _market_item(n, ident, rcv, url, note)
+    known = [it.rcv_inr for g in groups if not any(_unreadable(m) for m in g.members.values())
+             for it in g.members.values() if it.category == "book" and it.rcv_inr]
     for n, g, ident in unread:
         if known:
-            g.members["market"] = _market_item(n, ident, known[len(known) // 2], None,
+            g.members["market"] = _market_item(n, ident, statistics.median_high(known), None,
                                                f"median of the {len(known)} identified book prices in this room")
     return {"searched": searched, "priced": priced, "unreadable_books": len(unread)}
 

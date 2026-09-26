@@ -58,10 +58,6 @@ class Group:
     flags: list[str] = field(default_factory=list)
 
 
-def _client() -> TypeSafeClient | None:
-    return TypeSafeClient(model=MODEL, timeout=120.0) if os.environ.get("TYPESAFE_API_KEY") else None
-
-
 CALLS: list[dict] = []  # every request and response of this run, written to jev_calls.jsonl
 
 
@@ -69,20 +65,20 @@ def _dump(q) -> dict:
     return q.model_dump(exclude_none=True) if hasattr(q, "model_dump") else dict(q)
 
 
-def ask(questions: dict, state: dict | None = None) -> dict:
+def ask(questions: dict) -> dict:
     """Send questions in batches, in parallel. Returns {question id: answer}. Every call is
     recorded in CALLS: state, questions, answers, model, usage, request id, seconds."""
     import time
 
-    client = _client()
-    if client is None:
+    if not os.environ.get("TYPESAFE_API_KEY"):
         raise RuntimeError("TYPESAFE_API_KEY not set")
+    client = TypeSafeClient(model=MODEL, timeout=120.0)
     keys = list(questions)
     batches = [{k: questions[k] for k in keys[i : i + BATCH]} for i in range(0, len(keys), BATCH)]
 
     def call(batch):
         t0 = time.time()
-        res = client.system_one(state=state or STATE, questions=batch)
+        res = client.system_one(state=STATE, questions=batch)
         return batch, res, round(time.time() - t0, 2)
 
     answers = {}
@@ -90,7 +86,7 @@ def ask(questions: dict, state: dict | None = None) -> dict:
         for batch, res, secs in pool.map(call, batches):
             answers.update(res.answers)
             CALLS.append({"model": res.model, "request_id": getattr(res, "request_id", None), "seconds": secs,
-                          "usage": _dump(res.usage) if res.usage else None, "state": state or STATE,
+                          "usage": _dump(res.usage) if res.usage else None, "state": STATE,
                           "questions": {k: _dump(q) for k, q in batch.items()},
                           "answers": {k: _dump(a) for k, a in res.answers.items()}})
     return answers

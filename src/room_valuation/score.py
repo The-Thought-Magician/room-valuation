@@ -7,7 +7,7 @@ ground truth; this is only for tuning and for the write-up."""
 
 import re
 
-RECENT_YEARS = 2
+from room_valuation.schema import RECENT_YEARS
 
 
 def _words(text: str) -> set[str]:

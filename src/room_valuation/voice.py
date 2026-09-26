@@ -7,9 +7,7 @@ import time
 from pathlib import Path
 
 from room_valuation import models
-from room_valuation.schema import CATEGORIES, Item, SourceResult
-
-RECENT_YEARS = 2  # a price paid is a replacement cost only when the purchase is this recent
+from room_valuation.schema import RECENT_YEARS, Item, SourceResult, json_object, number
 
 # Prices and ages are read with rules, not by the 2B model: on the first real capture it
 # invented a Rs 12,000 charger and turned "40 years back" into one year (2026-09-26).
@@ -53,55 +51,6 @@ def parse_age(text: str) -> float | None:
         return 0.0
     return None
 
-EXTRACT = (
-    "Below is what a person said while walking through their room for an insurance inventory. "
-    "List every physical object they mention. Reply with a JSON array only, no prose. Each element: "
-    '{{"category": one of [{categories}], "name": "short name", "brand": null or string, "model": null or string, '
-    '"size": null or string, "price_paid_inr": null or number in rupees (2.4 lakh = 240000, 12k = 12000), '
-    '"age_years": null or number (bought last year = 1), "quote": "the words they used"}}.\n\nTranscript:\n{text}'
-)
-
-
-def _array(text: str) -> list[dict]:
-    m = re.search(r"\[.*\]", text, re.S)
-    if not m:
-        return []
-    try:
-        data = json.loads(m.group(0))
-    except json.JSONDecodeError:
-        return []
-    return [d for d in data if isinstance(d, dict)]
-
-
-def _num(v) -> float | None:
-    try:
-        return float(v) if v not in (None, "", "null") else None
-    except (TypeError, ValueError):
-        return None
-
-
-def extract(transcript: str) -> list[Item]:
-    vlm = models.VLM()
-    raw = _array(vlm.ask(EXTRACT.format(categories=", ".join(CATEGORIES), text=transcript), max_new_tokens=900))
-    del vlm
-    models.free()
-    items = []
-    for i, d in enumerate(raw):
-        cat = d.get("category") if d.get("category") in CATEGORIES else "other"
-        attrs = {"size": str(d["size"])} if d.get("size") else {}
-        paid, age = _num(d.get("price_paid_inr")), _num(d.get("age_years"))
-        # what someone paid 35 years ago says nothing about today's replacement cost; it stays
-        # on the item as evidence, and the age still drives depreciation
-        recent = paid is not None and (age is None or age <= RECENT_YEARS)
-        items.append(Item(id=f"voice-{i}", source="voice", category=cat, name=d.get("name") or cat,
-                          brand=d.get("brand"), model=d.get("model"), attributes=attrs, evidence=d.get("quote"),
-                          price_paid_inr=paid, age_years=age,
-                          rcv_inr=paid if recent else None, price_source="said by owner" if recent else None,
-                          price_note=None if recent or paid is None else
-                          f"paid Rs {paid:,.0f} about {age:g} years ago; too old to be a replacement price"))
-    return items
-
-
 ITEM_NOTE = (
     "The owner recorded a voice note about one object in their room, a {name} ({category}). "
     "Reply with one JSON object and nothing else, with keys: brand, model, size, quantity (number), "
@@ -129,7 +78,7 @@ def _item_claim(d: dict, entry: dict, text: str) -> Item:
         note = (f"paid Rs {paid:,.0f} about {age:g} years ago; too old to be a replacement price" if age is not None
                 else f"paid Rs {paid:,.0f}")
     return Item(id=f"voice-{entry['id']}", source="voice", category=entry["category"], name=name, brand=brand,
-                model=model, attributes=attrs, quantity=int(_num(d.get("quantity")) or entry.get("quantity") or 1),
+                model=model, attributes=attrs, quantity=int(number(d.get("quantity")) or entry.get("quantity") or 1),
                 condition=d.get("condition") if d.get("condition") in ("like_new", "good", "fair", "poor") else None,
                 evidence=text, price_paid_inr=paid, age_years=age, link=entry["id"],
                 rcv_inr=paid if recent else None, price_source="said by owner" if recent else None, price_note=note)
@@ -137,22 +86,16 @@ def _item_claim(d: dict, entry: dict, text: str) -> Item:
 
 def _claim_from(vlm, entry: dict, text: str) -> Item:
     prompt = ITEM_NOTE.format(name=entry["name"], category=entry["category"], text=text)
-    raw = vlm.ask(prompt, max_new_tokens=220) if vlm else "{}"
-    m = re.search(r"\{.*\}", raw, re.S)
-    try:
-        d = json.loads(m.group(0)) if m else {}
-    except json.JSONDecodeError:
-        d = {}
-    return _item_claim(d if isinstance(d, dict) else {}, entry, text)
+    return _item_claim(json_object(vlm.ask(prompt, max_new_tokens=220) if vlm else ""), entry, text)
 
 
-def run_items(notes: list[tuple[dict, list[Path]]], room_note: Path | None, workdir: Path, progress=None,
+def run_items(notes: list[tuple[dict, list[Path]]], workdir: Path, progress=None,
               reuse_transcripts: bool = False, entries: list[dict] | None = None) -> SourceResult:
     """What the owner said and typed about each item, read as one statement per item: every
-    voice note on the item plus its typed note. Plus an optional room-level narration."""
+    voice note on the item plus its typed note."""
     t0 = time.time()
     say = progress or (lambda **kw: None)
-    paths = [str(p) for _, ps in notes for p in ps] + ([str(room_note)] if room_note else [])
+    paths = [str(p) for _, ps in notes for p in ps]
     saved = workdir / "transcripts.json"
     segments: dict = {}
     if paths:
@@ -179,20 +122,7 @@ def run_items(notes: list[tuple[dict, list[Path]]], room_note: Path | None, work
     if vlm:
         del vlm
         models.free()
-    if room_note and texts.get(str(room_note)):
-        items += [it.model_copy(update={"id": f"voice-room-{i}"}) for i, it in enumerate(extract(texts[str(room_note)]))]
     n_voice = sum(len(ps) for _, ps in notes)
     n_typed = sum(1 for e in entries or [] if e.get("note"))
     return SourceResult(source="voice", items=items, seconds=round(time.time() - t0, 1),
-                        notes=[f"{n_voice} voice notes and {n_typed} typed notes on {len(statements)} items"
-                               + (", one room narration" if room_note else "")])
-
-
-def run(audio: Path, workdir: Path) -> SourceResult:
-    t0 = time.time()
-    segments = models.transcribe([str(audio)])[str(audio)]
-    text = " ".join(s["text"] for s in segments)
-    (workdir / "transcript.json").write_text(json.dumps(segments, indent=1))
-    items = extract(text) if text.strip() else []
-    return SourceResult(source="voice", items=items, seconds=round(time.time() - t0, 1),
-                        notes=[f"transcript: {text[:500]}"])
+                        notes=[f"{n_voice} voice notes and {n_typed} typed notes on {len(statements)} items"])

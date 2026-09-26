@@ -5,7 +5,6 @@ description = "Room contents valuation: local models, a frontier model and the o
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "accelerate>=1.15.0",
     "fastapi>=0.141.1",
     "httpx>=0.28.1",
     "numpy>=2.5.3",

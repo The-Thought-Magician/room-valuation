@@ -1,6 +1,31 @@
 """The one item shape every source reports in, so Jev can compare like with like."""
 
+import json
+import re
+
 from pydantic import BaseModel, Field
+
+RECENT_YEARS = 2  # a price paid is a replacement cost only when the purchase is this recent
+
+
+def number(v) -> float | None:
+    """A float out of a model answer: 1200, "1200", "Rs 1,200"; None for empty or unreadable."""
+    if v in (None, "", "null"):
+        return None
+    try:
+        return float(re.sub(r"[^\d.]", "", v) if isinstance(v, str) else v)
+    except (TypeError, ValueError):
+        return None
+
+
+def json_object(text: str) -> dict:
+    """The first {...} in a model reply, or {} when there is none or it does not parse."""
+    m = re.search(r"\{.*\}", text or "", re.S)
+    try:
+        d = json.loads(m.group(0)) if m else {}
+    except json.JSONDecodeError:
+        return {}
+    return d if isinstance(d, dict) else {}
 
 CATEGORIES = [
     "laptop", "monitor", "computer_accessory", "phone", "audio", "networking",

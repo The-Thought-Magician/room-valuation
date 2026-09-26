@@ -146,17 +146,11 @@ def test_merge_rules_same_mutual_singleton_and_flag():
     assert len(flagged) == 1 and "local-3" in [it.id for it in flagged[0].members.values()]
 
 
-def test_old_price_paid_is_not_a_replacement_price(monkeypatch):
+def test_old_price_paid_is_not_a_replacement_price():
     from room_valuation import voice
 
-    class FakeVLM:
-        def ask(self, *a, **k):
-            return ('[{"category": "furniture", "name": "bed", "price_paid_inr": 500, "age_years": 35, "quote": "bed"},'
-                    ' {"category": "appliance", "name": "AC", "price_paid_inr": 35000, "age_years": 1, "quote": "AC"}]')
-
-    monkeypatch.setattr(voice.models, "VLM", FakeVLM)
-    monkeypatch.setattr(voice.models, "free", lambda: None)
-    bed, ac = voice.extract("...")
+    bed = voice._item_claim({}, {"id": "local-1", "name": "bed", "category": "furniture"}, "cost 500 rupees, 35 years ago")
+    ac = voice._item_claim({}, {"id": "local-2", "name": "AC", "category": "appliance"}, "35 thousand, bought last year")
     assert bed.rcv_inr is None and bed.price_paid_inr == 500 and "too old" in bed.price_note
     assert ac.rcv_inr == 35000 and ac.age_years == 1
 
@@ -222,7 +216,7 @@ def test_voice_and_typed_notes_are_read_together(tmp_path, monkeypatch):
     monkeypatch.setattr(voice.models, "free", lambda: None)
     lap = {"id": "local-9", "name": "laptop", "category": "laptop", "quantity": 1, "note": "paid 1.9 lakh"}
     table = {"id": "added-1", "name": "study table", "category": "furniture", "quantity": 1, "note": "8k, 9 months old"}
-    res = voice.run_items([(lap, [tmp_path / "voice_00.webm"])], None, tmp_path, entries=[lap, table])
+    res = voice.run_items([(lap, [tmp_path / "voice_00.webm"])], tmp_path, entries=[lap, table])
     by = {i.link: i for i in res.items}
     assert by["local-9"].rcv_inr == 190000 and by["local-9"].age_years == 0.08 and by["local-9"].brand == "HP"
     assert by["added-1"].rcv_inr == 8000 and by["added-1"].age_years == 0.75
@@ -245,7 +239,7 @@ def test_unmatched_spines_become_unidentified_or_drop():
     stranger = Item(id="b2", source="local", category="book", name="Zorblax Quantum",
                     book=Book(title="Zorblax Quantum", lookup="spine text only"))
     card = Item(id="c", source="local", category="book", name="books")
-    out = local._settle_books([matched, partial, stranger], "c", card)
+    out = local._settle_books([matched, partial, stranger], card)
     assert [o.name for o in out] == ["Nonviolent Communication", "unidentified book"]
 
 

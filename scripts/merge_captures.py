@@ -23,16 +23,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from room_valuation import run, session  # noqa: E402
+from room_valuation.local import _contain  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 MEDIA = set(run.PHOTO) | set(run.AUDIO)
-
-
-def _contain(a, b) -> float:
-    ix = max(0, min(a[2], b[2]) - max(a[0], b[0]))
-    iy = max(0, min(a[3], b[3]) - max(a[1], b[1]))
-    small = min((a[2] - a[0]) * (a[3] - a[1]), (b[2] - b[0]) * (b[3] - b[1]))
-    return ix * iy / small if small > 0 else 0.0
 
 
 def _regions(entry: dict) -> list[dict]:
@@ -196,7 +190,7 @@ def carry(cap: Path, data: dict, sources: list[Path], closeups: list[str]) -> No
         if target is None:
             added += 1
             target = {"id": f"added-{added}", "state": "added", "category": cat, "name": name, "brand": None,
-                      "model": None, "quantity": 1, "thumb": None, "closeups": [], "voice": None, "note": ""}
+                      "model": None, "quantity": 1, "thumb": None, "note": ""}
             data["items"].append(target)
         d = cap / "items" / target["id"]
         d.mkdir(parents=True, exist_ok=True)

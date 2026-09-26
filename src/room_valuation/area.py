@@ -20,20 +20,21 @@ def from_tape(length_cm: float, width_cm: float, source: str = "tape measurement
     return out
 
 
-def from_plan_file(plan_json: Path) -> dict | None:
-    """A plan the floor plan take-home already made of this room (e.g. its ARCore depth tier)."""
-    if not plan_json.exists():
-        return None
-    p = json.loads(plan_json.read_text())
-    rooms = p.get("rooms") or []
+def _plan_area(plan_json: Path, source: str | None = None) -> dict | None:
+    """Area, walls and picture of the first room in a floor plan take-home plan.json."""
+    rooms = json.loads(plan_json.read_text()).get("rooms") or [] if plan_json.exists() else []
     if not rooms or not rooms[0].get("area_m2"):
         return None
-    r = rooms[0]
-    png = plan_json.with_suffix(".png")
+    r, png = rooms[0], plan_json.with_suffix(".png")
     return {"area_m2": round(r["area_m2"], 2), "area_sqft": round(r["area_m2"] * SQFT_PER_M2),
             "interval_m2": r.get("area_interval_m2"), "wall_lengths_cm": r.get("wall_lengths_cm"),
-            "source": f"floor plan pipeline, {r.get('source_tier', 'existing')} tier ({plan_json.parent.name})",
+            "source": source or f"floor plan pipeline, {r.get('source_tier', 'existing')} tier ({plan_json.parent.name})",
             "plan_png": str(png) if png.exists() else None}
+
+
+def from_plan_file(plan_json: Path) -> dict | None:
+    """A plan the floor plan take-home already made of this room (e.g. its ARCore depth tier)."""
+    return _plan_area(plan_json)
 
 
 def from_floorplan(room: str, photos: list[Path], video: Path | None, workdir: Path, timeout_s: int = 1500) -> dict | None:
@@ -55,22 +56,15 @@ def from_floorplan(room: str, photos: list[Path], video: Path | None, workdir: P
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
             (workdir / "floorplan_error.txt").write_text(str(getattr(e, "stderr", e))[-4000:])
             return None
-    for name, tier in (("plan_video.json", "video"), ("plan_photos.json", "photos")):
-        f = cap / name
-        if not f.exists():
-            continue
-        rooms = json.loads(f.read_text()).get("rooms") or []
-        if rooms and rooms[0].get("area_m2"):
-            r = rooms[0]
-            png = cap / name.replace(".json", ".png")
-            return {"area_m2": round(r["area_m2"], 2), "area_sqft": round(r["area_m2"] * SQFT_PER_M2),
-                    "interval_m2": r.get("area_interval_m2"), "wall_lengths_cm": r.get("wall_lengths_cm"),
-                    "source": f"floor plan pipeline, {tier} tier", "plan_png": str(png) if png.exists() else None}
+    for tier in ("video", "photos"):
+        found = _plan_area(cap / f"plan_{tier}.json", f"floor plan pipeline, {tier} tier")
+        if found:
+            return found
     return None
 
 
-def pick(tape: dict | None, floorplan: dict | None, frontier_m2: float | None, *more: dict | None) -> dict:
-    candidates = [c for c in (tape, *more, floorplan) if c]
+def pick(tape: dict | None, floorplan: dict | None, frontier_m2: float | None, measured: dict | None = None) -> dict:
+    candidates = [c for c in (tape, measured, floorplan) if c]
     if frontier_m2:
         candidates.append({"area_m2": round(frontier_m2, 2), "area_sqft": round(frontier_m2 * SQFT_PER_M2),
                            "source": "frontier model estimate from photos"})
