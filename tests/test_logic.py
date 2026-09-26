@@ -329,3 +329,5 @@ def test_market_prices_only_unpriced_items_after_jev(monkeypatch):
     assert groups[2].members["market"].rcv_inr == 12000 and asked[1][0] == "Torment Lauren Kate paperback"
     assert groups[3].members["market"].rcv_inr == 12000  # unreadable spine: the room's median book
     assert counts == {"searched": 2, "priced": 2, "unreadable_books": 1}
+    switch = Item(id="local-5", source="local", category="electrical_fixture", name="switch")
+    assert market.query_for(switch)[0] == "switch electrical wall"

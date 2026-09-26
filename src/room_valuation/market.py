@@ -12,6 +12,13 @@ from room_valuation.jev import Group
 from room_valuation.schema import Item
 
 
+# a one-word name searches badly ("switch" matched Nintendo Switch listings, 2026-09-26): the
+# category word keeps a vague query in the right aisle
+CATEGORY_HINT = {"electrical_fixture": "electrical wall", "lighting": "LED", "computer_accessory": "computer",
+                 "networking": "wifi", "appliance": "home appliance", "audio": "audio", "bedding": "bed",
+                 "kitchenware": "kitchen", "decor": "home decor", "building_fixture": "house"}
+
+
 def query_for(item: Item) -> tuple[str, list[str]]:
     """Search text, and the words a listing title must contain (the brand)."""
     if item.category == "book" and item.book and item.book.title:
@@ -23,6 +30,9 @@ def query_for(item: Item) -> tuple[str, list[str]]:
             seen.add(w.lower())
             words.append(w)
     name = " ".join(words)
+    hint = CATEGORY_HINT.get(item.category)
+    if len(words) <= 2 and hint and not set(hint.lower().split()) & seen:
+        name = f"{name} {hint}"
     must = [item.brand.split()[0]] if item.brand else []
     return name, must
 
