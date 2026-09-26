@@ -29,6 +29,9 @@ There are three sources, and Jev combines them:
         books by genre, possible double counts, lines for review
 ```
 
+How each stage works, with a real Jev question and answer: [docs/design/pipeline.md](docs/design/pipeline.md).
+Results per capture: [docs/results/](docs/results/) (photos, video, merged).
+
 ## Run it
 
 ```
