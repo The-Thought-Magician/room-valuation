@@ -1,11 +1,12 @@
 """Live Indian prices for whatever the pipeline found, plus RCV to ACV depreciation.
 
 Nothing is priced ahead of time: every item is searched at run time, so a new room with
-new things works the same way. Sources, through SerpAPI:
-- google_shopping with gl=in: listings from Amazon.in, Flipkart, Croma, Reliance and others
-- google web search restricted to blinkit.com and zeptonow.com: quick-commerce product pages
+new things works the same way. Two searches per item:
+- Google Shopping, India: listings from Amazon.in, Flipkart, Croma, Reliance and others
+- Google web search restricted to blinkit.com and zeptonow.com: quick-commerce product pages
   (both block direct scripted access, so their indexed pages are the legitimate route)
-Every query is cached on disk; the free SerpAPI plan is 250 searches a month.
+Provider: Serper.dev (2,500 free searches, no card) when SERPER_API_KEY is set, otherwise
+SerpAPI (250 free a month). Every query is cached on disk, so reruns cost nothing.
 """
 
 import hashlib
@@ -32,20 +33,38 @@ CONDITION_LIFE_USED = {"like_new": 0.1, "good": 0.35, "fair": 0.6, "poor": 0.85}
 SALVAGE_FLOOR = 0.10
 
 
-def _serpapi(params: dict) -> dict:
-    key = os.environ.get("SERPAPI_API_KEY")
+def provider() -> str | None:
+    if os.environ.get("SERPER_API_KEY"):
+        return "serper"
+    if os.environ.get("SERPAPI_API_KEY"):
+        return "serpapi"
+    return None
+
+
+def _cached(kind: str, query: str, fetch) -> dict:
+    """Disk cache keyed by provider, search kind and query."""
     CACHE.mkdir(parents=True, exist_ok=True)
-    digest = hashlib.sha1(json.dumps(params, sort_keys=True).encode()).hexdigest()[:16]
-    cached = CACHE / f"{digest}.json"
-    if cached.exists():
-        return json.loads(cached.read_text())
-    if not key:
-        return {"error": "SERPAPI_API_KEY not set"}
-    r = httpx.get("https://serpapi.com/search.json", params={**params, "api_key": key}, timeout=30)
-    data = r.json()
-    if "error" not in data:
-        cached.write_text(json.dumps({"params": params, **data}))
+    key = json.dumps({"p": provider(), "k": kind, "q": query}, sort_keys=True)
+    f = CACHE / f"{hashlib.sha1(key.encode()).hexdigest()[:16]}.json"
+    if f.exists():
+        return json.loads(f.read_text())
+    data = fetch()
+    if data and "error" not in data:
+        f.write_text(json.dumps({"query": query, "kind": kind, "provider": provider(), **data}))
     return data
+
+
+def _serper(endpoint: str, query: str) -> dict:
+    r = httpx.post(f"https://google.serper.dev/{endpoint}", timeout=30,
+                   headers={"X-API-KEY": os.environ["SERPER_API_KEY"], "Content-Type": "application/json"},
+                   json={"q": query, "gl": "in", "hl": "en", "num": 20})
+    return r.json() if r.status_code == 200 else {"error": f"serper {r.status_code}: {r.text[:200]}"}
+
+
+def _serpapi(params: dict) -> dict:
+    r = httpx.get("https://serpapi.com/search.json", params={**params, "api_key": os.environ["SERPAPI_API_KEY"]},
+                  timeout=30)
+    return r.json()
 
 
 def _rupees(text: str) -> list[float]:
@@ -57,28 +76,42 @@ def _tokens(text: str) -> set[str]:
 
 
 def shopping(query: str, limit: int = 20) -> list[dict]:
-    data = _serpapi({"engine": "google_shopping", "q": query, "gl": "in", "hl": "en", "location": "India"})
-    out = []
-    for r in (data.get("shopping_results") or [])[:limit]:
-        price = r.get("extracted_price") or (_rupees(r.get("price", "")) or [None])[0]
-        if price:
-            out.append({"title": r.get("title"), "price": float(price), "seller": r.get("source"),
-                        "url": r.get("product_link") or r.get("link"), "engine": "google_shopping"})
-    return out
+    """Google Shopping listings for India: [{title, price, seller, url}]."""
+    p = provider()
+    if p == "serper":
+        rows = _cached("shopping", query, lambda: _serper("shopping", query)).get("shopping") or []
+        pairs = [(r, (_rupees(r.get("price", "")) or [None])[0], r.get("link")) for r in rows]
+    elif p == "serpapi":
+        data = _cached("shopping", query, lambda: _serpapi(
+            {"engine": "google_shopping", "q": query, "gl": "in", "hl": "en", "location": "India"}))
+        rows = data.get("shopping_results") or []
+        pairs = [(r, r.get("extracted_price") or (_rupees(r.get("price", "")) or [None])[0],
+                  r.get("product_link") or r.get("link")) for r in rows]
+    else:
+        return []
+    return [{"title": r.get("title"), "price": float(price), "seller": r.get("source"), "url": url,
+             "engine": f"{p} shopping"} for r, price, url in pairs[:limit] if price]
 
 
 def quick_commerce(query: str) -> list[dict]:
-    sites = " OR ".join(f"site:{s}" for s in QUICK_COMMERCE)
-    data = _serpapi({"engine": "google", "q": f"{query} ({sites})", "gl": "in", "hl": "en", "num": 10})
+    """Blinkit and Zepto product pages that Google indexed with a price."""
+    q = f"{query} ({' OR '.join(f'site:{s}' for s in QUICK_COMMERCE)})"
+    p = provider()
+    if p == "serper":
+        rows = _cached("site_search", q, lambda: _serper("search", q)).get("organic") or []
+    elif p == "serpapi":
+        rows = _cached("site_search", q, lambda: _serpapi(
+            {"engine": "google", "q": q, "gl": "in", "hl": "en", "num": 10})).get("organic_results") or []
+    else:
+        return []
     out = []
-    for r in data.get("organic_results") or []:
-        text = " ".join([r.get("title", ""), r.get("snippet", ""),
-                         json.dumps(r.get("rich_snippet", {}))])
-        prices = _rupees(text)
-        if prices:
-            seller = next((s for s in QUICK_COMMERCE if s in (r.get("link") or "")), r.get("source"))
+    for r in rows:
+        extra = {k: v for k, v in r.items() if k not in ("title", "link", "snippet")}
+        prices = _rupees(" ".join([r.get("title", ""), r.get("snippet", ""), json.dumps(extra, ensure_ascii=False)]))
+        seller = next((s for s in QUICK_COMMERCE if s in (r.get("link") or "")), None)
+        if prices and seller:
             out.append({"title": r.get("title"), "price": prices[0], "seller": seller, "url": r.get("link"),
-                        "engine": "google_site_search"})
+                        "engine": f"{p} site search"})
     return out
 
 
