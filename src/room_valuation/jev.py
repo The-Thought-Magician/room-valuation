@@ -109,9 +109,9 @@ def _view(item: Item) -> dict:
 
 # categories the detectors mix up: a bed filed as bedding by one source and furniture by the
 # other is still one bed (it was counted twice on the merged capture, 2026-09-26)
+# building fixtures are left out: a window paired with a curtain took the curtain's price
 COMPATIBLE = [{"bedding", "furniture"}, {"appliance", "electrical_fixture"}, {"decor", "furniture"},
-              {"computer_accessory", "phone"}, {"lighting", "electrical_fixture"}, {"building_fixture", "furniture"},
-              {"decor", "building_fixture"}]
+              {"computer_accessory", "phone"}, {"lighting", "electrical_fixture"}]
 
 
 def comparable(a: str, b: str) -> bool:
@@ -119,16 +119,25 @@ def comparable(a: str, b: str) -> bool:
 
 
 def closeup_links(flat: list[Item]) -> None:
-    """A close-up taken on an item's page is a photo of that item. A frontier item that lists
-    exactly one item's close-ups among its photos is that item: link it, no pairwise guess."""
+    """A close-up taken on an item's page is a photo of that item. Of the frontier items that list
+    it, the one of the same category that shares a word with the item's name is that item: link
+    it, no pairwise guess. Things in the background of the close-up (a door behind the chair)
+    are not the same category or share no word, and stay unlinked."""
     ids = {it.id: it for it in flat if _src(it) == "local"}
-    taken = set()
-    for it in sorted((x for x in flat if _src(x) == "frontier"), key=lambda x: len(x.photos)):
-        owners = {p.split("_closeup")[0][len("item_"):] for p in it.photos if p.startswith("item_") and "_closeup" in p}
-        owners = {o for o in owners if o in ids and comparable(ids[o].category, it.category)}
-        if len(owners) == 1 and (o := owners.pop()) not in taken:
-            it.link = o
-            taken.add(o)
+    claims: dict[str, list[Item]] = {}
+    for it in (x for x in flat if _src(x) == "frontier"):
+        for owner in {p.split("_closeup")[0][len("item_"):] for p in it.photos if p.startswith("item_") and "_closeup" in p}:
+            if owner in ids and ids[owner].category == it.category:
+                claims.setdefault(owner, []).append(it)
+    linked = set()
+    for owner, cands in claims.items():
+        name = _words(ids[owner]) or {ids[owner].category}
+        scored = [(len(name & _words(c)), -len(c.photos), c) for c in cands if c.id not in linked]
+        scored = [s for s in scored if s[0] > 0 or len(cands) == 1 and not name - {ids[owner].category}]
+        if scored:
+            best = max(scored, key=lambda s: (s[0], s[1]))[2]
+            best.link = owner
+            linked.add(best.id)
 
 
 def _words(item: Item) -> set[str]:

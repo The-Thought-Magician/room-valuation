@@ -282,6 +282,10 @@ def test_closeup_links_and_compatible_categories():
     opus_chair = Item(id="opus-5", source="opus", category="furniture", name="Green Soul mesh chair",
                       photos=["room_001.jpg", "item_added-1_closeup_00.jpg"])
     opus_bed = Item(id="opus-6", source="opus", category="furniture", name="box bed", photos=["room_004.jpg"])
-    jev.closeup_links([chair, opus_chair, opus_bed])
-    assert opus_chair.link == "added-1" and opus_bed.link is None
+    opus_door = Item(id="opus-7", source="opus", category="building_fixture", name="panel door",
+                     photos=["item_added-1_closeup_00.jpg"])
+    opus_table = Item(id="opus-8", source="opus", category="furniture", name="study table",
+                      photos=["item_added-1_closeup_00.jpg"])
+    jev.closeup_links([chair, opus_chair, opus_bed, opus_door, opus_table])
+    assert opus_chair.link == "added-1" and opus_bed.link is None and opus_door.link is None and opus_table.link is None
     assert jev.comparable("bedding", "furniture") and not jev.comparable("laptop", "bedding")
