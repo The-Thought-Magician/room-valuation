@@ -1,0 +1,41 @@
+[project]
+name = "room-valuation"
+version = "0.1.0"
+description = "Room contents valuation: local models, a frontier model and the owner's voice, combined by Jev"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "accelerate>=1.15.0",
+    "fastapi>=0.141.1",
+    "httpx>=0.28.1",
+    "numpy>=2.5.3",
+    "opencv-python>=5.0.0.93",
+    "pillow>=12.3.0",
+    "pydantic>=2.13.5",
+    "python-multipart>=0.0.32",
+    "torch>=2.14.0",
+    "torchvision>=0.29.0",
+    "transformers>=5.17.0",
+    "typesafe-sdk>=0.7.1",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[project.scripts]
+room-valuation = "room_valuation:main"
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.9",
+]
+
+[tool.ruff]
+line-length = 130
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["B008"]  # FastAPI declares form fields as defaults
