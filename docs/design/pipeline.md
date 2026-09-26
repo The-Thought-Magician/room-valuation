@@ -97,7 +97,7 @@ card once crashed one of them.
   - doors and windows as building fixtures
   - a new price in India per item, with the URL it came from
   - condition, room area, shelf count, and notes for the insurer
-- On the merged capture: 47 items in 344 s, reported as $3.21 of usage.
+- On the merged capture: 47 items in 344 s, reported as $3.21 of usage by `claude -p`.
 - The raw output is kept in `out/opus_raw.json`.
 - `run_astra` is the same prompt through the OpenAI Responses API with `web_search`
   (`gpt-6-astra`). It is written but untested, because the key had no credits.

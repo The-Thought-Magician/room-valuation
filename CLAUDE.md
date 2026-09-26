@@ -38,8 +38,7 @@ scripts/draw_pipeline.py). Results per capture: docs/results/.
   - "Apple RoomPlan in a Mac VM": not feasible, see decisions.
 - Serper runs on its free tier (2,500 searches).
 - Questions he asked on the call worth preparing for the co-founder call: VAD, WER and
-  voice-agent evals,
-  and what happens when an engineer trusts a wrong agent answer.
+  voice-agent evals, and what happens when an engineer trusts a wrong agent answer.
 
 ## Decisions (and why)
 
@@ -143,6 +142,8 @@ web/results.html results and the owner's final review         /r/{id}           
   - run.py (detect, value, per-run folders, GPU lock use)
   - score.py (against the ground truth)
   - server.py (FastAPI, one worker thread)
+- **Skills:** .claude/skills (ponytail, ponytail-review, ponytail-audit; MIT). Run
+  ponytail-audit before pushing.
 - **Scripts:**
   - serve.sh, fetch_weights.sh
   - merge_captures.py (several captures into one, carrying media, notes and review
@@ -156,8 +157,14 @@ web/results.html results and the owner's final review         /r/{id}           
     2026-09-26).
   - Values that repeat a prompt example are dropped (local.EXAMPLE_VALUES).
 
-## Status (2026-09-26, about 16:30 IST)
+## Status (2026-09-26, evening IST)
 
+- **Repo:** github.com/The-Thought-Magician/room-valuation, public, pushed over the
+  `github-ttm` SSH alias. Before it went public:
+  - no key in any commit (both .env values and the common key patterns, checked across
+    history)
+  - a few personal notes scrubbed from history with git filter-repo
+  - `gh` switched back to the work account afterwards
 - **Real captures**, frozen in data/fixtures (git-ignored):
   - bedroom-real: 8 photos, 7 close-ups, 12 voice notes
   - bedroom-video: 39 s video
@@ -165,24 +172,37 @@ web/results.html results and the owner's final review         /r/{id}           
 - **Live captures** in data/captures:
   - 072711 (photos), 080711 (video), 090044 (merged)
   - The merged one's review page is /r/20260926-090044-d552ae.
-- **Merged result:**
-  - RCV Rs 4.53 lakh (contents 3.41, building fixtures 1.12), ACV Rs 3.11 lakh
+- **Merged result** (three price sources plus the market fallback):
+  - RCV Rs 4.52 lakh (contents 3.40, building fixtures 1.12), ACV Rs 3.10 lakh
   - Area 168 sq ft from tape
   - 11 of 11 books plus one flagged unidentified
-  - 11 of 13 ground-truth items; mean RCV error 10 percent on the 4 recent purchases
+  - 11 of 13 ground-truth items; mean RCV error 10.0 percent on the 4 recent purchases
     (laptop, table and AC at 0, suitcase +40)
-- **Exported** to docs/results/bedroom-{photos,video,merged}: report.md, report.json,
-  score.json, floor_plan.png.
+- **Other captures:** photos 31.0 percent, video 10.6 percent. Exported to
+  docs/results/bedroom-{photos,video,merged} (report.md, report.json, score.json,
+  floor_plan.png).
 - **Tuning loop:** `revalue --reuse frontier,refine,transcripts` replays a fixture for free in
   about a minute. Every run keeps out/runs/<time>/ (report, score, settings, every raw Jev
   call).
+- **ponytail audit (2026-09-26):**
+  - The skills are in .claude/skills (MIT, from DietrichGebert/ponytail); run
+    ponytail-audit before pushing.
+  - Applied: the room-level narration path and the SerpAPI fallback removed, a shared price
+    lookup, torchvision NMS, stdlib helpers, accelerate dropped, one video suffix list. Net
+    -177 lines, the same score on replay.
+  - Left: the three crop helpers and four word-set helpers. They differ on purpose.
+- **Assignment check** (outside the repo, ~/dev/cozmo/meeting/assignment_check/):
+  - The call's assignment part was re-transcribed with IBM Granite Speech 4.1 2B.
+  - Two claude -p readings (Granite clip, full Whisper transcript) and a claude -p judge.
+    ASSIGNMENT_CHECK.md compares the assignment with this build.
+  - Top gaps it found: Astra replaced by Opus, no multi-room roll-up, no RoomPlan code, the
+    monitor resolution "unknown", closest and exact price shown as one, no shelf count, the
+    10 to 20 book stack untested.
 - **Open:**
-  - The "wardrobe" line on the merged capture is most likely the almirah again. The owner
-    should mark it "Same as" the almirah on the results page (not done yet).
+  - The house tour (multi-room), which the user will capture later.
+  - The "wardrobe" duplicate is to be marked "Same as" the almirah on the results page.
   - The Astra backend is untested (no credits).
-  - No whole-house roll-up: one capture is one room.
-  - Demo preparation for Alok: the order to show things, and a fresh live capture on the
-    day. No write-up is needed.
+  - Demo preparation.
 
 ## Running
 
