@@ -68,7 +68,7 @@ def main():
         "close-ups: PP-OCR (RapidOCR) + Qwen3-VL read\nbrand, model, specs off labels\n\n"
         "books: spines read at 0/90/270 deg, one band per\nspine, VLM cross-check needs OCR support,\n"
         "Open Library match needs title coverage\n\n"
-        "no prices here: those come after Jev,\nfrom the identity Jev settles on", "local")
+        "prices: its own Serper search per item\n(Google Shopping India + Blinkit/Zepto,\nmedian of matching listings)", "local")
     box(ax, 0.3525, 0.385, 0.295, 0.185, "Pipeline 2: frontier model",
         "Claude Opus 5.5 via claude -p (Read, WebSearch,\nWebFetch; no Bash or writes), or GPT-6 Astra\n(Responses API, web_search)\n\n"
         "reads every photo and close-up, dedupes,\nreads spines, counts switchboard modules,\n"
@@ -92,8 +92,8 @@ def main():
         "per merged item: Choice identity, Choice price (a recent owner price counts most), Score condition, Choice genre; confidence < 0.5 flags the line\n"
         "all questions batched (40 per call, 6 in parallel): 246 questions in 7 calls, 88k input tokens, about 5 s", "jev")
     arrow(ax, 0.5, 0.241, 0.5, 0.226)
-    box(ax, 0.03, 0.178, 0.94, 0.044, "Market prices after Jev (Serper)",
-        "every item no source priced, searched once with Jev's identity: Google Shopping India + Blinkit/Zepto, median of matching listings (6 searches on the merged capture)", "local")
+    box(ax, 0.03, 0.178, 0.94, 0.044, "Market fallback after Jev (Serper)",
+        "anything still unpriced after Jev (no listing, no frontier price, no owner price) is searched once more with the identity Jev chose", "local")
     arrow(ax, 0.26, 0.174, 0.26, 0.163)
 
     # 6. valuation and review

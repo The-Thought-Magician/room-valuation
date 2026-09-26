@@ -68,8 +68,22 @@ card once crashed one of them.
     study guides are skipped.
   - Unmatched text that shares a word with a matched book is a partial read and is dropped.
     What is left becomes an "unidentified book", priced at the room's median book.
-- **No prices here.** Pipeline 1 finds, identifies and reads. Market prices come after Jev
-  (section 6), from the identity Jev settles on.
+- **Prices: pipeline 1 gives its own value for every item**, as the brief asks ("get the
+  local price of the books… categorize… by their value. This is one pipeline"). That way Jev
+  has two independent market values to rank, plus the owner's.
+  - One Serper search per item, from this pipeline's own reading (`prices.query_for`):
+    - repeated words are dropped ("Acer" plus "Acer 24 inch monitor" says Acer once)
+    - vague one-word names get a category word ("switch" becomes "switch electrical wall",
+      after "switch" matched Nintendo Switch listings)
+    - books search "title author paperback"
+  - Sources:
+    - Serper Google Shopping for India (Amazon.in, Flipkart, Croma, Reliance, Zepto appear
+      as sellers)
+    - a Google site search of blinkit.com and zeptonow.com for small goods
+  - Only listings whose titles share at least half the query words, and the brand, count.
+    The median of those is the price.
+  - An unreadable spine gets the median of the identified books.
+  - Every query is cached in `data/price_cache/`.
 
 ### Pipeline 2: frontier model (`frontier.run_opus`, `frontier.run_astra`)
 
@@ -151,11 +165,11 @@ As its docs advise, it only judges; counting, thresholds and arithmetic stay in 
    Real example from the merged run, for the laptop's price:
 
    ```
-   candidates: frontier Rs 76,021  SKU and GPU tier not readable
+   candidates: local    Rs 77,245  median of 18 listings for 'HP VICTUS 14 inches laptop'
+               frontier Rs 76,021  SKU and GPU tier not readable
                voice    Rs 1,90,000  what the owner says they paid, 0.08 years ago
    how_to_judge: "A price the owner paid within the last 12 months for this exact item is the strongest evidence ..."
-   answer: voice (the run before pricing moved after Jev also had a local Serper candidate at Rs 77,245;
-           Jev gave voice 0.78, local 0.20, frontier 0.02)
+   answer: voice, probabilities {voice 0.78, local 0.20, frontier 0.02}, confidence 0.66
    ```
 
    Confidence under 0.5 flags the line for review.
@@ -163,33 +177,31 @@ As its docs advise, it only judges; counting, thresholds and arithmetic stay in 
    246 questions in 7 calls, 88k input tokens, about 5 s and well under a cent. Every call
    (state, questions, answers, model, usage) is kept in `out/runs/<time>/jev_calls.jsonl`.
 
-## 6. Market prices after Jev (`market.py`, `prices.price_item`)
+## 6. Market prices after Jev, for what is still unpriced (`market.py`)
 
-Jev has decided what every item is. Any merged item that still has no replacement price gets
-one Serper search, built from the identity Jev chose. That means no frontier price and no owner
-price from within 2 years.
+Jev has ranked the three price sources: pipeline 1's search, the frontier model's web price,
+and the owner's price from within 2 years. A merged item can still have no price at all:
+- the local search found no matching listing
+- the frontier model missed the item
+- the owner said nothing about it
 
-- The query is "HP Victus 15 gaming laptop", not the local model's misread
-  "HP VICTUS 14 inches laptop".
-- A vague one-word name gets its category word: "switch" becomes "switch electrical wall",
-  after "switch" matched Nintendo Switch listings.
-- **Sources:**
-  - Serper Google Shopping for India (Amazon.in, Flipkart, Croma, Reliance, Zepto appear as
-    sellers).
-  - A Google site search of blinkit.com and zeptonow.com, which block scripts, for small
-    goods.
-- Only listings whose titles share at least half the query words, and the brand, count. The
-  median of those is the price.
-- The result joins the item as a **market** candidate.
-- A spine nobody could read gets the median of the room's identified book prices.
-- Every query is cached in `data/price_cache/`.
+Each such item is searched once more, with the identity Jev chose (usually a better query than
+the local reading), and the result joins as a **market** candidate. An unreadable book gets the
+room's median book price.
 
-On the merged capture: 6 searches, where pricing every local item before Jev took about 40.
-Every item ends up priced.
+**Why both.** At first Serper ran only after Jev, and pipeline 1 gave no prices. That scored
+worse, and it departs from the brief, where pipeline 1 produces values for Jev to rank against
+Astra's. Replayed on the three saved captures:
 
-The trade-off is that Serper is no longer a second opinion on prices the frontier model
-already gave. If that matters, the same step can also search the lines where Jev's price
-confidence is low.
+| Capture | Mean RCV error on recent purchases, Serper only after Jev | Both |
+|---|---|---|
+| merged | 10.6% | 10.0% |
+| video | 13.8% | 10.6% |
+| photos | 31.0% | 31.0% |
+
+With three candidates, Jev picked the owner's price for the AC (₹35k) and the table (₹8k),
+where it had picked the frontier's before. The after-Jev search then had nothing left to do on
+two captures and one item on the third.
 
 ## 7. Valuation (`valuation.py`, `prices.acv`, `area.py`)
 
