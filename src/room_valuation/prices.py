@@ -18,7 +18,8 @@ from pathlib import Path
 
 import httpx
 
-CACHE = Path(__file__).resolve().parents[2] / "data" / "price_cache"
+# PRICE_CACHE points a run at its own cache, e.g. an empty one to search everything afresh
+CACHE = Path(os.environ.get("PRICE_CACHE") or Path(__file__).resolve().parents[2] / "data" / "price_cache")
 QUICK_COMMERCE = ["blinkit.com", "zeptonow.com"]
 QC_CATEGORIES = {"computer_accessory", "audio", "phone", "lighting", "kitchenware", "appliance", "decor",
                  "bag_clothing", "networking", "electrical_fixture", "bedding"}

@@ -151,7 +151,7 @@ web/demo.html    demo walkthrough of one real capture         /demo/{name}/     
     decisions)
   - export_report.py (docs/results/<name>/)
   - draw_pipeline.py
-  - build_demo.py (a static walkthrough of one capture in demo/<name>/, git-ignored because it
+  - build_demo.py (--title; also writes demo/index.html listing every demo; a static walkthrough of one capture in demo/<name>/, git-ignored because it
     copies the room's photos, video and voice; the bedroom demo uses run 20260926-110157, the
     one exported to docs/results)
 - **data/ground_truth/bedroom.json:** what the owner paid, from memory, including voice-note
@@ -184,6 +184,10 @@ web/demo.html    demo walkthrough of one real capture         /demo/{name}/     
   - 11 of 11 books plus one flagged unidentified
   - 13 of 13 ground-truth items; mean RCV error 15.0 percent on the 4 recent purchases
     (laptop, table and AC at 0, suitcase +60)
+  - Fresh re-run from the raw inputs (capture 20260926-154153-785cb7, run 20260926-155357:
+    new detection, OCR, Whisper, Opus, Jev, Serper with PRICE_CACHE pointing at an empty
+    cache): Rs 4.22 lakh, 13/13, 17.6 percent. Demo demo/bedroom-fresh, results
+    docs/results/bedroom-fresh.
   - The previous Opus pass (run 20260926-110157) gave Rs 4.53 lakh and 10.0 percent; doors and
     windows moved most (building fixtures 1.12 to 0.74 lakh). The demo uses the latest run.
 - **Other captures:** photos 31.0 percent, video 10.6 percent. Exported to

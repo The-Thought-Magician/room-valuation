@@ -1,0 +1,302 @@
+{
+ "summary": "13/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 17.6%",
+ "items": [
+  {
+   "truth": "HP Victus gaming laptop (Ryzen 7 260, RTX 5050)",
+   "paid_inr": 190000,
+   "age_years": 0.08,
+   "found": true,
+   "line": "HP HP Victus 15 gaming laptop (AMD Ryzen, NVIDIA GeForce RTX)",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 93437,
+    "frontier": 65000.0,
+    "voice": 190000.0
+   },
+   "chosen_from": "voice",
+   "rcv_inr": 190000.0,
+   "acv_inr": 186960,
+   "price_confidence": 0.63,
+   "rcv_error_pct": 0.0,
+   "per_source_error_pct": {
+    "local": -50.8,
+    "frontier": -65.8,
+    "voice": 0.0
+   }
+  },
+  {
+   "truth": "Acer 24 inch monitor",
+   "paid_inr": 16000,
+   "age_years": 3,
+   "found": true,
+   "line": "Acer Acer 24 inch class monitor, thin bezel, red accent on stand",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 11249,
+    "frontier": 8635.0,
+    "voice": null
+   },
+   "chosen_from": "local",
+   "rcv_inr": 11249,
+   "acv_inr": 5624,
+   "price_confidence": 0.26
+  },
+  {
+   "truth": "chair",
+   "paid_inr": 5500,
+   "age_years": null,
+   "found": true,
+   "line": "Green Soul Green Soul high-back ergonomic mesh office chair",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": null,
+    "frontier": 15437.0,
+    "voice": 5500.0
+   },
+   "chosen_from": "voice",
+   "rcv_inr": 5500.0,
+   "acv_inr": 3575,
+   "price_confidence": 0.73
+  },
+  {
+   "truth": "L-shaped study table (desk)",
+   "paid_inr": 8000,
+   "age_years": 0.75,
+   "found": true,
+   "line": "Large L-shaped computer desk, black top, black metal frame",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 9999,
+    "frontier": 8999.0,
+    "voice": 8000.0
+   },
+   "chosen_from": "voice",
+   "rcv_inr": 8000.0,
+   "acv_inr": 7400,
+   "price_confidence": 0.72,
+   "rcv_error_pct": 0.0,
+   "per_source_error_pct": {
+    "local": 25.0,
+    "frontier": 12.5,
+    "voice": 0.0
+   }
+  },
+  {
+   "truth": "split AC",
+   "paid_inr": 35000,
+   "age_years": 1,
+   "found": true,
+   "line": "Carrier Carrier split air conditioner (indoor unit, protective film still on)",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 32745,
+    "frontier": 35890.0,
+    "voice": 35000.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 35890.0,
+   "acv_inr": 31404,
+   "price_confidence": 0.25,
+   "rcv_error_pct": 2.5,
+   "per_source_error_pct": {
+    "local": -6.4,
+    "frontier": 2.5,
+    "voice": 0.0
+   }
+  },
+  {
+   "truth": "bed",
+   "paid_inr": 450,
+   "age_years": 35,
+   "found": true,
+   "line": "Wooden box bed (double), laminated wood finish",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 20990,
+    "frontier": 14000.0,
+    "voice": null
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 14000.0,
+   "acv_inr": 1400,
+   "price_confidence": 0.42
+  },
+  {
+   "truth": "steel almirah",
+   "paid_inr": 350,
+   "age_years": 40,
+   "found": true,
+   "line": "Steel almirah, 2 door, pistachio green",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 4149,
+    "frontier": 15000.0,
+    "voice": null
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 15000.0,
+   "acv_inr": 1500,
+   "price_confidence": 0.79
+  },
+  {
+   "truth": "Razer DeathAdder mouse",
+   "paid_inr": 2500,
+   "age_years": 4,
+   "found": true,
+   "line": "Razer Razer DeathAdder Essential wired gaming mouse",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 6173,
+    "frontier": 1749.0,
+    "voice": null
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 1749.0,
+   "acv_inr": 175,
+   "price_confidence": 0.96
+  },
+  {
+   "truth": "suitcase",
+   "paid_inr": 2500,
+   "age_years": 2,
+   "found": true,
+   "line": "Uppercase Uppercase hard-shell trolley suitcase, LAX airport print",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": null,
+    "frontier": 4200.0,
+    "voice": 2500.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 4200.0,
+   "acv_inr": 1400,
+   "price_confidence": 0.94,
+   "rcv_error_pct": 68.0,
+   "per_source_error_pct": {
+    "frontier": 68.0,
+    "voice": 0.0
+   }
+  },
+  {
+   "truth": "stool",
+   "paid_inr": 600,
+   "age_years": 8,
+   "found": true,
+   "line": "Wooden stool with turned legs",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 610,
+    "frontier": 1500.0,
+    "voice": null
+   },
+   "chosen_from": "local",
+   "rcv_inr": 610,
+   "acv_inr": 61,
+   "price_confidence": 0.08
+  },
+  {
+   "truth": "whiteboard sheet",
+   "paid_inr": 150,
+   "age_years": null,
+   "found": true,
+   "line": "whiteboard",
+   "sources": [
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 8140,
+    "voice": 150.0
+   },
+   "chosen_from": "local",
+   "rcv_inr": 8140,
+   "acv_inr": 3256,
+   "price_confidence": 0.32
+  },
+  {
+   "truth": "JioFiber router",
+   "paid_inr": 0,
+   "age_years": null,
+   "found": true,
+   "line": "GeoDebt GeoDebt router",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 2099,
+    "frontier": 2500.0,
+    "voice": null
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 2500.0,
+   "acv_inr": 1625,
+   "price_confidence": 0.27
+  },
+  {
+   "truth": "Good Knight liquid mosquito repellent",
+   "paid_inr": null,
+   "age_years": null,
+   "found": true,
+   "line": "Good Knight Good Knight Flash liquid vaporiser mosquito repellent machine with refill",
+   "sources": [
+    "frontier",
+    "local"
+   ],
+   "candidates_inr": {
+    "local": 159,
+    "frontier": 99.0
+   },
+   "chosen_from": "local",
+   "rcv_inr": 159,
+   "acv_inr": 103,
+   "price_confidence": 0.93
+  }
+ ],
+ "report_totals": {
+  "rcv_inr": 421858,
+  "acv_inr": 299610,
+  "items": 63
+ }
+}

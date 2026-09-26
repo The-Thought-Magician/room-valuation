@@ -41,6 +41,7 @@ There are three sources, and Jev combines them:
 | Result, merged capture (photos + video + close-ups + notes) | [docs/results/bedroom-merged/report.md](docs/results/bedroom-merged/report.md) |
 | Result, photos capture | [docs/results/bedroom-photos/report.md](docs/results/bedroom-photos/report.md) |
 | Result, video capture | [docs/results/bedroom-video/report.md](docs/results/bedroom-video/report.md) |
+| Result, merged inputs re-run from scratch (no cached model, Jev or search answers) | [docs/results/bedroom-fresh/report.md](docs/results/bedroom-fresh/report.md) |
 | Owner's ground truth (used only for scoring) | [data/ground_truth/bedroom.json](data/ground_truth/bedroom.json) |
 | Project notes (brief, decisions, status) | [CLAUDE.md](CLAUDE.md) |
 | Skills used in development (ponytail, MIT) | [.claude/skills/](.claude/skills/README.md) |
@@ -61,7 +62,7 @@ https, and the URL changes every time `serve.sh` restarts.
 | Step 2: item list | `/c/<capture id>` ([web/items.html](web/items.html)) | Detected items counted by type. **Remove** false or duplicate ones, add what is missing, pick the frontier model, then **Walk through items** or **Value the room** |
 | Step 3: one page per item | `/c/<capture id>/i/<item id>` ([web/item.html](web/item.html)) | Close-ups (labels, spines), any number of voice notes, a typed note, quantity |
 | Results and final review | `/r/<capture id>` ([web/results.html](web/results.html)) | Totals, every item with every source's price and Jev's choice, books by genre, floor area and plan. **Remove**, **Same as** and **Undo** per line |
-| Demo walkthrough | `/demo/<name>/` ([web/demo.html](web/demo.html)) | One real capture step by step: photos, video, detection boxes, the owner's list, close-ups and voice notes with transcripts, what each pipeline read, Jev's questions and answers, the valuation, the score. Built by `scripts/build_demo.py` |
+| Demo walkthroughs | `/demo/` lists them, `/demo/<name>/` ([web/demo.html](web/demo.html)) | One real capture step by step: photos, video, detection boxes, the owner's list, close-ups and voice notes with transcripts, what each pipeline read, Jev's questions and answers, the valuation, the score. Built by `scripts/build_demo.py` |
 
 The API behind the pages is in [src/room_valuation/server.py](src/room_valuation/server.py): `POST /api/captures`,
 `/api/captures/<id>/session`, `/items/<item>`, `/items`, `/detect`, `/submit`, `/status`, `/report`, `/review`.
@@ -91,6 +92,8 @@ Command line, per capture (`data/captures/<id>` or a frozen `data/fixtures/<name
 uv run room-valuation run <capture> --backend opus|astra|none        # detect and value in one go, no review
 uv run room-valuation revalue <capture> --reuse frontier,refine,transcripts
                                          # replay Jev, prices and valuation on saved sources: no GPU, no Opus, about a minute
+PRICE_CACHE=<capture>/out/price_cache uv run room-valuation revalue <capture> --reuse ""
+                                         # everything afresh: local models, Whisper, Opus, Jev, and Serper with an empty cache
 uv run room-valuation score <capture>    # against data/ground_truth/bedroom.json
 uv run python scripts/merge_captures.py <capture> <capture> [--into <merged>] [--closeup CATEGORY:NAME=PATH]
                                          # several captures of one room into one
@@ -198,6 +201,7 @@ measurement of this room: 426.7 x 365.8 cm, 168 sq ft, ceiling 312.4 cm.
 | Merged: 8 photos, a 39 s video (16 frames), 10 close-ups, 12 voice notes, typed notes | ₹3.16 / ₹2.49 lakh | ₹0.74 lakh | 11 of 11, plus 1 flagged | **15.0%** (4 items) | [report](docs/results/bedroom-merged/report.md) |
 | Photos only | ₹2.69 / ₹2.14 lakh | ₹0.58 lakh | 11 of 11 | 31.0% (3 items; no table note) | [report](docs/results/bedroom-photos/report.md) |
 | Video only | ₹3.30 / ₹2.51 lakh | ₹0.32 lakh | 14 (blurrier frames) | 10.6% (4 items) | [report](docs/results/bedroom-video/report.md) |
+| Merged inputs, re-run from scratch: fresh detection, OCR, Whisper, Opus, Jev and Serper (empty cache) | ₹3.37 / ₹2.58 lakh | ₹0.85 lakh | 11 of 11, plus 1 flagged | 17.6% (4 items) | [report](docs/results/bedroom-fresh/report.md) |
 
 The merged capture was built with `scripts/merge_captures.py`. Detection runs once over
 everything, and notes, close-ups and the owner's removals are carried over by box overlap in
@@ -212,6 +216,12 @@ Against the owner's ground truth, all 13 items were found. The 4 purchases withi
 | Carrier split AC, 1 year | ₹35k | ₹32.7k | ₹35.9k | ₹35k | owner | 0% |
 | L-shaped desk, 9 months | ₹8k | ₹2.9k | ₹8k | ₹8k | owner | 0% |
 | Suitcase, 2 years | ₹2.5k | none | ₹4k | ₹2.5k | Opus | +60% |
+
+**Run to run.** Three full runs on the same merged inputs came to ₹4.53, ₹3.90 and ₹4.22 lakh
+RCV. The owner's list, the books and the recent purchases the owner priced stay put. What
+moves is what a model estimates: doors and windows (₹1.12, ₹0.74, ₹0.85 lakh), old furniture,
+and borderline Jev price choices such as the whiteboard sheet (the owner's ₹150 or a ₹8k to
+₹10.6k listing for a real whiteboard).
 
 **Honest gaps:**
 - A local "wardrobe" line (₹20k) is most likely the almirah seen again. Both come from the

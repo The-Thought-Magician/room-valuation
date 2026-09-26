@@ -267,7 +267,7 @@ function go(k) {
 
 let cur = 0;
 document.getElementById("title").textContent = `${D.meta.room[0].toUpperCase() + D.meta.room.slice(1)}, ${D.meta.city}`;
-document.getElementById("lead").textContent = `Capture ${D.capture}. Pipeline 2: ${R.backend}. Every photo, voice note and number below is from the real run.`;
+document.getElementById("lead").innerHTML = `${esc(D.title)}. Capture ${esc(D.capture)}, run ${esc(D.run)}. Pipeline 2: ${esc(R.backend)}. Every photo, voice note and number below is from the real run. <a href="../">All demos</a>`;
 document.getElementById("nav").innerHTML = steps.map(([n], i) => `<button data-k="${i}">${i + 1}. ${n}</button>`).join("") + `<span class="keys">← → to move</span>`;
 document.querySelectorAll("nav.steps button").forEach(b => b.onclick = () => go(+b.dataset.k));
 document.addEventListener("keydown", e => {
