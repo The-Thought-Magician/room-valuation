@@ -170,7 +170,8 @@ def retry_detect(cid: str):
 
 @app.post("/api/captures/{cid}/items/{iid}")
 async def save_item(cid: str, iid: str, quantity: int | None = Form(None), name: str | None = Form(None),
-                    state: str | None = Form(None), closeups: list[UploadFile] = File(default=[]),
+                    state: str | None = Form(None), note: str | None = Form(None),
+                    closeups: list[UploadFile] = File(default=[]),
                     voice: UploadFile | None = File(None)):
     cap = _capture_dir(cid)
     if not ITEM_RE.match(iid):
@@ -194,6 +195,8 @@ async def save_item(cid: str, iid: str, quantity: int | None = Form(None), name:
                     e["quantity"] = max(1, min(999, quantity))
                 if name:
                     e["name"] = re.sub(r"[^\w .,'()/-]", "", name)[:80] or e["name"]
+                if note is not None:
+                    e["note"] = note.strip()[:500]
                 if state == "removed":
                     e["state"] = "removed"
                 elif state == "restore" and e["state"] == "removed":

@@ -31,9 +31,10 @@
     },
     {
       "category": "furniture",
-      "name": "table (desk)",
+      "name": "L-shaped study table (desk)",
       "price_paid_inr": 8000,
-      "age_years": null
+      "age_years": 0.75,
+      "note": "owner: 8k, 9 months old"
     },
     {
       "category": "appliance",

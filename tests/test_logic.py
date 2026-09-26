@@ -212,3 +212,13 @@ def test_book_matching_handles_run_together_and_misread_titles():
     ocr_words = {"torment", "lauren", "kate", "ironhorse", "marston", "edward"}
     assert local._ocr_supports(Book(title="Iron Horse"), ocr_words | {"ironhorse"})
     assert not local._ocr_supports(Book(title="Anne of Green Gables"), ocr_words)
+
+
+def test_typed_note_is_an_owner_claim():
+    from room_valuation import voice
+
+    e = {"id": "added-1", "name": "L-shaped study table", "category": "furniture", "quantity": 1,
+         "note": "8k, 9 months old"}
+    (it,) = voice.typed_notes([e], set())
+    assert it.rcv_inr == 8000 and it.age_years == 0.75 and it.link == "added-1"
+    assert voice.typed_notes([e], {"added-1"}) == []  # a voice note on the item wins

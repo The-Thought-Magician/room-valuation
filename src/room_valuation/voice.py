@@ -134,14 +134,22 @@ def _item_claim(d: dict, entry: dict, text: str) -> Item:
                 rcv_inr=paid if recent else None, price_source="said by owner" if recent else None, price_note=note)
 
 
+def typed_notes(entries: list[dict], voiced: set[str]) -> list[Item]:
+    """Owner facts typed on an item page, read by the same rules as a voice note. A voice note
+    on the same item wins; the typed text is then only extra evidence."""
+    return [_item_claim({}, e, e["note"]) for e in entries if e.get("note") and e["id"] not in voiced]
+
+
 def run_items(notes: list[tuple[dict, Path]], room_note: Path | None, workdir: Path, progress=None,
-              reuse_transcripts: bool = False) -> SourceResult:
-    """One voice note per item page, plus an optional room-level narration."""
+              reuse_transcripts: bool = False, entries: list[dict] | None = None) -> SourceResult:
+    """One voice note per item page, typed notes, plus an optional room-level narration."""
     t0 = time.time()
     say = progress or (lambda **kw: None)
+    typed = typed_notes(entries or [], {e["id"] for e, _ in notes})
     paths = [str(p) for _, p in notes] + ([str(room_note)] if room_note else [])
     if not paths:
-        return SourceResult(source="voice", items=[], seconds=0.0, notes=["no voice notes"])
+        return SourceResult(source="voice", items=typed, seconds=0.0,
+                            notes=[f"no voice notes, {len(typed)} typed notes"])
     saved = workdir / "transcripts.json"
     if reuse_transcripts and saved.exists() and all(p in json.loads(saved.read_text()) for p in paths):
         segments = json.loads(saved.read_text())
@@ -166,10 +174,12 @@ def run_items(notes: list[tuple[dict, Path]], room_note: Path | None, workdir: P
         items.append(_item_claim(d if isinstance(d, dict) else {}, entry, text))
     del vlm
     models.free()
+    items += typed
     if room_note and texts.get(str(room_note)):
         items += [it.model_copy(update={"id": f"voice-room-{i}"}) for i, it in enumerate(extract(texts[str(room_note)]))]
     return SourceResult(source="voice", items=items, seconds=round(time.time() - t0, 1),
-                        notes=[f"{len(notes)} item notes" + (", one room narration" if room_note else "")])
+                        notes=[f"{len(notes)} voice notes, {len(typed)} typed notes"
+                               + (", one room narration" if room_note else "")])
 
 
 def run(audio: Path, workdir: Path) -> SourceResult:

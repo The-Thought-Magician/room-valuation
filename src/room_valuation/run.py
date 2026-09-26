@@ -181,10 +181,10 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
             guarded("local", local.value, entries, closeups, by_name, workdir,
                     progress=lambda **kw: _status(workdir, "local", "running", **kw), reuse_refined="refine" in reuse)
             room_note = _first(capture, "voice", AUDIO)
-            if notes or room_note:
+            if notes or room_note or any(e.get("note") for e in entries):
                 guarded("voice", voice.run_items, notes, room_note, workdir,
                         progress=lambda **kw: _status(workdir, "voice", "running", **kw),
-                        reuse_transcripts="transcripts" in reuse)
+                        reuse_transcripts="transcripts" in reuse, entries=entries)
         if remote:
             remote.result()
 

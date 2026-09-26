@@ -40,6 +40,8 @@
     <span id="rectime" class="hint" style="margin-left:8px"></span>
     <audio id="playback" controls hidden></audio>
     <div class="hint" id="hadvoice"></div>
+    <label class="f" style="margin-top:10px">Or type it</label>
+    <input type="text" id="note" placeholder="e.g. 8 thousand, 9 months old">
   </section>
   <progress id="prog" max="100" value="0" hidden></progress>
   <div class="err" id="err"></div>
@@ -82,6 +84,7 @@ async function load() {
   document.getElementById("cat").textContent = entry.category.replace("_", " ") + (entry.state === "added" ? " · added by you" : "");
   document.getElementById("name").value = entry.name;
   document.getElementById("qty").value = entry.quantity || 1;
+  document.getElementById("note").value = entry.note || "";
   if (entry.thumb) { document.getElementById("img").src = `${api}/thumb/${entry.thumb}`; document.getElementById("imgbox").hidden = false; }
   const [pt, vt] = TIPS[entry.category] || DEFAULT_TIP;
   document.getElementById("phototip").textContent = pt;
@@ -101,6 +104,7 @@ document.getElementById("save").onclick = async () => {
   fd.append("quantity", document.getElementById("qty").value || "1");
   const name = document.getElementById("name").value.trim();
   if (name && name !== entry.name) fd.append("name", name);
+  fd.append("note", document.getElementById("note").value);
   photos.forEach(f => fd.append("closeups", f, f.name || "closeup.jpg"));
   if (voice.blob) fd.append("voice", voice.blob, voice.name);
   btn.disabled = true;
