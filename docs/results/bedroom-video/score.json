@@ -1,0 +1,237 @@
+{
+ "summary": "10/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 13.8%",
+ "items": [
+  {
+   "truth": "HP Victus gaming laptop (Ryzen 7 260, RTX 5050)",
+   "paid_inr": 190000,
+   "age_years": 0.08,
+   "found": true,
+   "line": "HP HP Victus 15 gaming laptop (AMD Ryzen, NVIDIA GeForce RTX)",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 83566,
+    "frontier": 78990.0,
+    "voice": 190000.0
+   },
+   "chosen_from": "voice",
+   "rcv_inr": 190000.0,
+   "acv_inr": 186960,
+   "price_confidence": 0.61,
+   "rcv_error_pct": 0.0,
+   "per_source_error_pct": {
+    "local": -56.0,
+    "frontier": -58.4,
+    "voice": 0.0
+   }
+  },
+  {
+   "truth": "Acer 24 inch monitor",
+   "paid_inr": 16000,
+   "age_years": 3,
+   "found": true,
+   "line": "Acer Acer 27 inch class monitor, thin bezel, red-accent stand",
+   "sources": [
+    "frontier",
+    "local"
+   ],
+   "candidates_inr": {
+    "local": 9599,
+    "frontier": 11589.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 11589.0,
+   "acv_inr": 4636,
+   "price_confidence": 0.8
+  },
+  {
+   "truth": "chair",
+   "paid_inr": 5500,
+   "age_years": null,
+   "found": true,
+   "line": "High-back mesh ergonomic office chair with headrest",
+   "sources": [
+    "frontier"
+   ],
+   "candidates_inr": {
+    "frontier": 9000.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 9000.0,
+   "acv_inr": 3600,
+   "price_confidence": null
+  },
+  {
+   "truth": "L-shaped study table (desk)",
+   "paid_inr": 8000,
+   "age_years": 0.75,
+   "found": true,
+   "line": "L-shaped computer desk, wenge engineered-wood top, black metal legs",
+   "sources": [
+    "frontier",
+    "local"
+   ],
+   "candidates_inr": {
+    "local": 2860,
+    "frontier": 8999.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 8999.0,
+   "acv_inr": 5849,
+   "price_confidence": 0.7,
+   "rcv_error_pct": 12.5,
+   "per_source_error_pct": {
+    "local": -64.2,
+    "frontier": 12.5
+   }
+  },
+  {
+   "truth": "split AC",
+   "paid_inr": 35000,
+   "age_years": 1,
+   "found": true,
+   "line": "Carrier Carrier split air conditioner (indoor unit, with remote)",
+   "sources": [
+    "frontier",
+    "local"
+   ],
+   "candidates_inr": {
+    "local": 34490,
+    "frontier": 35890.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 35890.0,
+   "acv_inr": 14356,
+   "price_confidence": 0.81,
+   "rcv_error_pct": 2.5,
+   "per_source_error_pct": {
+    "local": -1.5,
+    "frontier": 2.5
+   }
+  },
+  {
+   "truth": "bed",
+   "paid_inr": 450,
+   "age_years": 35,
+   "found": true,
+   "line": "Double bed with box storage",
+   "sources": [
+    "frontier",
+    "local"
+   ],
+   "candidates_inr": {
+    "local": 19190,
+    "frontier": 18000.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 18000.0,
+   "acv_inr": 11700,
+   "price_confidence": 0.66
+  },
+  {
+   "truth": "steel almirah",
+   "paid_inr": 350,
+   "age_years": 40,
+   "found": false
+  },
+  {
+   "truth": "Razer DeathAdder mouse",
+   "paid_inr": 2500,
+   "age_years": 4,
+   "found": true,
+   "line": "Razer Razer DeathAdder Essential wired gaming mouse",
+   "sources": [
+    "frontier",
+    "local"
+   ],
+   "candidates_inr": {
+    "local": 5744,
+    "frontier": 1749.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 1749.0,
+   "acv_inr": 700,
+   "price_confidence": 0.95
+  },
+  {
+   "truth": "suitcase",
+   "paid_inr": 2500,
+   "age_years": 2,
+   "found": true,
+   "line": "Hard-shell trolley suitcase in printed stretch cover",
+   "sources": [
+    "frontier",
+    "local"
+   ],
+   "candidates_inr": {
+    "local": 1099,
+    "frontier": 3500.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 3500.0,
+   "acv_inr": 1400,
+   "price_confidence": 0.61,
+   "rcv_error_pct": 40.0,
+   "per_source_error_pct": {
+    "local": -56.0,
+    "frontier": 40.0
+   }
+  },
+  {
+   "truth": "stool",
+   "paid_inr": 600,
+   "age_years": 8,
+   "found": true,
+   "line": "Wooden stool with turned legs",
+   "sources": [
+    "frontier",
+    "local"
+   ],
+   "candidates_inr": {
+    "local": 610,
+    "frontier": 1500.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 1500.0,
+   "acv_inr": 600,
+   "price_confidence": 0.38
+  },
+  {
+   "truth": "whiteboard sheet",
+   "paid_inr": 150,
+   "age_years": null,
+   "found": false
+  },
+  {
+   "truth": "JioFiber router",
+   "paid_inr": 0,
+   "age_years": null,
+   "found": true,
+   "line": "Wall-mounted Wi-Fi router (ISP fibre type)",
+   "sources": [
+    "frontier"
+   ],
+   "candidates_inr": {
+    "frontier": 2500.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 2500.0,
+   "acv_inr": 1625,
+   "price_confidence": null
+  },
+  {
+   "truth": "Good Knight liquid mosquito repellent",
+   "paid_inr": null,
+   "age_years": null,
+   "found": false
+  }
+ ],
+ "report_totals": {
+  "rcv_inr": 366452,
+  "acv_inr": 269932,
+  "items": 53
+ }
+}

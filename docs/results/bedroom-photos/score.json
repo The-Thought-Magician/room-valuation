@@ -1,0 +1,249 @@
+{
+ "summary": "10/13 ground-truth items found; 3 with a recent purchase price, mean |RCV error| 31.0%",
+ "items": [
+  {
+   "truth": "HP Victus gaming laptop (Ryzen 7 260, RTX 5050)",
+   "paid_inr": 190000,
+   "age_years": 0.08,
+   "found": true,
+   "line": "HP HP Victus 15 gaming laptop with HP power adapter",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 95490,
+    "frontier": 84990.0,
+    "voice": 190000.0
+   },
+   "chosen_from": "voice",
+   "rcv_inr": 190000.0,
+   "acv_inr": 186960,
+   "price_confidence": 0.82,
+   "rcv_error_pct": 0.0,
+   "per_source_error_pct": {
+    "local": -49.7,
+    "frontier": -55.3,
+    "voice": 0.0
+   }
+  },
+  {
+   "truth": "Acer 24 inch monitor",
+   "paid_inr": 16000,
+   "age_years": 3,
+   "found": true,
+   "line": "Acer Acer monitor, about 24 inch, thin bezel",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 12249,
+    "frontier": 11999.0,
+    "voice": null
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 11999.0,
+   "acv_inr": 6000,
+   "price_confidence": 0.06
+  },
+  {
+   "truth": "chair",
+   "paid_inr": 5500,
+   "age_years": null,
+   "found": true,
+   "line": "Green Soul Green Soul high-back ergonomic mesh office chair with headrest",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": null,
+    "frontier": 8490.0,
+    "voice": 5500.0
+   },
+   "chosen_from": "voice",
+   "rcv_inr": 5500.0,
+   "acv_inr": 3575,
+   "price_confidence": 0.51
+  },
+  {
+   "truth": "L-shaped study table (desk)",
+   "paid_inr": 8000,
+   "age_years": 0.75,
+   "found": true,
+   "line": "Computer desk, black metal frame with laminated top",
+   "sources": [
+    "frontier"
+   ],
+   "candidates_inr": {
+    "frontier": 6000.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 6000.0,
+   "acv_inr": 3900,
+   "price_confidence": null,
+   "rcv_error_pct": -25.0,
+   "per_source_error_pct": {
+    "frontier": -25.0
+   }
+  },
+  {
+   "truth": "split AC",
+   "paid_inr": 35000,
+   "age_years": 1,
+   "found": false
+  },
+  {
+   "truth": "bed",
+   "paid_inr": 450,
+   "age_years": 35,
+   "found": true,
+   "line": "Wooden box bed (diwan) with laminate finish",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 19190,
+    "frontier": 12000.0,
+    "voice": null
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 12000.0,
+   "acv_inr": 1200,
+   "price_confidence": 0.44
+  },
+  {
+   "truth": "steel almirah",
+   "paid_inr": 350,
+   "age_years": 40,
+   "found": true,
+   "line": "Steel almirah, 2-door, pale green",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 7999,
+    "frontier": 18100.0,
+    "voice": null
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 18100.0,
+   "acv_inr": 1810,
+   "price_confidence": 0.76
+  },
+  {
+   "truth": "Razer DeathAdder mouse",
+   "paid_inr": 2500,
+   "age_years": 4,
+   "found": true,
+   "line": "Razer Razer DeathAdder wired gaming mouse",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 5744,
+    "frontier": 1749.0,
+    "voice": null
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 1749.0,
+   "acv_inr": 175,
+   "price_confidence": 0.98
+  },
+  {
+   "truth": "suitcase",
+   "paid_inr": 2500,
+   "age_years": 2,
+   "found": true,
+   "line": "Uppercase Uppercase hard-shell cabin trolley suitcase, LAX print",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": null,
+    "frontier": 4200.0,
+    "voice": 2500.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 4200.0,
+   "acv_inr": 1400,
+   "price_confidence": 0.72,
+   "rcv_error_pct": 68.0,
+   "per_source_error_pct": {
+    "frontier": 68.0,
+    "voice": 0.0
+   }
+  },
+  {
+   "truth": "stool",
+   "paid_inr": 600,
+   "age_years": 8,
+   "found": true,
+   "line": "Wooden stool with turned legs",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 610,
+    "frontier": 1500.0,
+    "voice": null
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 1500.0,
+   "acv_inr": 150,
+   "price_confidence": 0.18
+  },
+  {
+   "truth": "whiteboard sheet",
+   "paid_inr": 150,
+   "age_years": null,
+   "found": false
+  },
+  {
+   "truth": "JioFiber router",
+   "paid_inr": 0,
+   "age_years": null,
+   "found": true,
+   "line": "GeoDebt GeoDebt router",
+   "sources": [
+    "frontier",
+    "local",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 2749,
+    "frontier": 2500.0,
+    "voice": null
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 2500.0,
+   "acv_inr": 1625,
+   "price_confidence": 0.08
+  },
+  {
+   "truth": "Good Knight liquid mosquito repellent",
+   "paid_inr": null,
+   "age_years": null,
+   "found": false
+  }
+ ],
+ "report_totals": {
+  "rcv_inr": 328210,
+  "acv_inr": 237309,
+  "items": 46
+ }
+}
