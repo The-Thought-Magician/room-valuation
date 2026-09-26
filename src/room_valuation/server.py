@@ -3,7 +3,7 @@
 1. POST /api/captures            room details and room photos; starts detection
 2. GET  /c/{id}                  detected item list: review, remove, add missing
 3. GET  /c/{id}/i/{item}         one page per item: close-ups and a voice note
-4. POST /api/captures/{id}/submit    starts the valuation; results at /r/{id}
+4. POST /api/captures/{id}/submit    starts the valuation; results at /r/{id}, every capture at /r/
 
 One worker thread runs the jobs in order: there is one GPU."""
 
@@ -106,6 +106,40 @@ def item_page(cid: str, iid: str):
     if not ITEM_RE.match(iid):
         raise HTTPException(404)
     return _page("item.html")
+
+
+@app.get("/r/", response_class=HTMLResponse)
+@app.get("/r", response_class=HTMLResponse)
+def results_index():
+    """Every capture with a valuation, newest first, labelled from its meta.json ("label" if the
+    owner named it) and what it holds."""
+    esc = lambda v: str(v).replace("&", "&amp;").replace("<", "&lt;")  # noqa: E731
+    rows = []
+    for cap in sorted(DATA.iterdir(), reverse=True):
+        rep_file = cap / "out" / "report.json"
+        if not (ID_RE.match(cap.name) and rep_file.exists()):
+            continue
+        meta = json.loads((cap / "meta.json").read_text()) if (cap / "meta.json").exists() else {}
+        rep = json.loads(rep_file.read_text())
+        if all("key" in ln for ln in rep["items"]):  # reports from before line keys have no review to apply
+            rep = valuation.reviewed_report(rep, session.load(cap).get("line_review") or {})
+        rv, t = rep.get("review") or {}, rep["totals"]
+        photos = len(list((cap / "photos" / "room").glob("*"))) if (cap / "photos" / "room").exists() else 0
+        held = [f"{photos} photos" if photos else "", "video" if any(cap.glob("video.*")) else "",
+                f"{rv.get('closeups', 0)} close-ups", f"{rv.get('voice_notes', 0)} voice notes"]
+        if meta.get("merged_from"):
+            held.append("merged from " + ", ".join(meta["merged_from"]))
+        title = meta.get("label") or f"{(meta.get('room') or 'room').title()}, {meta.get('city') or 'no city'}"
+        when = time.strftime("%d %b %H:%M", time.localtime(rep_file.stat().st_mtime))
+        rows.append(f'<div class="card"><div class="body"><div class="name"><a href="/r/{cap.name}">{esc(title)}</a></div>'
+                    f'<div class="muted" style="font-size:13px">{esc(" · ".join(h for h in held if h))}</div>'
+                    f'<div class="muted" style="font-size:13px">RCV Rs {t["rcv_inr"]:,.0f} · ACV Rs {t["acv_inr"]:,.0f} · '
+                    f'{t["items"]} lines · pipeline 2: {esc(rep.get("backend"))} · valued {when} · {cap.name}</div></div></div>')
+    return ('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+            '<title>Results</title><link rel="stylesheet" href="/static/app.css"><main><div class="step">Results</div>'
+            '<h1>Every valued capture</h1>'
+            '<p class="lead"><a href="/">New capture</a> · <a href="/demo/">Demo walkthroughs</a></p>'
+            f'<section>{"".join(rows) or "<p class=hint>Nothing valued yet.</p>"}</section></main>')
 
 
 @app.get("/r/{cid}", response_class=HTMLResponse)

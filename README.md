@@ -61,6 +61,7 @@ https, and the URL changes every time `serve.sh` restarts.
 | Step 1, video only | [`/record`](http://127.0.0.1:8100/record) ([web/record.html](web/record.html)) | One button to film the room |
 | Step 2: item list | `/c/<capture id>` ([web/items.html](web/items.html)) | Detected items counted by type. **Remove** false or duplicate ones, add what is missing, pick the frontier model, then **Walk through items** or **Value the room** |
 | Step 3: one page per item | `/c/<capture id>/i/<item id>` ([web/item.html](web/item.html)) | Close-ups (labels, spines), any number of voice notes, a typed note, quantity |
+| Every valued capture | `/r/` | Each capture with results, newest first: its label (`label` in its meta.json), what it holds, RCV and ACV, and a link to its results page |
 | Results and final review | `/r/<capture id>` ([web/results.html](web/results.html)) | Totals, every item with every source's price and Jev's choice, books by genre, floor area and plan. **Remove**, **Same as** and **Undo** per line |
 | Demo walkthroughs | `/demo/` lists them, `/demo/<name>/` ([web/demo.html](web/demo.html)) | One real capture step by step: photos, video, detection boxes, the owner's list, close-ups and voice notes with transcripts, what each pipeline read, Jev's questions and answers, the valuation, the score. Built by `scripts/build_demo.py` |
 
