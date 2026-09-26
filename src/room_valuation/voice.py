@@ -9,6 +9,8 @@ from pathlib import Path
 from room_valuation import models
 from room_valuation.schema import CATEGORIES, Item, SourceResult
 
+RECENT_YEARS = 2  # a price paid is a replacement cost only when the purchase is this recent
+
 EXTRACT = (
     "Below is what a person said while walking through their room for an insurance inventory. "
     "List every physical object they mention. Reply with a JSON array only, no prose. Each element: "
@@ -45,11 +47,16 @@ def extract(transcript: str) -> list[Item]:
     for i, d in enumerate(raw):
         cat = d.get("category") if d.get("category") in CATEGORIES else "other"
         attrs = {"size": str(d["size"])} if d.get("size") else {}
-        paid = _num(d.get("price_paid_inr"))
+        paid, age = _num(d.get("price_paid_inr")), _num(d.get("age_years"))
+        # what someone paid 35 years ago says nothing about today's replacement cost; it stays
+        # on the item as evidence, and the age still drives depreciation
+        recent = paid is not None and (age is None or age <= RECENT_YEARS)
         items.append(Item(id=f"voice-{i}", source="voice", category=cat, name=d.get("name") or cat,
                           brand=d.get("brand"), model=d.get("model"), attributes=attrs, evidence=d.get("quote"),
-                          price_paid_inr=paid, age_years=_num(d.get("age_years")),
-                          rcv_inr=paid, price_source="said by owner" if paid else None))
+                          price_paid_inr=paid, age_years=age,
+                          rcv_inr=paid if recent else None, price_source="said by owner" if recent else None,
+                          price_note=None if recent or paid is None else
+                          f"paid Rs {paid:,.0f} about {age:g} years ago; too old to be a replacement price"))
     return items
 
 

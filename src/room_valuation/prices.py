@@ -26,7 +26,7 @@ QC_CATEGORIES = {"computer_accessory", "audio", "phone", "lighting", "kitchenwar
 # insurance-style useful life by category, for straight-line depreciation (years)
 USEFUL_LIFE = {
     "laptop": 5, "monitor": 6, "computer_accessory": 4, "phone": 4, "audio": 5, "networking": 5,
-    "appliance": 8, "lighting": 5, "electrical_fixture": 15, "furniture": 10, "bedding": 5,
+    "appliance": 8, "lighting": 5, "electrical_fixture": 15, "building_fixture": 30, "furniture": 10, "bedding": 5,
     "book": 10, "decor": 10, "kitchenware": 5, "bag_clothing": 3, "other": 5,
 }
 CONDITION_LIFE_USED = {"like_new": 0.1, "good": 0.35, "fair": 0.6, "poor": 0.85}

@@ -144,3 +144,26 @@ def test_merge_rules_same_mutual_singleton_and_flag():
     assert sizes == [1, 1, 2, 2, 2]
     flagged = [g for g in groups if any("possible double count" in f for f in g.flags)]
     assert len(flagged) == 1 and "local-3" in [it.id for it in flagged[0].members.values()]
+
+
+def test_old_price_paid_is_not_a_replacement_price(monkeypatch):
+    from room_valuation import voice
+
+    class FakeVLM:
+        def ask(self, *a, **k):
+            return ('[{"category": "furniture", "name": "bed", "price_paid_inr": 500, "age_years": 35, "quote": "bed"},'
+                    ' {"category": "appliance", "name": "AC", "price_paid_inr": 35000, "age_years": 1, "quote": "AC"}]')
+
+    monkeypatch.setattr(voice.models, "VLM", FakeVLM)
+    monkeypatch.setattr(voice.models, "free", lambda: None)
+    bed, ac = voice.extract("...")
+    assert bed.rcv_inr is None and bed.price_paid_inr == 500 and "too old" in bed.price_note
+    assert ac.rcv_inr == 35000 and ac.age_years == 1
+
+
+def test_building_fixtures_totalled_apart_from_contents():
+    lines = [{"category": "electrical_fixture", "quantity": 1, "rcv_inr": 1200, "acv_inr": 600, "flags": [], "book": None},
+             {"category": "building_fixture", "quantity": 1, "rcv_inr": 9000, "acv_inr": 6000, "flags": [], "book": None},
+             {"category": "laptop", "quantity": 1, "rcv_inr": 190000, "acv_inr": 152000, "flags": [], "book": None}]
+    t = valuation.totals(lines)
+    assert t["contents"]["rcv_inr"] == 190000 and t["building_fixtures"]["rcv_inr"] == 10200 and t["rcv_inr"] == 200200

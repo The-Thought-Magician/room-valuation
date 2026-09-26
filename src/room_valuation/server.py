@@ -85,8 +85,8 @@ async def create(room: str = Form("bedroom"), city: str = Form("Rourkela"), leng
                  width_cm: float | None = Form(None), backend: str = Form("opus"),
                  room_photos: list[UploadFile] = File(default=[]), book_photos: list[UploadFile] = File(default=[]),
                  voice: UploadFile | None = File(None), video: UploadFile | None = File(None)):
-    if backend not in ("opus", "astra"):
-        raise HTTPException(400, "backend must be opus or astra")
+    if backend not in ("opus", "astra", "none"):
+        raise HTTPException(400, "backend must be opus, astra or none")
     if not room_photos and not book_photos:
         raise HTTPException(400, "at least one photo is needed")
     cid = time.strftime("%Y%m%d-%H%M%S") + "-" + secrets.token_hex(3)

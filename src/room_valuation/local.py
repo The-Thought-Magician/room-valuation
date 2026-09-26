@@ -36,6 +36,7 @@ VOCAB = {
     "bedding": ["a mattress", "a pillow", "a blanket", "a bedsheet"],
     "book": ["a book", "a stack of books", "a book spine"],
     "decor": ["a mirror", "a wall clock", "a curtain", "a photo frame", "a plant pot", "a poster"],
+    "building_fixture": ["a door", "a window"],
     "kitchenware": ["a water bottle", "a coffee mug", "a cup", "a plate", "a lunch box"],
     "bag_clothing": ["a backpack", "a bag", "shoes", "clothes"],
 }
@@ -51,7 +52,7 @@ IDENTIFY = (
     'Example: {{"category": "monitor", "name": "computer monitor", "brand": "LG", "model": null, '
     '"size": "24 inch", "text": null, "condition": "good"}}'
 )
-NOT_CONTENTS = {"window", "door", "wall", "ceiling", "floor", "window grill", "doorway"}
+NOT_CONTENTS = {"wall", "ceiling", "floor", "doorway"}
 SPINES = (
     "List every book whose spine or cover is visible in this photo, top to bottom or left to right. "
     "One line per book, exactly: title | author. Copy the printed text. If you cannot see any book, reply NONE."

@@ -25,12 +25,18 @@ Photos (read every one with the Read tool; tag = what the photographer meant it 
 
 Build one deduplicated inventory of every distinct physical object worth more than about Rs 50:
 electronics, furniture, bedding, books, decor, appliances, lights, fans, and electrical fixtures.
+Also list the building's own fixtures, which insurers cover under the building policy: every door (with
+its frame and hardware) and every window (with frame, glass and grill) as category building_fixture,
+with estimated size and material; price each as supply plus installation.
 The same object seen in several photos is one item. Two identical objects are one item with quantity 2.
 
 Rules:
 - category must be one of: {categories}
 - Books: read each spine. Give title and author exactly as printed, isbn only if visible,
   genre one of: {genres}. One item per book.
+- Monitors and TVs: read the model sticker or any resolution shown on screen (a settings page or the
+  monitor's info menu). If you have the model, look up its resolution, panel and refresh rate. Never
+  claim a resolution you did not read or look up; say "resolution unknown" instead.
 - Brand and model: only what you can read or clearly recognise. If you cannot read the model,
   describe the class instead (for a monitor: diagonal in inches estimated against nearby objects,
   resolution class HD/FHD/QHD/UHD, panel type) and put your reasoning in price_note.

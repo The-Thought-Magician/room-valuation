@@ -2,7 +2,7 @@
 
 from room_valuation import prices
 from room_valuation.jev import CONDITION_LEVELS, Group
-from room_valuation.schema import Item
+from room_valuation.schema import BUILDING, Item
 
 REVIEW_CONFIDENCE = 0.5  # below this Jev confidence a line is flagged for a human
 
@@ -35,6 +35,7 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
         if f"cond_{n}" in answers:
             condition = CONDITION_LEVELS[max(0, min(3, round(answers[f"cond_{n}"].score)))]
         age = next((it.age_years for it in m.values() if it.age_years is not None), None)
+        paid = next((it.price_paid_inr for it in m.values() if it.price_paid_inr), None)
         acv, acv_basis = prices.acv(rcv, item.category, age, condition) if rcv else (None, None)
         book = next((it.book for it in m.values() if it.book and it.book.title), None)
         genre = answers[f"genre_{n}"].choice if f"genre_{n}" in answers else (book.genre if book else None)
@@ -46,7 +47,7 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
         qty = item.quantity or 1
         lines.append({
             "n": n, "category": item.category, "name": item.name, "brand": item.brand, "model": item.model,
-            "attributes": item.attributes, "quantity": qty, "condition": condition, "age_years": age,
+            "attributes": item.attributes, "quantity": qty, "condition": condition, "age_years": age, "price_paid_inr": paid,
             "book": ({**book.model_dump(), "genre": genre} if book else None),
             "sources": sorted(m), "identity_from": id_src, "identity_confidence": id_conf, "identity_probs": id_probs,
             "price_from": price_src, "price_confidence": price_conf, "price_probs": price_probs,
@@ -88,7 +89,15 @@ def totals(lines: list[dict]) -> dict:
         c["rcv_inr"] += ln["rcv_inr"] or 0
         c["acv_inr"] += ln["acv_inr"] or 0
     books = [ln for ln in lines if ln["category"] == "book"]
+    contents = [ln for ln in lines if ln["category"] not in BUILDING]
+    fixtures = [ln for ln in lines if ln["category"] in BUILDING]
     return {
+        "contents": {"items": sum(ln["quantity"] for ln in contents),
+                     "rcv_inr": round(sum(ln["rcv_inr"] or 0 for ln in contents)),
+                     "acv_inr": round(sum(ln["acv_inr"] or 0 for ln in contents))},
+        "building_fixtures": {"items": sum(ln["quantity"] for ln in fixtures),
+                              "rcv_inr": round(sum(ln["rcv_inr"] or 0 for ln in fixtures)),
+                              "acv_inr": round(sum(ln["acv_inr"] or 0 for ln in fixtures))},
         "rcv_inr": round(sum(ln["rcv_inr"] or 0 for ln in lines)),
         "acv_inr": round(sum(ln["acv_inr"] or 0 for ln in lines)),
         "items": sum(ln["quantity"] for ln in lines),

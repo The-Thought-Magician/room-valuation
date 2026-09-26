@@ -19,6 +19,7 @@ from PIL import Image, ImageOps
 from room_valuation import area, frontier, jev, local, valuation, voice
 from room_valuation.schema import SourceResult
 
+BACKEND_NAMES = {"opus": "claude-opus-5-5", "astra": "gpt-6-astra", "none": "skipped (test run)"}
 AUDIO = (".webm", ".m4a", ".mp3", ".wav", ".ogg", ".aac")
 VIDEO = (".mp4", ".mov", ".mkv")
 
@@ -78,12 +79,13 @@ def run(capture: Path, backend: str = "opus") -> dict:
             _status(workdir, name, "failed", error=errors[name])
 
     with ThreadPoolExecutor(1) as pool:  # the frontier model is remote, it runs beside the GPU work
-        remote = pool.submit(guarded, "frontier", frontier.run, backend, photos, city, workdir)
+        remote = pool.submit(guarded, "frontier", frontier.run, backend, photos, city, workdir) if backend != "none" else None
         guarded("local", local.run, photos, workdir)
         audio = _first(capture, AUDIO)
         if audio:
             guarded("voice", voice.run, audio, workdir)
-        remote.result()
+        if remote:
+            remote.result()
 
     _status(workdir, "area", "running")
     tape = area.from_tape(meta["length_cm"], meta["width_cm"]) if meta.get("length_cm") and meta.get("width_cm") else None
@@ -103,7 +105,7 @@ def run(capture: Path, backend: str = "opus") -> dict:
 
     shelves = {k: results[k].shelves for k in ("local", "frontier") if k in results and results[k].shelves is not None}
     report = {
-        "room": room, "city": city, "backend": "claude-opus-5-5" if backend == "opus" else "gpt-6-astra",
+        "room": room, "city": city, "backend": BACKEND_NAMES[backend],
         "area": area_info, "shelves": shelves, "totals": valuation.totals(lines),
         "leaderboard": valuation.leaderboard(lines), "items": lines,
         "sources": {k: {"items": len(v.items), "seconds": v.seconds, "notes": v.notes} for k, v in results.items()},

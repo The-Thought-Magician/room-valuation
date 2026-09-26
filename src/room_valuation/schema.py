@@ -4,9 +4,12 @@ from pydantic import BaseModel, Field
 
 CATEGORIES = [
     "laptop", "monitor", "computer_accessory", "phone", "audio", "networking",
-    "appliance", "lighting", "electrical_fixture", "furniture", "bedding",
+    "appliance", "lighting", "electrical_fixture", "building_fixture", "furniture", "bedding",
     "book", "decor", "kitchenware", "bag_clothing", "other",
 ]
+
+# insured under the building (dwelling) cover, not contents: reported as a separate total
+BUILDING = {"electrical_fixture", "building_fixture"}
 
 GENRES = [
     "fiction", "mystery_thriller", "science_fiction_fantasy", "romance", "classics",

@@ -85,7 +85,8 @@ async function show() {
   const t = r.totals, a = r.area || {};
   const shelves = Object.entries(r.shelves || {}).map(([k, v]) => `${v} (${k})`).join(", ") || "–";
   document.getElementById("tiles").innerHTML = [
-    ["Replacement cost (RCV)", inr(t.rcv_inr)], ["Actual cash value (ACV)", inr(t.acv_inr)],
+    ["Contents RCV", inr(t.contents.rcv_inr)], ["Contents ACV", inr(t.contents.acv_inr)],
+    ["Building fixtures RCV", inr(t.building_fixtures.rcv_inr)], ["Total RCV", inr(t.rcv_inr)],
     ["Items", t.items + (t.unpriced ? ` (${t.unpriced} unpriced)` : "")], ["Needs review", t.needs_review],
     ["Possible double count", inr(t.possible_double_count_inr)],
     ["Floor area", a.area_m2 ? `${a.area_sqft} sq ft` : "–"], ["Books", `${t.books.count} (${inr(t.books.rcv_inr)})`],
@@ -103,7 +104,7 @@ async function show() {
     const cands = Object.entries(it.candidates).map(([s, c]) => `<div><b>${s}</b>: ${esc([c.brand, c.model, c.name].filter(Boolean).join(" "))}, ${inr(c.rcv_inr)} <span class="muted">${esc(c.price_note || "")}</span> ${c.price_source && c.price_source.startsWith("http") ? `<a href="${esc(c.price_source)}" target="_blank" rel="noopener">source</a>` : esc(c.price_source || "")}</div>`).join("");
     const probs = ["identity", "price"].map(k => Object.keys(it[k + "_probs"]).length ? `<div class="muted">Jev ${k}: ${Object.entries(it[k + "_probs"]).map(([s, p]) => `${s} ${(100 * p).toFixed(0)}%`).join(", ")}</div>` : "").join("");
     const imgs = it.photos.map(p => `<img src="${api}/photo/${encodeURIComponent(p)}" loading="lazy">`).join("");
-    rows.push(`<tr class="detail" id="d${it.n}" hidden><td colspan="6">${cands}${probs}<div class="muted">${esc(it.acv_basis || "")}</div>${imgs}</td></tr>`);
+    rows.push(`<tr class="detail" id="d${it.n}" hidden><td colspan="6">${cands}${probs}<div class="muted">${esc(it.acv_basis || "")}${it.price_paid_inr ? ` · owner paid ${inr(it.price_paid_inr)}${it.age_years != null ? ", " + it.age_years + " y ago" : ""}` : ""}</div>${imgs}</td></tr>`);
   }
   const tbl = document.getElementById("items");
   tbl.innerHTML = rows.join("");

@@ -30,7 +30,7 @@ def main() -> None:
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="value one capture folder")
     r.add_argument("capture")
-    r.add_argument("--backend", choices=["opus", "astra"], default="opus")
+    r.add_argument("--backend", choices=["opus", "astra", "none"], default="opus")
     s = sub.add_parser("serve", help="start the capture backend")
     s.add_argument("--port", type=int, default=8100)
     args = ap.parse_args()
