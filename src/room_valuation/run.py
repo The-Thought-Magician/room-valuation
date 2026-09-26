@@ -198,6 +198,7 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
     _status(workdir, "area", "done", source=area_info.get("source"))
 
     _status(workdir, "jev", "running")
+    jev.CALLS.clear()
     sources = [results[k].items for k in ("local", "frontier", "voice") if k in results]
     groups, pairs, skipped = jev.align(sources)
     answers = jev.rank_groups(groups)
@@ -219,9 +220,41 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
     }
     (workdir / "report.json").write_text(json.dumps(report, indent=1, default=str))
     (workdir / "jev_pairs.json").write_text(json.dumps(pairs, indent=1))
+    _keep_run(workdir, report, pairs, backend, reuse)
     session.update(capture, lambda d: d.update(stage="done"))
     _status(workdir, "report", "done", seconds=report["seconds"])
     return report
+
+
+def _keep_run(workdir: Path, report: dict, pairs: list, backend: str, reuse: tuple) -> Path:
+    """Every valuation keeps its own folder, so settings can be compared run against run:
+    report, Jev pairs, every raw Jev call, the settings (git commit, reuse flags) and the score."""
+    import shutil
+    import subprocess
+
+    from room_valuation import score
+
+    d = workdir / "runs" / time.strftime("%Y%m%d-%H%M%S")
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "report.json").write_text(json.dumps(report, indent=1, default=str))
+    (d / "jev_pairs.json").write_text(json.dumps(pairs, indent=1))
+    with (d / "jev_calls.jsonl").open("w") as f:
+        for c in jev.CALLS:
+            f.write(json.dumps(c, default=str) + "\n")
+    root = Path(__file__).resolve().parents[2]
+    def git(*args):
+        return subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True).stdout.strip()
+
+    commit, dirty = git("rev-parse", "--short", "HEAD"), bool(git("status", "--porcelain", "src"))
+    (d / "settings.json").write_text(json.dumps({"commit": commit, "uncommitted_changes": dirty, "backend": backend,
+                                                 "reuse": list(reuse), "jev_model": jev.MODEL}, indent=1))
+    for name in ("frontier.json", "local.json", "voice.json", "local_log.json"):
+        if (workdir / name).exists():
+            shutil.copy(workdir / name, d / name)
+    truth = root / "data" / "ground_truth" / "bedroom.json"
+    if truth.exists():
+        (d / "score.json").write_text(json.dumps(score.score(report, json.loads(truth.read_text())), indent=1, default=str))
+    return d
 
 
 def run(capture: Path, backend: str = "opus") -> dict:

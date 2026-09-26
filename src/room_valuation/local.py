@@ -328,7 +328,8 @@ def _ocr_supports(book: Book, ocr_words: set[str]) -> bool:
     A title stays only if one of its real words (or a near miss) is in the OCR text."""
     words = {w for w in _norm(book.title).split() if len(w) >= 4 and w not in PUBLISHERS}
     compact = "".join(sorted(ocr_words))
-    return not words or _fuzzy_words(words, ocr_words) >= 1 or any(w in compact for w in words)
+    hits = sum(1 for w in words if _fuzzy_words({w}, ocr_words) or w in compact)
+    return not words or hits >= max(1, (len(words) + 1) // 2)  # half the title, not one lucky word
 
 
 def _read_spines(image: Image.Image, vlm, photo: str, log: list) -> list[tuple[Book, str]]:

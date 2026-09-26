@@ -49,8 +49,18 @@ def _client() -> TypeSafeClient | None:
     return TypeSafeClient(model=MODEL, timeout=120.0) if os.environ.get("TYPESAFE_API_KEY") else None
 
 
+CALLS: list[dict] = []  # every request and response of this run, written to jev_calls.jsonl
+
+
+def _dump(q) -> dict:
+    return q.model_dump(exclude_none=True) if hasattr(q, "model_dump") else dict(q)
+
+
 def ask(questions: dict, state: dict | None = None) -> dict:
-    """Send questions in batches, in parallel. Returns {question id: answer}."""
+    """Send questions in batches, in parallel. Returns {question id: answer}. Every call is
+    recorded in CALLS: state, questions, answers, model, usage, request id, seconds."""
+    import time
+
     client = _client()
     if client is None:
         raise RuntimeError("TYPESAFE_API_KEY not set")
@@ -58,12 +68,18 @@ def ask(questions: dict, state: dict | None = None) -> dict:
     batches = [{k: questions[k] for k in keys[i : i + BATCH]} for i in range(0, len(keys), BATCH)]
 
     def call(batch):
-        return client.system_one(state=state or STATE, questions=batch).answers
+        t0 = time.time()
+        res = client.system_one(state=state or STATE, questions=batch)
+        return batch, res, round(time.time() - t0, 2)
 
     answers = {}
     with ThreadPoolExecutor(WORKERS) as pool:
-        for part in pool.map(call, batches):
-            answers.update(part)
+        for batch, res, secs in pool.map(call, batches):
+            answers.update(res.answers)
+            CALLS.append({"model": res.model, "request_id": getattr(res, "request_id", None), "seconds": secs,
+                          "usage": _dump(res.usage) if res.usage else None, "state": state or STATE,
+                          "questions": {k: _dump(q) for k, q in batch.items()},
+                          "answers": {k: _dump(a) for k, a in res.answers.items()}})
     return answers
 
 
@@ -88,6 +104,12 @@ def similarity(a: Item, b: Item) -> float:
     """Cheap blocking score: word overlap, plus a bonus when both were seen in the same photo."""
     wa, wb = _words(a), _words(b)
     jac = len(wa & wb) / len(wa | wb) if wa | wb else 0.0
+    if a.category == b.category == "book":  # OCR runs words together: Ironhorse vs Iron Horse
+        import difflib
+
+        ta = re.sub(r"[^a-z0-9]", "", ((a.book.title if a.book else "") or a.name).lower())
+        tb = re.sub(r"[^a-z0-9]", "", ((b.book.title if b.book else "") or b.name).lower())
+        jac = max(jac, 0.8 * difflib.SequenceMatcher(None, ta, tb).ratio())
     return jac + (0.3 if set(a.photos) & set(b.photos) else 0.0) + (0.2 if a.brand and b.brand
                                                                      and a.brand.lower() == b.brand.lower() else 0.0)
 

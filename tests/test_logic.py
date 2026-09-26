@@ -243,3 +243,18 @@ def test_unmatched_spines_become_unidentified_or_drop():
     card = Item(id="c", source="local", category="book", name="books")
     out = local._settle_books([matched, partial, stranger], "c", card)
     assert [o.name for o in out] == ["Nonviolent Communication", "unidentified book"]
+
+
+def test_hallucinated_title_needs_half_its_words_in_the_ocr():
+    ocr_words = {"annie", "black", "book", "torment", "lauren", "kate"}
+    assert not local._ocr_supports(Book(title="Anne of Green Gables"), ocr_words)
+    assert local._ocr_supports(Book(title="Annie May's Black Book"), ocr_words)
+
+
+def test_blocking_pairs_run_together_book_titles():
+    from room_valuation import jev
+
+    a = Item(id="local-1", source="local", category="book", name="Ironhorse", book=Book(title="Ironhorse"))
+    b = Item(id="opus-1", source="opus", category="book", name="Iron Horse", book=Book(title="Iron Horse"))
+    c = Item(id="opus-2", source="opus", category="book", name="The Thread", book=Book(title="The Thread"))
+    assert jev.similarity(a, b) > jev.similarity(a, c) + 0.3

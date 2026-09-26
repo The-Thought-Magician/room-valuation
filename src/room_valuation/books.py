@@ -60,7 +60,9 @@ def lookup(spine_text: str, timeout: float = 15.0) -> Book | None:
         r.raise_for_status()
     except httpx.HTTPError:
         return None
-    docs = r.json().get("docs", [])
+    # a spine is the book itself, not a summary or study guide of it
+    derivative = re.compile(r"\b(summary|study guide|analysis|workbook|companion|sparknotes|notes on|cliffsnotes)\b", re.I)
+    docs = [d for d in r.json().get("docs", []) if not derivative.search(d.get("title", "")) or derivative.search(query)]
     if not docs:
         return None
     q = query.lower()
