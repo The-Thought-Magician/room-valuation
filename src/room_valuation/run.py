@@ -93,6 +93,7 @@ def room_photos(capture: Path, workdir: Path) -> list[tuple[Path, str]]:
     if video:
         for f in video_frames(video, workdir):
             dst = workdir / "photos" / f"room_video_{f.stem}.jpg"
+            dst.parent.mkdir(parents=True, exist_ok=True)  # a video-only capture has no photos folder yet
             if not dst.exists():
                 dst.write_bytes(f.read_bytes())
             out.append((dst, "room video frame"))

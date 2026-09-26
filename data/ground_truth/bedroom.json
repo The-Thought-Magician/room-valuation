@@ -17,10 +17,10 @@
     },
     {
       "category": "monitor",
-      "name": "Acer 27 inch monitor",
+      "name": "Acer 24 inch monitor",
       "price_paid_inr": 16000,
       "age_years": 3,
-      "note": "voice note says 24 inch, 16K, 3 years back; earlier the owner said 27 inch, 16.5k"
+      "note": "owner confirmed 24 inch on 2026-09-26; 16K, 3 years back"
     },
     {
       "category": "furniture",
@@ -71,8 +71,8 @@
       "category": "furniture",
       "name": "stool",
       "price_paid_inr": 600,
-      "age_years": null,
-      "note": "voice note said 80 years; may be a transcription slip"
+      "age_years": 8,
+      "note": "owner: 8 years, the voice note transcript said 80"
     },
     {
       "category": "building_fixture",
@@ -86,6 +86,13 @@
       "price_paid_inr": 0,
       "age_years": null,
       "note": "provided free by the ISP"
+    },
+    {
+      "category": "kitchenware",
+      "name": "Good Knight liquid mosquito repellent",
+      "price_paid_inr": null,
+      "age_years": null,
+      "note": "missed in the first capture"
     }
   ],
   "books": {

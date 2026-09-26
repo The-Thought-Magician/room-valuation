@@ -155,6 +155,19 @@ def get_session(cid: str):
     return data
 
 
+@app.post("/api/captures/{cid}/detect")
+def retry_detect(cid: str):
+    """Run detection again on what was already uploaded (after a failure, or with new settings)."""
+    cap = _capture_dir(cid)
+    if session.load(cap).get("stage") in ("queued", "detecting", "queued_value", "valuing"):
+        raise HTTPException(409, "a job for this capture is already running")
+    for f in ("status.json", "failed.txt"):
+        (cap / "out" / f).unlink(missing_ok=True)
+    session.update(cap, lambda d: d.update(stage="queued"))
+    jobs.put(("detect", cap, None))
+    return {"ok": True}
+
+
 @app.post("/api/captures/{cid}/items/{iid}")
 async def save_item(cid: str, iid: str, quantity: int | None = Form(None), name: str | None = Form(None),
                     state: str | None = Form(None), closeups: list[UploadFile] = File(default=[]),

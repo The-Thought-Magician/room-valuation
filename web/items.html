@@ -58,7 +58,12 @@ let data = null;
 
 async function load() {
   data = await (await fetch(api + "/session")).json();
-  if (data.failed) { document.getElementById("lead").textContent = "Detection failed: " + data.failed; return; }
+  if (data.failed) {
+    document.getElementById("lead").textContent = "Detection failed: " + data.failed;
+    document.getElementById("stepname").innerHTML = `Your photos and video are saved. <button class="primary" id="retry">Retry detection</button>`;
+    document.getElementById("retry").onclick = async () => { await upload(api + "/detect", new FormData()); location.reload(); };
+    return;
+  }
   if (["queued", "detecting", "new"].includes(data.stage)) {
     const st = data.status && data.status.stages && data.status.stages.detect;
     if (st && st.total) {
