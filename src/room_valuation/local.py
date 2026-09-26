@@ -95,11 +95,18 @@ def _json(text: str) -> dict:
         return {}
 
 
+# values from the prompts' own examples: a small model sometimes copies them back as answers
+# (the laptop got "specs: 1400 W" from the air-fryer example, 2026-09-26)
+EXAMPLE_VALUES = {"prestige", "pressure cooker", "5 litre", "philips", "hd9252", "4.1 litre", "1400 w", "air fryer"}
+
+
 def _null(v):
-    """Drop empty answers and the placeholder text a small model sometimes copies back."""
+    """Drop empty answers, placeholder text and prompt examples a small model copies back."""
     if v is None:
         return None
     s = str(v).strip()
+    if s.lower() in EXAMPLE_VALUES:
+        return None
     if s.lower() in ("", "null", "none", "unknown", "n/a", "standard") or any(
             w in s.lower() for w in ("else null", "if you can", "readable", "if a logo")):
         return None

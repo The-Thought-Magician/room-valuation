@@ -31,6 +31,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "matplotlib>=3.11.2",
     "pytest>=9.1.1",
     "ruff>=0.16.9",
 ]
@@ -44,3 +45,4 @@ ignore = ["B008"]  # FastAPI declares form fields as defaults
 
 [tool.ruff.lint.per-file-ignores]
 "scripts/export_report.py" = ["E501"]  # markdown table rows read better on one line
+"scripts/draw_pipeline.py" = ["E501"]  # diagram text lines

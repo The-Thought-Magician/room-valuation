@@ -300,3 +300,7 @@ def test_owner_review_takes_lines_out_of_the_totals():
     assert rep["items"][1]["suggest_duplicate_of"] == "frontier:opus-1|local:local-36" and rep["totals"]["rcv_inr"] == 38484
     rep = valuation.reviewed_report(rep, {"local:local-177": {"action": "duplicate", "of": "frontier:opus-1|local:local-36"}})
     assert rep["totals"]["rcv_inr"] == 18100 and rep["review_summary"]["duplicates"] == 1
+
+
+def test_prompt_example_values_are_dropped():
+    assert local._null("1400 W") is None and local._null("Philips") is None and local._null("HP") == "HP"
