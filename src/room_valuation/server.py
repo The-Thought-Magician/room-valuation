@@ -30,7 +30,7 @@ ID_RE = re.compile(r"^[0-9]{8}-[0-9]{6}-[0-9a-f]{6}$")
 ITEM_RE = re.compile(r"^(local|added)-[0-9]+$")
 PHOTO_EXT = set(runner.PHOTO)
 AUDIO_EXT = set(runner.AUDIO)
-VIDEO_EXT = set(runner.VIDEO)
+VIDEO_EXT = set(runner.VIDEO) | {".webm", ".3gp"}
 MAX_BYTES = 300 * 1024 * 1024
 
 app = FastAPI(title="room-valuation")
@@ -87,6 +87,11 @@ def index():
     return _page("index.html")
 
 
+@app.get("/record", response_class=HTMLResponse)
+def record_page():
+    return _page("record.html")
+
+
 @app.get("/c/{cid}", response_class=HTMLResponse)
 def items_page(cid: str):
     _capture_dir(cid)
@@ -116,8 +121,8 @@ def health():
 async def create(room: str = Form("bedroom"), city: str = Form(""), length_cm: float | None = Form(None),
                  width_cm: float | None = Form(None), room_photos: list[UploadFile] = File(default=[]),
                  voice: UploadFile | None = File(None), video: UploadFile | None = File(None)):
-    if not room_photos:
-        raise HTTPException(400, "at least one room photo is needed")
+    if not room_photos and not (video and video.filename):
+        raise HTTPException(400, "record a room video or take at least one room photo")
     cid = time.strftime("%Y%m%d-%H%M%S") + "-" + secrets.token_hex(3)
     cap = DATA / cid
     for i, f in enumerate(room_photos):

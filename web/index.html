@@ -36,10 +36,14 @@
   </section>
 
   <section>
-    <h2>Walkthrough video (optional)</h2>
-    <p class="hint">Only used to estimate the floor area when no tape dimensions are given.</p>
-    <label class="btn">Choose video<input type="file" accept="video/*" hidden id="videofile"></label>
-    <span id="videoname" class="hint"></span>
+    <h2>Room video (instead of or as well as photos)</h2>
+    <p class="hint">30 to 60 seconds: stand inside the door and turn slowly all the way round, then walk past the desk and shelves. Sharp frames are taken from it and used like room photos. Only video? Use the <a href="/record">record-only page</a>.</p>
+    <div class="row">
+      <label class="btn primary">Record video<input type="file" accept="video/*" capture="environment" hidden class="vid"></label>
+      <label class="btn">From gallery<input type="file" accept="video/*" hidden class="vid"></label>
+    </div>
+    <div id="videoname" class="hint" style="margin-top:6px"></div>
+    <video id="videoprev" controls playsinline hidden style="width:100%;margin-top:8px;border-radius:10px"></video>
   </section>
 </main>
 
@@ -53,20 +57,22 @@
 <script>
 const photos = photoPicker([...document.querySelectorAll(".pick")], document.getElementById("thumbs"));
 let videoFile = null;
-document.getElementById("videofile").onchange = e => {
+document.querySelectorAll(".vid").forEach(inp => inp.onchange = e => {
   videoFile = e.target.files[0] || null;
-  document.getElementById("videoname").textContent = videoFile ? videoFile.name : "";
-};
+  document.getElementById("videoname").textContent = videoFile ? `${videoFile.name || "video"} (${(videoFile.size / 1e6).toFixed(1)} MB)` : "";
+  const v = document.getElementById("videoprev");
+  if (videoFile) { v.src = URL.createObjectURL(videoFile); v.hidden = false; }
+});
 document.getElementById("go").onclick = async () => {
   const err = document.getElementById("err"), go = document.getElementById("go");
   err.textContent = "";
-  if (!photos.length) { err.textContent = "Take at least one room photo."; return; }
+  if (!photos.length && !videoFile) { err.textContent = "Record a room video or take at least one room photo."; return; }
   const fd = new FormData();
   for (const id of ["room", "city"]) fd.append(id, document.getElementById(id).value);
   const L = document.getElementById("length").value, W = document.getElementById("width").value;
   if (L && W) { fd.append("length_cm", L); fd.append("width_cm", W); }
   photos.forEach(f => fd.append("room_photos", f, f.name || "photo.jpg"));
-  if (videoFile) fd.append("video", videoFile, videoFile.name);
+  if (videoFile) fd.append("video", videoFile, videoFile.name || "video.mp4");
   go.disabled = true;
   try {
     const r = await upload("/api/captures", fd, document.getElementById("prog"));

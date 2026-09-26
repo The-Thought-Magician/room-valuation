@@ -13,6 +13,7 @@ Capture folder layout (what the capture pages upload):
 """
 
 import json
+import threading
 import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor
@@ -29,12 +30,19 @@ VIDEO = (".mp4", ".mov", ".mkv")
 PHOTO = (".jpg", ".jpeg", ".png", ".webp")
 
 
+_STATUS_LOCK = threading.Lock()
+
+
 def _status(workdir: Path, stage: str, state: str, **extra):
-    f = workdir / "status.json"
-    s = json.loads(f.read_text()) if f.exists() else {"stages": {}}
-    s["stages"][stage] = {"state": state, "t": round(time.time(), 1), **extra}
-    s["current"] = stage
-    f.write_text(json.dumps(s, indent=1))
+    """Read-modify-write under a lock: the frontier thread and the GPU thread both report here."""
+    with _STATUS_LOCK:
+        f = workdir / "status.json"
+        s = json.loads(f.read_text()) if f.exists() else {"stages": {}}
+        s["stages"][stage] = {"state": state, "t": round(time.time(), 1), **extra}
+        s["current"] = stage
+        tmp = f.with_suffix(".tmp")
+        tmp.write_text(json.dumps(s, indent=1))
+        tmp.replace(f)
 
 
 def _normalize(src: Path, dst: Path) -> Path:
@@ -46,12 +54,48 @@ def _normalize(src: Path, dst: Path) -> Path:
     return dst
 
 
+def video_frames(video: Path, workdir: Path, max_frames: int = 16) -> list[Path]:
+    """Sharp frames from a room video: 2 frames a second, the blurriest third dropped
+    (variance of the Laplacian), then evenly spaced down to max_frames. Cached in out/frames."""
+    import subprocess
+
+    import cv2
+
+    dst = workdir / "frames"
+    if dst.is_dir() and any(dst.glob("frame_*.jpg")):
+        return sorted(dst.glob("frame_*.jpg"))
+    raw = workdir / "frames_raw"
+    raw.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-i", str(video), "-vf", "fps=2,scale='min(1920,iw)':-2",
+                    "-q:v", "3", str(raw / "f_%04d.jpg")], check=True)
+    frames = sorted(raw.glob("f_*.jpg"))
+    sharp = {f: cv2.Laplacian(cv2.imread(str(f), cv2.IMREAD_GRAYSCALE), cv2.CV_64F).var() for f in frames}
+    cut = sorted(sharp.values())[len(sharp) // 3] if len(sharp) >= 6 else 0
+    kept = [f for f in frames if sharp[f] >= cut]
+    if len(kept) > max_frames:
+        step = len(kept) / max_frames
+        kept = [kept[int(i * step)] for i in range(max_frames)]
+    dst.mkdir(exist_ok=True)
+    out = []
+    for i, f in enumerate(kept):
+        out.append(_normalize(f, dst / f"frame_{i:02d}.jpg"))
+    return out
+
+
 def room_photos(capture: Path, workdir: Path) -> list[tuple[Path, str]]:
+    """Room photos plus sharp frames from a room video, if one was recorded."""
     out = []
     for p in sorted((capture / "photos" / "room").glob("*")):
         if p.suffix.lower() in PHOTO:
             dst = workdir / "photos" / f"room_{p.stem}.jpg"
             out.append((dst if dst.exists() else _normalize(p, dst), "room"))
+    video = _first(capture, "video", VIDEO + (".webm",))
+    if video:
+        for f in video_frames(video, workdir):
+            dst = workdir / "photos" / f"room_video_{f.stem}.jpg"
+            if not dst.exists():
+                dst.write_bytes(f.read_bytes())
+            out.append((dst, "room video frame"))
     return out
 
 
@@ -89,7 +133,12 @@ def detect(capture: Path) -> dict:
     return data
 
 
-def value(capture: Path, backend: str = "opus") -> dict:
+REPLAYABLE = ("frontier", "local", "voice")
+
+
+def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> dict:
+    """reuse: sources to load from their saved out/<source>.json instead of running again.
+    Tuning Jev, merge rules or valuation settings on a saved capture costs nothing that way."""
     workdir = capture / "out"
     meta = json.loads((capture / "meta.json").read_text()) if (capture / "meta.json").exists() else {}
     room, city = meta.get("room") or "room", meta.get("city") or "India"
@@ -106,6 +155,11 @@ def value(capture: Path, backend: str = "opus") -> dict:
     errors: dict[str, str] = {}
 
     def guarded(name, fn, *args, **kw):
+        saved = workdir / f"{name}.json"
+        if name in reuse and saved.exists():
+            results[name] = SourceResult.model_validate_json(saved.read_text())
+            _status(workdir, name, "done", items=len(results[name].items), seconds=results[name].seconds, reused=True)
+            return
         _status(workdir, name, "running")
         try:
             results[name] = fn(*args, **kw)
@@ -117,7 +171,8 @@ def value(capture: Path, backend: str = "opus") -> dict:
             _status(workdir, name, "failed", error=errors[name])
 
     with ThreadPoolExecutor(1) as pool:  # the frontier model is remote, it runs beside the GPU work
-        remote = pool.submit(guarded, "frontier", frontier.run, backend, all_photos, city, workdir) if backend != "none" else None
+        use_frontier = backend != "none" or ("frontier" in reuse and (workdir / "frontier.json").exists())
+        remote = pool.submit(guarded, "frontier", frontier.run, backend, all_photos, city, workdir) if use_frontier else None
         guarded("local", local.value, entries, closeups, by_name, workdir,
                 progress=lambda **kw: _status(workdir, "local", "running", **kw))
         room_note = _first(capture, "voice", AUDIO)

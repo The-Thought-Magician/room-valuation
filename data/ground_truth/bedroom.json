@@ -2,16 +2,73 @@
   "room": "bedroom",
   "recorded": "2026-09-26",
   "source": "owner, from memory; purchase prices, not replacement prices",
-  "floor_cm": [426.7, 365.8],
+  "floor_cm": [
+    426.7,
+    365.8
+  ],
   "ceiling_cm": 312.4,
   "items": [
-    {"category": "laptop", "name": "HP Victus gaming laptop (Ryzen 7 260, RTX 5050)", "price_paid_inr": 190000, "age_years": null},
-    {"category": "monitor", "name": "Acer 27 inch monitor", "price_paid_inr": 16500, "age_years": null},
-    {"category": "furniture", "name": "chair", "price_paid_inr": 5500, "age_years": null},
-    {"category": "furniture", "name": "table (desk)", "price_paid_inr": 8000, "age_years": null},
-    {"category": "appliance", "name": "split AC", "price_paid_inr": 35000, "age_years": 1},
-    {"category": "furniture", "name": "bed", "price_paid_inr": 450, "age_years": 35, "note": "said 400 to 500"},
-    {"category": "furniture", "name": "steel almirah", "price_paid_inr": 350, "age_years": 40, "note": "said 300 to 400"}
+    {
+      "category": "laptop",
+      "name": "HP Victus gaming laptop (Ryzen 7 260, RTX 5050)",
+      "price_paid_inr": 190000,
+      "age_years": null
+    },
+    {
+      "category": "monitor",
+      "name": "Acer 27 inch monitor",
+      "price_paid_inr": 16500,
+      "age_years": null
+    },
+    {
+      "category": "furniture",
+      "name": "chair",
+      "price_paid_inr": 5500,
+      "age_years": null
+    },
+    {
+      "category": "furniture",
+      "name": "table (desk)",
+      "price_paid_inr": 8000,
+      "age_years": null
+    },
+    {
+      "category": "appliance",
+      "name": "split AC",
+      "price_paid_inr": 35000,
+      "age_years": 1
+    },
+    {
+      "category": "furniture",
+      "name": "bed",
+      "price_paid_inr": 450,
+      "age_years": 35,
+      "note": "said 400 to 500"
+    },
+    {
+      "category": "furniture",
+      "name": "steel almirah",
+      "price_paid_inr": 350,
+      "age_years": 40,
+      "note": "said 300 to 400"
+    }
   ],
-  "books": {"count": "3 to 4", "titles": null}
+  "books": {
+    "count": 11,
+    "count_source": "owner, 2026-09-26",
+    "titles_unverified": [
+      "Torment (Lauren Kate)",
+      "Annie May's Black Book (Debby Holt)",
+      "The Hare with Amber Eyes (Edmund de Waal)",
+      "Nonviolent Communication (Marshall B. Rosenberg)",
+      "Rock Paper Scissors (Alice Feeney)",
+      "Iron Horse (Edward Marston)",
+      "The Thread (Victoria Hislop)",
+      "The 80/20 Principle (Richard Koch)",
+      "A History of the World in 10 1/2 Chapters (Julian Barnes)",
+      "Antony and Cleopatra (Shakespeare)",
+      "The Great Gatsby (F. Scott Fitzgerald)"
+    ],
+    "titles_note": "as read by pipeline 2 from the room photos; not yet checked against the physical books"
+  }
 }

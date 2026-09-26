@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room valuation: record the room</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<main>
+  <div class="step">Step 1 of 3 · video only</div>
+  <h1>Record the room</h1>
+  <p class="lead">One video instead of photos. Sharp frames are taken from it to find every item; next you check the list and add close-ups per item.</p>
+
+  <section>
+    <h2>Room</h2>
+    <div class="row">
+      <div class="grow"><label class="f">Room name</label><input type="text" id="room" value="bedroom"></div>
+      <div class="grow"><label class="f">City (for local prices)</label><input type="text" id="city" placeholder="e.g. Pune"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div class="grow"><label class="f">Length, cm (optional)</label><input type="number" id="length" inputmode="decimal"></div>
+      <div class="grow"><label class="f">Width, cm (optional)</label><input type="number" id="width" inputmode="decimal"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>How to record (30 to 60 seconds)</h2>
+    <ol class="hint" style="padding-left:18px;margin:0">
+      <li>Lights on, curtains open. Hold the phone upright at chest height.</li>
+      <li>Stand just inside the door. Turn slowly clockwise all the way round, about 20 seconds for the full turn.</li>
+      <li>Walk slowly past the desk, shelves and bed, 1 metre away, pausing a second on anything valuable.</li>
+      <li>Do not zoom. Close-ups of labels and spines come later, on each item's page.</li>
+    </ol>
+  </section>
+
+  <section>
+    <label class="btn primary" style="width:100%;padding:16px;font-size:17px">Record the room<input type="file" accept="video/*" capture="environment" hidden id="vid"></label>
+    <label class="btn" style="width:100%;margin-top:8px">Or pick a video from the gallery<input type="file" accept="video/*" hidden id="vidg"></label>
+    <div id="videoname" class="hint" style="margin-top:8px"></div>
+    <video id="videoprev" controls playsinline hidden style="width:100%;margin-top:8px;border-radius:10px"></video>
+  </section>
+</main>
+
+<div class="bar"><div class="inner" style="flex-direction:column">
+  <button class="primary wide" id="go" disabled>Upload and detect items</button>
+  <progress id="prog" max="100" value="0" hidden></progress>
+  <div class="err" id="err"></div>
+</div></div>
+
+<script src="/static/app.js"></script>
+<script>
+let videoFile = null;
+for (const id of ["vid", "vidg"]) document.getElementById(id).onchange = e => {
+  videoFile = e.target.files[0] || null;
+  document.getElementById("videoname").textContent = videoFile ? `${videoFile.name || "video"} (${(videoFile.size / 1e6).toFixed(1)} MB)` : "";
+  const v = document.getElementById("videoprev");
+  if (videoFile) { v.src = URL.createObjectURL(videoFile); v.hidden = false; }
+  document.getElementById("go").disabled = !videoFile;
+};
+document.getElementById("go").onclick = async () => {
+  const err = document.getElementById("err"), go = document.getElementById("go");
+  err.textContent = "";
+  const fd = new FormData();
+  for (const id of ["room", "city"]) fd.append(id, document.getElementById(id).value);
+  const L = document.getElementById("length").value, W = document.getElementById("width").value;
+  if (L && W) { fd.append("length_cm", L); fd.append("width_cm", W); }
+  fd.append("video", videoFile, videoFile.name || "video.mp4");
+  go.disabled = true;
+  try { const r = await upload("/api/captures", fd, document.getElementById("prog")); location.href = r.next; }
+  catch (e) { go.disabled = false; err.textContent = "Upload failed: " + e.message; }
+};
+</script>
+</body>
+</html>

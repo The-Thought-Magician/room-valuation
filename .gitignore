@@ -6,3 +6,4 @@ data/captures/
 data/price_cache/
 .ruff_cache/
 .pytest_cache/
+data/fixtures/
