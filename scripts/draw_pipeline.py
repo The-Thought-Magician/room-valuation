@@ -44,16 +44,16 @@ def main():
     # 1. inputs
     box(ax, 0.03, 0.855, 0.29, 0.085, "Room photos", "8 to 12 shots turning round the room\nEXIF-upright, at most 2048 px", "input")
     box(ax, 0.355, 0.855, 0.29, 0.085, "Room video (optional)",
-        "30 to 60 s turnaround, ffmpeg 2 frames a second\nblurriest third dropped (Laplacian), up to 16 kept", "input")
+        "any length, ffmpeg 2 frames a second, blur dropped;\na frame kept each time the view moves on (no cap)", "input")
     box(ax, 0.68, 0.855, 0.29, 0.085, "Room details", "room, city (local prices)\ntape length x width, or a measured floor plan", "input")
     for x in (0.175, 0.5, 0.825):
         arrow(ax, x, 0.851, x, 0.824)
 
     # 2. detection and review
-    box(ax, 0.03, 0.725, 0.94, 0.095, "Step 2: detect, then the owner reviews the list",
-        "OWLv2 over a general household vocabulary (all photos and frames)  >  Qwen3-VL-2B identifies each crop (category, name, readable brand/model)\n"
-        "same object across photos merged (box containment in one photo, name and brand across photos); book boxes become one 'books' card\n"
-        "owner removes false or duplicate items and adds what was missed   (web: /c/<id>)", "owner")
+    box(ax, 0.03, 0.725, 0.94, 0.095, "Step 2: detect, place in 3D, then the owner reviews the list",
+        "OWLv2 over a general household vocabulary  >  VGGT-1B + MoGe-2: a metric 3D point per pixel, in aligned chunks for any number of frames\n"
+        "  >  Qwen3-VL-2B identifies each crop; every box gets a 3D position and a width and height from the object's front surface\n"
+        "same object merged by 3D position first (one place, whatever each view called it), then box overlap and name; owner removes and adds (/c/<id>)", "owner")
     arrow(ax, 0.5, 0.721, 0.5, 0.697)
 
     # 3. per item pages
@@ -68,15 +68,15 @@ def main():
         "close-ups: PP-OCR (RapidOCR) + Qwen3-VL read\nbrand, model, specs off labels\n\n"
         "books: spines read at 0/90/270 deg, one band per\nspine, VLM cross-check needs OCR support,\n"
         "Open Library match needs title coverage\n\n"
-        "prices: its own Serper search per item\n(Google Shopping India + Blinkit/Zepto,\nmedian of matching listings)", "local")
+        "prices: its own Serper search per item (Google\nShopping India + Blinkit/Zepto); a model number\nread off the label is searched exactly", "local")
     box(ax, 0.3525, 0.385, 0.295, 0.185, "Pipeline 2: frontier model",
         "Claude Opus 5.5 via claude -p (Read, WebSearch,\nWebFetch; no Bash or writes), or GPT-6 Astra\n(Responses API, web_search)\n\n"
-        "reads every photo and close-up, dedupes,\nreads spines, counts switchboard modules,\n"
-        "prices each item new in India with a URL,\nestimates area and shelves, notes risks", "frontier")
+        "reads every photo and close-up, dedupes, reads\nspines, stickers and serials, counts switchboard\n"
+        "modules; prices like kind and quality, exact or\nclosest, with the product's size and a URL", "frontier")
     box(ax, 0.675, 0.385, 0.295, 0.185, "Owner: voice and text",
         "Whisper large-v3-turbo (ffmpeg decode,\nany phone format)\n\n"
-        "rules, not the model, read prices ('16K',\n'1.9 lakhs', 'Rs 2500') and ages ('3 years back',\n'one month old'); 'free' / 'provided' flagged\n\n"
-        "a price paid counts as replacement cost only\nif bought within 2 years; Qwen reads brand", "owner")
+        "rules, not the model, read prices ('16K',\n'1.9 lakhs', 'fifteen, sixteen thousand') and ages\n('3 years back'); 'free' / 'provided' flagged\n\n"
+        "the owner's price is evidence, not a candidate:\nchecked against the market, age used for ACV", "owner")
     ax.text(0.5, 0.370, "the three run in parallel: the frontier model is remote; GPU work is one job at a time (file lock)",
             fontsize=8.5, color=MUTED, ha="center", va="center", zorder=6,
             bbox={"fc": "white", "ec": "none", "pad": 1.5})
@@ -89,18 +89,19 @@ def main():
         "similarity filter: only each item's 3 most similar comparable-category candidates per other source are scored (231 of 340 pairs skipped on the merged capture)\n"
         "one Score per pair with spelled-out levels (different / possibly / same; books: same title allowing OCR slips)\n"
         "merge rules in code: Jev says same | possibly + mutual best | one of the category per source | same brand in the same photo; never two items from one source\n"
-        "per merged item: Choice identity, Choice price (a recent owner price counts most), Score condition, Choice genre; confidence < 0.5 flags the line\n"
-        "all questions batched (40 per call, 6 in parallel): 236 questions in 7 calls, 85k input tokens, about 5 s", "jev")
+        "per merged item: Choice identity, Score condition, Choice genre; then every search listing judged against that identity and the 3D size:\n"
+        "this exact product / similar / different  >  exact price = median of the exact ones, else closest = median of the similar, with a 25th to 75th range;\n"
+        "then Choice price among the market candidates; all questions batched, 40 per call, 6 in parallel", "jev")
     arrow(ax, 0.5, 0.241, 0.5, 0.226)
     box(ax, 0.03, 0.178, 0.94, 0.044, "Market fallback after Jev (Serper)",
-        "anything still unpriced after Jev (no listing, no frontier price, no owner price) is searched once more with the identity Jev chose", "local")
+        "anything with no market price after the listing verdicts is searched once more with the identity Jev chose, and its listings judged the same way", "local")
     arrow(ax, 0.26, 0.174, 0.26, 0.163)
 
     # 6. valuation and review
     box(ax, 0.03, 0.055, 0.45, 0.105, "Valuation",
-        "RCV: chosen price x quantity\nACV: straight line over a per-category useful life, 10% salvage floor\n"
-        "contents vs building fixtures (doors, windows, switchboards)\nbooks by genre, possible double counts, lines to review\n"
-        "area: tape > measured floor plan > photo floor plan > frontier", "value")
+        "RCV: chosen market price x quantity, with its range; owner far above market asks for a receipt\n"
+        "Jev unsure and prices 3x apart: held for review, out of the total\n"
+        "ACV: age / life per category, condition-adjusted, capped (80% electronics,\n75% furniture, 70% fixtures); contents vs building fixtures; area: tape first", "value")
     box(ax, 0.52, 0.055, 0.45, 0.105, "Results page and the owner's final review",
         "every line with what each source said and which one Jev trusted\n"
         "Remove / Same as (suggested duplicates) / Undo: totals recompute, no re-run,\nkept across replays   (web: /r/<id>)\n"

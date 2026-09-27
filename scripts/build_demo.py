@@ -90,7 +90,8 @@ def main():
             voice.append({"file": name, "text": " ".join(s["text"].strip() for s in segs)})
         items.append({k: it.get(k) for k in ("id", "state", "category", "name", "brand", "model", "quantity", "thumb", "note")}
                      | {"closeups": sorted(p.name for p in (cap / "out" / "photos").glob(f"item_{it['id']}_closeup_*.jpg")),
-                        "voice": voice, "regions": (it.get("detected") or {}).get("regions", [])})
+                        "voice": voice, "regions": (it.get("detected") or {}).get("regions", []),
+                        "measured": (it.get("detected") or {}).get("measured")})
 
     jc = run / "jev_calls.jsonl"
     calls = [json.loads(ln) for ln in jc.read_text().splitlines()] if jc.exists() else []
@@ -102,7 +103,8 @@ def main():
         "photos": photos,
         "video": bool(video),
         "plan": (m / "floor_plan.png").exists(),
-        "detections": load(cap / "out" / "detect_log.json", []),
+        "detections": [d for d in load(cap / "out" / "detect_log.json", []) if "photo" in d],
+        "geometry": next((d["geometry"] for d in load(cap / "out" / "detect_log.json", []) if "geometry" in d), None),
         "items": items,
         "local_log": load(run / "local_log.json") or load(cap / "out" / "local_log.json", []),
         "local": load(run / "local.json"),

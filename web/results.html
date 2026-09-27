@@ -35,6 +35,10 @@
   .stages .done { color:#067647; } .stages .failed { color:#b42318; } .stages .running { color:var(--accent); }
   a { color:var(--accent); }
   img.plan { max-width:100%; border-radius:8px; }
+  tr.item.held td { background:#fffaeb; }
+  .kind { font-size:11px; color:var(--muted); }
+  ul.listings { margin:4px 0 6px 18px; padding:0; font-size:13px; }
+  ul.listings .exact { color:#067647; } ul.listings .similar { color:var(--fg); } ul.listings .different { color:var(--muted); text-decoration:line-through; }
 </style>
 </head>
 <body>
@@ -44,7 +48,7 @@
   <div id="report" hidden>
     <div class="tiles" id="tiles"></div>
     <h2>Items</h2>
-    <p class="muted">Tap a row for what each source said. Chips show the sources that saw the item; the highlighted one is the source Jev trusted. RCV is replacement cost new, ACV is after depreciation.</p>
+    <p class="muted">Tap a row for what each source said and the listings behind each price. Chips show the sources that saw the item; the highlighted one is the source Jev trusted. RCV is replacement cost new (exact: this model; closest: the nearest similar product), with the 25th to 75th percentile of its listings under it. ACV is after depreciation. Yellow lines are held for review and are not in the total.</p>
     <div class="card"><table id="items"></table></div>
     <h2>How the sources ranked (Jev)</h2>
     <div class="card"><table id="board"></table></div>
@@ -96,6 +100,7 @@ async function show() {
     ["Items", t.items + (t.unpriced ? ` (${t.unpriced} unpriced)` : "")], ["Needs review", t.needs_review],
     ["Your review", r.review_summary ? `${r.review_summary.removed} removed, ${r.review_summary.duplicates} duplicates` : "none"],
     ["Possible double count", inr(t.possible_double_count_inr)],
+    ["Held for review", t.held_for_review && t.held_for_review.lines ? `${t.held_for_review.lines}: ${inr(t.held_for_review.low_inr)} to ${inr(t.held_for_review.high_inr)}` : "none"],
     ["Floor area", a.area_m2 ? `${a.area_sqft} sq ft` : "–"], ["Books", `${t.books.count} (${inr(t.books.rcv_inr)})`],
     ["Shelves", shelves], ["Pipeline 2", r.backend],
   ].map(([k, v]) => `<div class="tile"><div class="v">${esc(v)}</div><div class="k">${k}</div></div>`).join("");
@@ -114,11 +119,18 @@ async function show() {
     const chips = it.sources.map(s => `<span class="chip ${s === it.identity_from ? "win" : ""}">${s}${s === it.identity_from && it.identity_confidence != null ? pct(it.identity_confidence) : ""}</span>`).join("");
     const src = it.price_source && it.price_source.startsWith("http") ? `<a href="${esc(it.price_source)}" target="_blank" rel="noopener">${esc(it.price_from)}</a>` : esc(it.price_from || "–");
     const flags = it.flags.length ? `<div class="flag">${it.flags.map(esc).join("<br>")}</div>` : "";
-    rows.push(`<tr class="item ${it.review ? "out" : ""}" data-n="${it.n}"><td>${title}${flags}${it.suggest_duplicate_of && !it.review ? `<div class="flag">suggested duplicate of ${esc(label(r.items.find(o => o.key === it.suggest_duplicate_of) || {}))}</div>` : ""}</td><td>${chips}</td><td>${esc(it.condition || "–")}</td><td class="num">${inr(it.rcv_inr)}</td><td class="num">${inr(it.acv_inr)}</td><td>${src}${it.price_confidence != null ? `<div class="muted">Jev${pct(it.price_confidence)}</div>` : ""}</td>${reviewCell(it)}</tr>`);
-    const cands = Object.entries(it.candidates).map(([s, c]) => `<div><b>${s}</b>: ${esc([c.brand, c.model, c.name].filter(Boolean).join(" "))}, ${inr(c.rcv_inr)} <span class="muted">${esc(c.price_note || "")}</span> ${c.price_source && c.price_source.startsWith("http") ? `<a href="${esc(c.price_source)}" target="_blank" rel="noopener">source</a>` : esc(c.price_source || "")}</div>`).join("");
+    const range = it.held ? `<div class="kind">held: ${inr(it.held.low_inr)} to ${inr(it.held.high_inr)}</div>`
+      : it.price_range_inr && it.price_range_inr[0] !== it.price_range_inr[1] ? `<div class="kind">${inr(it.price_range_inr[0])} to ${inr(it.price_range_inr[1])}</div>` : "";
+    const kind = it.price_kind ? `<div class="kind">${esc(it.price_kind)}</div>` : "";
+    rows.push(`<tr class="item ${it.review ? "out" : ""} ${it.held ? "held" : ""}" data-n="${it.n}"><td>${title}${flags}${it.suggest_duplicate_of && !it.review ? `<div class="flag">suggested duplicate of ${esc(label(r.items.find(o => o.key === it.suggest_duplicate_of) || {}))}</div>` : ""}</td><td>${chips}</td><td>${esc(it.condition || "–")}</td><td class="num">${inr(it.rcv_inr)}${range}</td><td class="num">${inr(it.acv_inr)}</td><td>${src}${kind}${it.price_confidence != null ? `<div class="muted">Jev${pct(it.price_confidence)}</div>` : ""}</td>${reviewCell(it)}</tr>`);
+    const MARK = { exact: "this product", similar: "similar", different: "different" };
+    const listings = c => (c.listings || []).filter(li => li.verdict).length ? `<ul class="listings">${c.listings.filter(li => li.verdict).map(li =>
+      `<li class="${li.verdict}">${MARK[li.verdict]}: ${li.url ? `<a href="${esc(li.url)}" target="_blank" rel="noopener">${esc(li.title)}</a>` : esc(li.title)}, ${inr(li.price)}${li.seller ? " · " + esc(li.seller) : ""}${li.size_mismatch ? ` <span class="flag">size: ${esc(li.size_mismatch)}</span>` : ""}</li>`).join("")}</ul>` : "";
+    const cands = Object.entries(it.candidates).map(([s, c]) => `<div><b>${s}</b>: ${esc([c.brand, c.model, c.name].filter(Boolean).join(" "))}, ${inr(c.rcv_inr)}${c.price_kind ? ` (${esc(c.price_kind)})` : ""}${c.product_size ? ` <span class="muted">product size ${esc(c.product_size)}</span>` : ""} <span class="muted">${esc(c.price_note || "")}</span> ${c.price_source && c.price_source.startsWith("http") ? `<a href="${esc(c.price_source)}" target="_blank" rel="noopener">source</a>` : esc(c.price_source || "")}${listings(c)}</div>`).join("");
+    const measured = it.measured ? `<div class="muted">measured in 3D: about ${it.measured.width_cm} cm wide, ${it.measured.height_cm} cm high, from ${it.measured.views} view${it.measured.views > 1 ? "s" : ""}</div>` : "";
     const probs = ["identity", "price"].map(k => Object.keys(it[k + "_probs"]).length ? `<div class="muted">Jev ${k}: ${Object.entries(it[k + "_probs"]).map(([s, p]) => `${s} ${(100 * p).toFixed(0)}%`).join(", ")}</div>` : "").join("");
     const imgs = it.photos.map(p => `<img src="${api}/photo/${encodeURIComponent(p)}" loading="lazy">`).join("");
-    rows.push(`<tr class="detail" id="d${it.n}" hidden><td colspan="7">${cands}${probs}<div class="muted">${esc(it.acv_basis || "")}${it.price_paid_inr ? ` · owner paid ${inr(it.price_paid_inr)}${it.age_years != null ? ", " + it.age_years + " y ago" : ""}` : ""}</div>${imgs}</td></tr>`);
+    rows.push(`<tr class="detail" id="d${it.n}" hidden><td colspan="7">${cands}${probs}${measured}<div class="muted">${esc(it.acv_basis || "")}${it.price_paid_inr ? ` · owner paid ${inr(it.price_paid_inr)}${it.age_years != null ? ", " + it.age_years + " y ago" : ""}` : ""}</div>${imgs}</td></tr>`);
   }
   const tbl = document.getElementById("items");
   tbl.innerHTML = rows.join("");

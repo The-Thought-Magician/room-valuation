@@ -22,14 +22,14 @@ const byId = Object.fromEntries(D.items.map(i => [i.id, i]));
 const questions = Object.assign({}, ...D.jev_calls.map(c => Object.fromEntries(Object.entries(c.questions).map(([k, q]) => [k, { q, a: c.answers[k] }]))));
 
 const steps = [
-  ["Capture", capture], ["Detect", detect], ["Owner's list", ownerList], ["Item pages", itemPages],
+  ["Capture", capture], ["Detect", detect], ["3D", place3d], ["Owner's list", ownerList], ["Item pages", itemPages],
   ["Pipeline 1: local", pipeline1], ["Pipeline 2: Opus", pipeline2], ["Jev", jev], ["Valuation", valuation], ["Ground truth", truth],
 ];
 
 function capture() {
   const m = D.meta;
   return `<section><h2>Step 1: the owner photographs and films the room</h2>
-    ${say("Photos, a video or both. For a video the app takes 2 frames a second, drops the blurriest third and keeps up to 16. Everything below is the real capture, nothing staged.")}
+    ${say("Photos, a video or both. For a video the app takes 2 frames a second, drops motion blur, and keeps a frame each time the view has moved on to something new: no cap, so a longer walk-through of more room keeps more frames. Everything below is the real capture, nothing staged.")}
     <div class="stats">${stat(esc(m.room), esc(m.city) + " (local prices)")}${stat(roomPhotos.length, "room photos")}
       ${stat(frames.length, "sharp frames from the video")}${stat(closeups.length, "close-ups")}
       ${stat(D.items.reduce((n, i) => n + i.voice.length, 0), "voice notes")}
@@ -75,8 +75,31 @@ function showPhoto(p) {
   document.querySelectorAll("#viewer .box").forEach(b => b.onclick = () => {
     const d = dets[b.dataset.k], it = boxItem[boxKey(p, d.detector.box)];
     document.getElementById("boxinfo").innerHTML = `<b>OWLv2:</b> "${esc(d.detector.prompt)}" at ${d.detector.score.toFixed(2)} &nbsp; <b>Qwen3-VL:</b> ${esc(d.vlm?.category)} / ${esc(d.vlm?.name)}${d.vlm?.brand ? " / " + esc(d.vlm.brand) : ""}
-      ${it ? ` &nbsp; <b>Item:</b> ${esc(it.name)} (${esc(it.id)}, ${it.state === "removed" ? '<span class="flag">removed by the owner</span>' : "kept"})` : ""}`;
+      ${it ? ` &nbsp; <b>Item:</b> ${esc(it.name)} (${esc(it.id)}, ${it.state === "removed" ? '<span class="flag">removed by the owner</span>' : "kept"})` : ""}
+      ${it?.measured ? ` &nbsp; <b>3D:</b> about ${it.measured.width_cm} x ${it.measured.height_cm} cm, seen in ${it.measured.views} view${it.measured.views > 1 ? "s" : ""}` : ""}`;
   });
+}
+
+function place3d() {
+  const g = D.geometry, placed = D.items.filter(i => i.measured);
+  if (!g || !placed.length) return `<section><h2>3D</h2><p class="hint">This capture was detected before the 3D step existed.</p></section>`;
+  // Top-down map: x across, z down, one dot per item, coloured kept or removed.
+  const xs = placed.map(i => i.measured.position_m[0]), zs = placed.map(i => i.measured.position_m[2]);
+  const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
+  const W = 640, H = Math.max(260, Math.round(W * (z1 - z0 + 0.6) / (x1 - x0 + 0.6)));
+  const px = x => 30 + (x - x0) / (x1 - x0 + 1e-6) * (W - 60), pz = z => 20 + (z - z0) / (z1 - z0 + 1e-6) * (H - 40);
+  const dots = placed.map(i => `<g><circle cx="${px(i.measured.position_m[0])}" cy="${pz(i.measured.position_m[2])}" r="${Math.min(14, 3 + Math.max(i.measured.width_cm, i.measured.height_cm) / 20)}"
+      fill="${i.state === "removed" ? "#f79009" : "#12b76a"}" fill-opacity=".55"><title>${esc(i.name)}: ${i.measured.width_cm} x ${i.measured.height_cm} cm</title></circle>
+      <text x="${px(i.measured.position_m[0]) + 8}" y="${pz(i.measured.position_m[2]) + 4}" font-size="10" fill="#344054">${esc(i.name.slice(0, 18))}</text></g>`).join("");
+  return `<section><h2>Step 2b: every object placed in 3D</h2>
+    ${say("VGGT turns every photo and frame into a 3D point per pixel and a camera pose, in one world; MoGe-2 gives the metric scale. Each detection box becomes the points of the object's front surface: their median is where the object is, their spread its width and height. Two boxes at one place are one object, whatever each view called it; two same-named objects far apart stay two. Sizes are estimates: they only rule out a product at nearly double or half the size.")}
+    <div class="stats">${stat(g.images, "photos and frames reconstructed")}${stat(g.chunks, "VGGT chunks, aligned")}${stat(g.metric_scale, "metric scale (MoGe-2)")}${stat(placed.length, "items placed")}</div></section>
+    <section><h2>Seen from above</h2><svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;background:#fff;border:1px solid #e4e7ec;border-radius:8px">${dots}</svg>
+      <p class="hint">Green: kept by the owner. Orange: removed. Circle size follows the measured size.</p></section>
+    <section><h2>Measured sizes</h2><table><tr><th>Item</th><th>State</th><th class="num">Width</th><th class="num">Height</th><th class="num">Views</th><th class="num">Spread</th></tr>
+      ${placed.sort((a, b) => b.measured.width_cm * b.measured.height_cm - a.measured.width_cm * a.measured.height_cm).map(i => `<tr><td>${esc(nm(i.brand, i.name))}</td><td>${esc(i.state)}</td>
+        <td class="num">${i.measured.width_cm} cm</td><td class="num">${i.measured.height_cm} cm</td><td class="num">${i.measured.views}</td><td class="num">${i.measured.spread_m} m</td></tr>`).join("")}</table>
+      <p class="hint">Spread: how far apart the views put it. Large for a curtain seen along its length, small for a laptop.</p></section>`;
 }
 
 function card(i) {
@@ -174,10 +197,29 @@ function jev() {
       ${stat(D.jev_calls.length, "calls (40 questions each)")}${stat(Math.round(tot.t / 1000) + "k", "input tokens")}${stat(tot.s.toFixed(1) + " s", "Jev time")}</div>
     <div class="muted">What Jev is told about the sources</div><pre>${esc(JSON.stringify(D.jev_calls[0]?.state, null, 1))}</pre></section>
     ${pairIdx >= 0 ? `<section><h2>Example: are these two readings the same ${esc(pl.category.replace("_", " "))}?</h2>${jevQ("pair_" + pairIdx)}</section>` : ""}
+    ${listingExample()}
     ${lap ? `<section><h2>Example: which ${esc(lap.category.replace("_", " "))} price to trust?</h2>${jevQ("price_" + lap.n)}</section>` : ""}
     <section><h2>Any line: every question Jev was asked about it</h2>
       <select id="jevline">${R.items.map(l => `<option value="${l.n}">${l.name.replace(/<[^>]+>/g, "")}</option>`).join("")}</select>
       <div id="jevout" style="margin-top:10px"></div></section>`;
+}
+
+const VERDICT = { exact: "this product", similar: "similar product", different: "different product" };
+const listingRows = ls => ls.filter(li => li.verdict).map(li => `<tr><td>${esc(VERDICT[li.verdict])}</td><td>${esc(li.title)}${li.size_mismatch ? `<div class="flag">size: ${esc(li.size_mismatch)}</div>` : ""}</td>
+  <td class="num">${inr(li.price)}</td><td class="muted">${esc(li.seller || "")}</td><td class="num">${li.jev_score ?? ""}</td></tr>`).join("");
+
+function listingExample() {
+  const lj = R.listings_judged;
+  if (!lj) return "";
+  // the line whose local listings Jev split most ways
+  const kinds = l => new Set((l.candidates?.local?.listings || []).map(li => li.verdict)).size;
+  const ex = [...R.items].sort((a, b) => kinds(b) - kinds(a) || (b.rcv_inr || 0) - (a.rcv_inr || 0))[0];
+  const ls = ex?.candidates?.local?.listings || [];
+  return `<section><h2>Listings: is this the product, a similar one, or a different one?</h2>
+    ${say("After Jev settles what each item is, it reads every shopping listing behind a search price and judges it against that identity and the size measured in 3D. The exact price is the median of the listings of this product; failing that, the closest price is the median of the similar ones. A listing far from the measured size is a different product.")}
+    <div class="stats">${stat(lj.exact, "listings: this product")}${stat(lj.similar, "similar")}${stat(lj.different, "different")}</div>
+    ${ls.length ? `<h2>${label(ex)}: its local search listings</h2><table><tr><th>Jev</th><th>Listing</th><th class="num">Price</th><th>Seller</th><th class="num">Score</th></tr>${listingRows(ls)}</table>
+      <p class="hint">Priced at ${inr(ex.candidates.local.rcv_inr)} (${esc(ex.candidates.local.price_kind || "no price")}): ${esc(ex.candidates.local.price_note || "")}</p>` : ""}</section>`;
 }
 
 function showLine(n) {
@@ -186,6 +228,8 @@ function showLine(n) {
   document.getElementById("jevline").value = n;
   document.getElementById("jevout").innerHTML = `<p class="hint">Merged from: ${ids.map(esc).join(", ")}</p>` +
     ["id", "price", "cond", "genre"].map(t => questions[`${t}_${n}`] ? `<h2>${{ id: "Identity", price: "Price", cond: "Condition", genre: "Genre" }[t]}</h2>${jevQ(`${t}_${n}`)}` : "").join("") +
+    Object.entries(l.candidates || {}).filter(([, c]) => (c.listings || []).some(li => li.verdict)).map(([s, c]) =>
+      `<h2>Listings behind the ${s === "frontier" ? "Opus" : s} price</h2><table><tr><th>Jev</th><th>Listing</th><th class="num">Price</th><th>Seller</th><th class="num">Score</th></tr>${listingRows(c.listings)}</table>`).join("") +
     (pairs.length ? `<h2>Pair scores involving these items</h2><table><tr><th>a</th><th>b</th><th>same</th><th>possibly</th><th>different</th><th>score</th></tr>
       ${pairs.map(([p]) => `<tr><td>${esc(p.a)}</td><td>${esc(p.b)}</td><td>${pct(p.p_same)}</td><td>${pct(p.p_maybe)}</td><td>${pct(p.p_different)}</td><td>${p.score}</td></tr>`).join("")}</table>` : "");
 }
@@ -196,10 +240,11 @@ function valuation() {
   const lb = R.leaderboard || {};
   setTimeout(() => document.querySelectorAll("tr.line").forEach(tr => tr.onclick = () => toggle(tr)), 0);
   return `<section><h2>Valuation</h2>
-    ${say("RCV is the chosen price times quantity. ACV is straight-line over a per-category life, with a 10% salvage floor. Building fixtures are totalled apart, since they fall under the building policy.")}
+    ${say("RCV is the market price Jev trusts times quantity: exact when a listing is this model, otherwise the closest similar product, with the 25th to 75th percentile of its listings. The owner's own price is evidence, not a candidate: far above the market, the line asks for a receipt. When Jev is unsure and the prices are 3 or more times apart, the line is held for review and left out of the total. ACV is straight-line over a per-category life, adjusted for condition and capped as US adjusters do (80% for electronics, 75% furniture, 70% building fixtures, 50% books). Building fixtures are totalled apart, since they fall under the building policy.")}
     <div class="stats">${stat(inr(t.rcv_inr), "total replacement (RCV)")}${stat(inr(t.acv_inr), "after depreciation (ACV)")}
       ${stat(inr(t.contents.rcv_inr), "contents RCV")}${stat(inr(t.building_fixtures.rcv_inr), "building fixtures RCV")}
       ${stat(`${t.books.count}, ${inr(t.books.rcv_inr)}`, "books")}${stat(a.area_sqft ? a.area_sqft + " sq ft" : "–", esc(a.source || ""))}
+      ${t.held_for_review?.lines ? stat(`${inr(t.held_for_review.low_inr)} to ${inr(t.held_for_review.high_inr)}`, `${t.held_for_review.lines} lines held for review, not in the total`) : ""}
       ${stat(t.needs_review, "lines flagged for review")}</div>
     <p><a class="btn primary" href="/r/${esc(D.capture)}" target="_blank">Open the live review page (Remove / Same as / Undo)</a> <span class="hint">works when served by the app</span></p></section>
     <div class="cols"><section><h2>Floor area, every candidate</h2><table>${(a.candidates || []).map(c => `<tr><td>${esc(c.source)}</td><td class="num">${c.area_m2} m²</td><td class="num">${c.area_sqft} sq ft</td></tr>`).join("")}</table></section>
@@ -215,17 +260,20 @@ const isBuilding = l => D.building.includes(l.category);
 
 function row(l) {
   const cands = Object.entries(l.candidates || {}).filter(([, c]) => c.rcv_inr).map(([s, c]) => `${src(s, s === l.price_from)} ${inr(c.rcv_inr)}`).join(" &nbsp;");
-  return `<tr class="line" data-n="${l.n}"><td>${label(l)}${l.flags?.length ? `<div class="flag">${l.flags.map(esc).join("<br>")}</div>` : ""}</td>
-    <td>${l.quantity}</td><td class="num">${inr(l.rcv_inr)}</td><td class="num">${inr(l.acv_inr)}</td><td>${cands || "–"}</td></tr>`;
+  const under = l.held ? `<div class="flag">held: ${inr(l.held.low_inr)} to ${inr(l.held.high_inr)}</div>`
+    : `<div class="muted" style="font-size:12px">${esc(l.price_kind || "")}${l.price_range_inr && l.price_range_inr[0] !== l.price_range_inr[1] ? ` ${inr(l.price_range_inr[0])} to ${inr(l.price_range_inr[1])}` : ""}</div>`;
+  return `<tr class="line" data-n="${l.n}" ${l.held ? 'style="background:#fffaeb"' : ""}><td>${label(l)}${l.flags?.length ? `<div class="flag">${l.flags.map(esc).join("<br>")}</div>` : ""}</td>
+    <td>${l.quantity}</td><td class="num">${inr(l.rcv_inr)}${under}</td><td class="num">${inr(l.acv_inr)}</td><td>${cands || "–"}</td></tr>`;
 }
 
 function toggle(tr) {
   if (tr.nextElementSibling?.classList.contains("detail")) return tr.nextElementSibling.remove();
   const l = R.items.find(x => x.n === +tr.dataset.n);
-  const c = Object.entries(l.candidates || {}).map(([s, x]) => `<div style="margin-bottom:6px">${src(s, s === l.price_from)} <b>${esc(nm(x.brand, x.name))}</b> ${inr(x.rcv_inr)}
-    <div class="muted" style="font-size:12px">${esc(x.price_note || "")} ${link(x.price_source)}</div></div>`).join("");
+  const c = Object.entries(l.candidates || {}).map(([s, x]) => `<div style="margin-bottom:6px">${src(s, s === l.price_from)} <b>${esc(nm(x.brand, x.name))}</b> ${inr(x.rcv_inr)}${x.price_kind ? ` <span class="muted">(${esc(x.price_kind)})</span>` : ""}
+    <div class="muted" style="font-size:12px">${esc(x.price_note || "")} ${link(x.price_source)}${x.product_size ? ` · product size ${esc(x.product_size)}` : ""}</div></div>`).join("");
+  const m = l.measured ? `<p class="hint">Measured in 3D: about ${l.measured.width_cm} x ${l.measured.height_cm} cm from ${l.measured.views} view${l.measured.views > 1 ? "s" : ""}</p>` : "";
   tr.insertAdjacentHTML("afterend", `<tr class="detail"><td colspan="5"><div class="cols"><div><div class="grid small">${(l.photos || []).slice(0, 8).map(p => pic(p, false)).join("")}</div>
-    <p class="hint">ACV: ${esc(l.acv_basis || "")}</p></div><div>${c}<div class="muted" style="margin-top:8px">Identity (Jev)</div>${bars(l.identity_probs)}
+    <p class="hint">ACV: ${esc(l.acv_basis || "")}</p>${m}${l.owner_price_inr ? `<p class="hint">The owner said they paid ${inr(l.owner_price_inr)}${l.age_years != null ? ", " + esc(ago(l.age_years)) : ""}</p>` : ""}</div><div>${c}<div class="muted" style="margin-top:8px">Identity (Jev)</div>${bars(l.identity_probs)}
     <div class="muted" style="margin-top:8px">Price (Jev)</div>${bars(l.price_probs)}</div></div></td></tr>`);
   tr.nextElementSibling.querySelectorAll("img").forEach(zoomable);
 }
@@ -235,9 +283,9 @@ function truth() {
   if (!s) return `<section><p class="hint">No ground truth for this capture.</p></section>`;
   const recent = s.items.filter(i => i.rcv_error_pct != null);
   return `<section><h2>Against the owner's ground truth</h2>
-    ${say("What the owner paid, from memory. The pipeline never reads it; scoring runs after. Error is computed only where the purchase is within 2 years, so the price paid is a fair replacement cost.")}
+    ${say("What the owner paid, from memory. The pipeline never reads it; scoring runs after. Error is computed only where the purchase is within 2 years, so the price paid is a fair replacement cost. The owner's own price is only evidence now, so this is the error of the market prices the pipelines found.")}
     <div class="stats">${stat(s.summary.split(" ")[0], "ground-truth items found")}${stat(pct(recent.reduce((a, i) => a + Math.abs(i.rcv_error_pct), 0) / recent.length / 100), "mean RCV error, " + recent.length + " recent purchases")}</div>
-    <p class="hint">Honest reading: on ${recent.filter(i => i.chosen_from === "voice").length} of the ${recent.length}, Jev chose the owner's own price, so the headline mostly measures that choice. The last two columns show each pipeline alone.</p></section>
+    <p class="hint">${recent.filter(i => i.chosen_from === "voice").length ? `On ${recent.filter(i => i.chosen_from === "voice").length} of the ${recent.length}, only the owner priced it. ` : ""}The last two columns show each pipeline alone. The biggest miss is an item priced as a cheaper version of itself, which a model sticker or a receipt fixes.</p></section>
     <section><table><tr><th>Owner's item</th><th class="num">Paid</th><th class="num">Age (y)</th><th>Candidates</th><th class="num">RCV</th><th class="num">Error</th><th class="num">Local alone</th><th class="num">Opus alone</th></tr>
       ${s.items.map(i => `<tr><td>${esc(i.truth)}${i.found ? "" : ' <span class="flag">not found</span>'}</td><td class="num">${inr(i.paid_inr)}</td><td class="num">${i.age_years ?? "–"}</td>
         <td>${Object.entries(i.candidates_inr || {}).filter(([, v]) => v).map(([k, v]) => `${src(k, k === i.chosen_from)} ${inr(v)}`).join(" &nbsp;")}</td>
