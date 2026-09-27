@@ -34,7 +34,8 @@ There are three sources, and Jev combines them:
 
 ## After the CTO call (2026-09-26)
 
-What the call raised, and what changed. The full list with the reasons is in
+Results, demo links and one line per improvement: [IMPROVEMENTS.md](IMPROVEMENTS.md). What the call
+raised, and what changed. The full list with the reasons is in
 [docs/design/pipeline.md](docs/design/pipeline.md).
 
 | Raised on the call | Now |
