@@ -278,12 +278,15 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
             text = ocr.read_small_text(image) if it.category in SMALL_PRINT else ocr.read_text(image)
             ans = json_object(vlm.ask(CLOSEUP.format(name=it.name, ocr=text or "nothing"), _downsize(image), 200))
             log.append({"item": it.id, "closeup": p.name, "ocr": text, "vlm": ans})
-            for key in ("brand", "model"):
-                if _null(ans.get(key)):
-                    setattr(it, key, _null(ans.get(key)))
             ids = specs.label_ids(text)  # rules on the OCR text: the VLM mixed up model, radio module and serial
-            if ids.get("model"):
+            ruled = it.attributes.get("model_read_by") == "label rules"  # by an earlier close-up of this item
+            if _null(ans.get("brand")):
+                it.brand = _null(ans.get("brand"))
+            if _null(ans.get("model")) and not ruled and not ids.get("model"):
+                it.model = _null(ans.get("model"))
+            if ids.get("model") and not ruled:
                 it.model = ids["model"]
+                it.attributes["model_read_by"] = "label rules"
             if it.model and _on_label(it.model, text):  # prices.lookup then searches this exact model
                 it.attributes["model_source"] = "read off the label"
             for key in ("product_id", "serial"):

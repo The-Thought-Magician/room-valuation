@@ -7,4 +7,6 @@ data/price_cache/
 .ruff_cache/
 .pytest_cache/
 data/fixtures/
-demo/
+# the demos are published with their media (the owner's decision, 2026-09-27), except the
+# reverted Jev threshold experiment
+demo/bedroom-jev-tuned/

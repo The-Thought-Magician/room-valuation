@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 
 from typesafe_sdk import Choice, Score, TypeSafeClient
 
-from room_valuation import prices
+from room_valuation import prices, specs
 from room_valuation.schema import GENRES, Item
 
 MODEL = os.environ.get("TYPESAFE_MODEL", "jev-latest")
@@ -302,7 +302,7 @@ def identity(g: Group, n: int, answers: dict) -> Item:
     rank = {"read off the label": 0, "the frontier model's reading": 1, "the owner's words, to confirm": 2}
     config = {}
     for m in sorted(g.members.values(), key=lambda m: rank.get(m.attributes.get("spec_source", ""), 3), reverse=True):
-        config |= {k: v for k, v in m.attributes.items() if k in (*prices.specs.PRICE_KEYS, "spec_source")}
+        config |= {k: v for k, v in m.attributes.items() if k in (*specs.PRICE_KEYS, "spec_source")}
     return it.model_copy(update={"measured": measured, "attributes": it.attributes | config})
 
 

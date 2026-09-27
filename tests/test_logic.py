@@ -524,3 +524,27 @@ def test_run_together_partial_spines_are_dropped():
              b(3, "AND CL20PXCIA", "spine text only"), b(4, "SCOYY REN", "spine text only")]
     kept = local._settle_books(found, found[0])
     assert [k.name for k in kept] == ["Iron Horse", "Antony and Cleopatra", "unidentified book"]
+
+
+def test_a_later_closeup_does_not_overwrite_a_model_read_by_rules(monkeypatch):
+    from pathlib import Path
+
+    from PIL import Image
+
+    labels = iter(["Victus by HP Gaming Laptop 15-fb3185AX ProdID C28DWPA#ACJ SN# 5CD5361YV5",
+                   "Contains Realtek Radio Model: RTL8852BE 200W RMN: TPN-Q279"])
+    replies = iter(['{"brand": "HP", "model": "Victus by HP Gaming Laptop"}', '{"brand": "HP", "model": "RTL8852BE"}'])
+
+    class FakeVLM:
+        def ask(self, *a, **k):
+            return next(replies)
+    monkeypatch.setattr(local.models, "VLM", FakeVLM)
+    monkeypatch.setattr(local.models, "free", lambda: None)
+    monkeypatch.setattr(local.ocr, "read_small_text", lambda im: next(labels))
+    monkeypatch.setattr(local.Image, "open", lambda p: Image.new("RGB", (8, 8)))
+    entry = {"id": "local-79", "state": "detected", "category": "laptop", "name": "laptop", "quantity": 1,
+             "detected": Item(id="local-79", source="local", category="laptop", name="laptop").model_dump()}
+    items, _ = local.refine([entry], {"local-79": [Path("a.jpg"), Path("b.jpg")]}, {})
+    it = items[0]
+    assert it.model == "15-fb3185AX" and it.attributes["model_source"] == "read off the label"
+    assert it.attributes["product_id"] == "C28DWPA#ACJ" and it.attributes["serial"] == "5CD5361YV5"

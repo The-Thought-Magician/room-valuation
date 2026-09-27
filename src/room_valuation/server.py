@@ -323,7 +323,10 @@ def _file(cid: str, sub: str, name: str) -> FileResponse:
 
 @app.get("/api/captures/{cid}/photo/{name}")
 def photo(cid: str, name: str):
-    return _file(cid, "photos", name)
+    try:
+        return _file(cid, "photos", name)
+    except HTTPException:  # the crops each per-object Opus run was given
+        return _file(cid, "objects", name)
 
 
 @app.get("/api/captures/{cid}/thumb/{name}")

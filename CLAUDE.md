@@ -65,18 +65,41 @@ scripts/draw_pipeline.py). Results per capture: docs/results/.
   - Serper gives 2,500 free searches; SerpAPI is the fallback. Every query is cached in
     data/price_cache.
   - Scraping Amazon directly was rejected (against its terms).
+- **After the CTO call (2026-09-26, Nuha Hashem), decided with the user on 2026-09-27.** Review
+  of the call: ~/dev/cozmo/meeting/cto_call/CTO_CALL_REVIEW.md.
+  - The owner's price is evidence, not a candidate (jev.market_candidates): flagged for a
+    receipt above 1.3 times the market price, used only when no market source priced the item.
+  - Depreciation (prices.DEPRECIATION): life and cap per category, researched from US adjuster
+    guides (Claims Pages, Xactimate's max depreciation, CA 10 CCR 2695.9) and the CTO's 75 to 80
+    percent; condition adjusts the age-based rate.
+  - Jev judges every search listing against the identity it chose (jev.judge_listings):
+    exact price = median of this product's listings, else closest = median of the similar ones,
+    with a 25th to 75th range. Used and refurbished listings are dropped.
+  - Held for review, out of the total: Jev's price confidence under 0.5 with market prices 3
+    times apart, or a line seen only in its own crop whose priced product is over 3 times the
+    measured size.
+  - 3D (geometry.py, scripts/geometry_worker.py in the floor plan take-home's env): VGGT +
+    MoGe-2 per photo, chunks of 24 aligned by Umeyama; positions merge duplicates at detection
+    (with a size guard); sizes are checked only for rigid categories (prices.SIZE_CHECKED).
+  - Video frames by coverage, no cap (run.video_frames, NEW_CONTENT 0.08 of ORB matches).
+  - Labels: model, product and serial numbers by rules (specs.label_ids), configuration by
+    rules (specs.parse); OCR at 0/90/180/270 degrees, tiled for electronics; PP-OCRv6 medium.
+    Qwen3-VL-4B int8 was measured and not taken (scripts/eval_readers.py).
+  - Pipeline 2 per object (frontier.run_objects): one Opus run per listed object with every photo
+    of it, for identity, dimensions from the web and the local price; cached in out/objects/.
+    The room pass stays for what the detector missed. The user approved the cost for all objects.
 - **RCV and ACV, as a claim uses them.**
-  - ACV is straight-line over a per-category useful life, down to a 10 percent salvage floor.
-  - A price the owner paid counts as an RCV candidate only if the purchase was within 2
-    years (voice.RECENT_YEARS).
+  - ACV is straight-line over a per-category useful life, capped per category (above).
+  - A price the owner paid counts as evidence only if the purchase was within 2 years
+    (voice.RECENT_YEARS).
 - **Owner facts are read by rules, not by the 2B model**: prices and ages via
   voice.parse_price and parse_age; "free" or "provided" is flagged. Qwen only reads the
   brand.
 - **Building fixtures** (doors, windows, switchboards, the MCB box) are valued but totalled
   apart from contents (schema.BUILDING).
 - **Books:**
-  - RapidOCR runs PaddleOCR's PP-OCRv6 (PaddlePaddle has no Python 3.14 wheels). It reads at
-    0, 90 and 270 degrees and keeps the flat-text rotation, with one band per spine.
+  - RapidOCR runs PaddleOCR's PP-OCRv6, medium tier (PaddlePaddle has no Python 3.14 wheels). It
+    reads at 0, 90, 180 and 270 degrees and keeps the flat-text rotation, with one band per spine.
   - A VLM-only title needs half its words supported by the OCR.
   - An Open Library match needs half string similarity plus half title coverage, at least
     0.6. Summaries and study guides are skipped.
@@ -122,7 +145,7 @@ web/items.html   step 2: item list, remove/add, backend       /c/{id}           
 web/item.html    step 3: one page per item                    /c/{id}/i/{item}            close-ups, voice notes, typed note
                  "Value the room"                             POST /api/captures/{id}/submit -> run.value
 web/results.html results and the owner's final review         /r/{id}                     POST /api/captures/{id}/review
-web/demo.html    demo walkthrough of one real capture         /demo/{name}/               static, built by scripts/build_demo.py into demo/ (git-ignored)
+web/demo.html    demo walkthrough of one real capture         /demo/{name}/               static, built by scripts/build_demo.py into demo/ (in git)
 ```
 
 - **schema.py:** the Item every source reports in; CATEGORIES, GENRES, BUILDING.
@@ -151,15 +174,29 @@ web/demo.html    demo walkthrough of one real capture         /demo/{name}/     
     decisions)
   - export_report.py (docs/results/<name>/)
   - draw_pipeline.py
-  - build_demo.py (--title; also writes demo/index.html listing every demo; a static walkthrough of one capture in demo/<name>/, git-ignored because it
-    copies the room's photos, video and voice; the bedroom demo uses run 20260926-110157, the
-    one exported to docs/results)
+  - build_demo.py (--title; also writes demo/index.html listing every demo; a static walkthrough of
+    one capture in demo/<name>/ with the room's photos, video and voice, committed since
+    2026-09-27 by the user's decision)
+  - eval_readers.py (OCR tiers and VLMs on a capture's photos, against
+    data/ground_truth/readers_bedroom.json)
+  - geometry_worker.py (VGGT + MoGe-2, run in the floor plan take-home's environment)
 - **data/ground_truth/bedroom.json:** what the owner paid, from memory, including voice-note
   corrections (monitor 24 inch, Rs 16k, 3 years; stool 8 years; table Rs 8k, 9 months).
   - Only for scoring. The pipeline never reads it.
   - No room-specific value may appear in code, prompts or page tips (cleaned on
     2026-09-26).
   - Values that repeat a prompt example are dropped (local.EXAMPLE_VALUES).
+
+## Status (2026-09-27, after the CTO call)
+
+- Branch `improvements` (not merged to main): everything above.
+- Fresh capture 20260927-061610-8b4353: the merged capture rebuilt from its raw photos and
+  video (merge_captures.py --unreviewed remove: 38 photos and frames, 28 items after the owner's
+  carried review), the owner's two sharp photos of the laptop's underside label added as
+  close-ups. Opus room pass from scratch (run 065603, $3.80, empty Serper cache), then Opus per
+  object ($11.66), then replays for the fixes.
+- Result: see README "Results on the owner's bedroom" (docs/results/bedroom-after-call,
+  demo/bedroom-after-call).
 
 ## Status (2026-09-26, evening IST)
 
@@ -263,5 +300,6 @@ restart while a valuation runs kills it and orphans its `claude -p`: find it wit
   set in the repo config.
 - Cozmo reads commit history. Commit as you work.
 - Keys only in .env (git-ignored), never in code or chat logs.
-- Photos, video and voice notes of the owner's room stay out of git (data/captures,
-  data/fixtures). Only exported reports go in docs/results.
+- Photos, video and voice notes of the owner's room stay out of git in data/captures and
+  data/fixtures. The demo folders (demo/) are the exception: the user chose on 2026-09-27 to
+  publish them, media included. Only exported reports go in docs/results.

@@ -212,14 +212,11 @@ def size_mismatch(measured: dict | None, size: dict | None, category: str | None
     rigid categories (SIZE_CHECKED) when a category is given."""
     if not measured or not size or (category and category not in SIZE_CHECKED):
         return None
+    ratio = size_ratio(measured, size)
     w, h = measured["width_cm"], measured["height_cm"]
     if size.get("diagonal_in"):
-        seen = (w * w + h * h) ** 0.5 / 2.54
-        ratio = max(seen, size["diagonal_in"]) / max(1e-6, min(seen, size["diagonal_in"]))
-        what = f"{size['diagonal_in']:g} inch against about {seen:.0f} inch measured"
+        what = f"{size['diagonal_in']:g} inch against about {(w * w + h * h) ** 0.5 / 2.54:.0f} inch measured"
     else:
-        big, seen = size["dims_cm"][0], max(w, h)
-        ratio = max(big, seen) / max(1e-6, min(big, seen))
         what = f"{'x'.join(str(d) for d in size['dims_cm'])} cm against about {w} x {h} cm measured"
     return what if ratio > SIZE_TOLERANCE else None
 
