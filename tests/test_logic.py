@@ -569,8 +569,19 @@ def test_whole_object_reading_drops_a_brand_only_one_closeup_claimed(tmp_path):
                     '"search": "L shaped computer desk"}')
     desk = Item(id="local-8", source="local", category="furniture", name="table", brand="Dell")
     entry = {"name": "table", "detected": {"regions": [{"photo": "room_000.jpg", "box": [0.1, 0.1, 0.9, 0.9]}]}}
-    local._whole(FakeVLM(), desk, entry, [], {"room_000.jpg": photo}, "PE", "Dell", [])
+    local._whole(FakeVLM(), desk, entry, [], {"room_000.jpg": photo}, "PE", ["Dell"], [])
     assert desk.brand is None and desk.attributes["search_as"] == "L shaped computer desk"
+    assert "Dell" in desk.attributes["brand_read_as"]
+
+    class Guess:
+        def ask(self, prompt, images, n):
+            return '{"category": "bag_clothing", "name": "suitcase", "brand": "LAX", "search": "LAX suitcase new"}'
+    bag = Item(id="local-9", source="local", category="bag_clothing", name="suitcase")
+    local._whole(Guess(), bag, entry, [], {"room_000.jpg": photo}, "", [], [])
+    assert bag.brand is None and bag.attributes["search_as"] == "suitcase"  # one unprinted guess: searched without it
+    lap = Item(id="local-7", source="local", category="laptop", name="laptop", brand="HP")
+    local._whole(Guess(), lap, entry, [], {"room_000.jpg": photo}, "VICTUS | hp IS 13252", ["HP"], [])
+    assert lap.brand == "HP"  # printed on the label
 
 
 def test_an_unseen_model_is_flagged():

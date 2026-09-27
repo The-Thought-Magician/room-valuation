@@ -264,7 +264,7 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
             it = Item.model_validate(e["detected"])
         it.quantity = int(e.get("quantity") or it.quantity or 1)
         shots = closeups.get(e["id"], [])
-        label_text, unread_brand = [], None
+        label_text, brand_reads = [], [it.brand] if it.brand else []
         if it.category == "book":
             images = [(p.name, Image.open(p).convert("RGB")) for p in shots]
             if not images:  # no close-up: one crop per room photo around all its book boxes
@@ -312,9 +312,9 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
             it.evidence = "; ".join(x for x in (it.evidence, f"label: {text}" if text else None) if x)
             it.photos.append(p.name)
             label_text.append(text)
-            if _null(ans.get("brand")) and not _on_label(ans["brand"], text):
-                unread_brand = _null(ans.get("brand"))  # seen by the VLM, not printed where the OCR could read it
-        _whole(vlm, it, e, shots, room_photos, " | ".join(t for t in label_text if t), unread_brand, log)
+            if _null(ans.get("brand")):
+                brand_reads.append(_null(ans.get("brand")))
+        _whole(vlm, it, e, shots, room_photos, " | ".join(t for t in label_text if t), brand_reads, log)
         items.append(it)
     del vlm
     models.free()
@@ -322,11 +322,16 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
 
 
 def _whole(vlm, it: Item, entry: dict, shots: list[Path], room_photos: dict[str, Path], ocr_text: str,
-           unread_brand: str | None, log: list) -> None:
+           brand_reads: list[str], log: list) -> None:
     """The item read once from every photo of it at once, as the frontier model's per-object
     pass does: crops of its four largest detections and its close-ups. Gives a specific name to
-    search by. A brand the close-up VLM claimed without the OCR seeing it stays only if this
-    reading agrees (the desk's close-up VLM read 'Dell' off the laptop standing on it)."""
+    search by.
+
+    The 2B model invents brands: it read 'Dell' off the laptop standing on the desk, 'Cleer' for
+    the Carrier AC, and the 'LAX' airport tag on the suitcase (which then matched lacrosse bags).
+    So a brand counts only when the OCR saw it printed, or two readings agree (the detection
+    crop, a close-up, this reading). Otherwise the item is searched without a brand, and Jev
+    judges the listings against the identity it settles on; the guesses stay as evidence."""
     regions = sorted((entry.get("detected") or {}).get("regions") or [],
                      key=lambda r: -(r["box"][2] - r["box"][0]) * (r["box"][3] - r["box"][1]))
     images, seen = [], set()
@@ -343,13 +348,22 @@ def _whole(vlm, it: Item, entry: dict, shots: list[Path], room_photos: dict[str,
     ans = json_object(vlm.ask(WHOLE.format(n=len(images), name=entry.get("name") or it.name, category=it.category,
                                            ocr=ocr_text or "nothing", categories=", ".join(CATEGORIES)), images, 200))
     log.append({"item": it.id, "whole": ans, "photos": len(images)})
-    brand = _null(ans.get("brand"))
-    if unread_brand and it.brand == unread_brand and (not brand or brand.lower() != unread_brand.lower()):
-        it.brand = brand  # nothing but one close-up reading claimed it
-    elif brand and not it.brand:
-        it.brand = brand
+    reads = [b for b in [*brand_reads, _null(ans.get("brand"))] if b]
+    votes = {}
+    for b in reads:
+        votes[b.split()[0].lower()] = votes.get(b.split()[0].lower(), 0) + 1
+    printed = set(re.findall(r"[a-z0-9]+", ocr_text.lower()))  # a short brand (HP) as a whole word on a label
+    sure = next((b for b in reads if _on_label(b, ocr_text) or b.split()[0].lower() in printed
+                 or votes[b.split()[0].lower()] >= 2), None)
+    it.brand = sure
+    unsure = sorted({b for b in reads if b.split()[0].lower() != (sure or "").split(" ")[0].lower()})
+    if unsure:
+        it.attributes["brand_read_as"] = ", ".join(unsure) + " (not printed, readings disagree)"
     if (q := _null(ans.get("search"))) and len(q) >= 4:
-        it.attributes["search_as"] = q
+        drop = {w.lower() for b in unsure for w in b.split()} | {"new"}
+        q = " ".join(w for w in q.split() if w.lower() not in drop)
+        if len(q) >= 4:
+            it.attributes["search_as"] = q
     if (name := _null(ans.get("name"))) and ans.get("category") in CATEGORIES:
         it.attributes["described_as"] = f"{name} ({ans['category']})"
 
