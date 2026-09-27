@@ -43,10 +43,10 @@ def index(root: Path):
     for d in sorted(root.iterdir()):
         about = load(d / "about.json") if d.is_dir() else None
         if about:
-            rows.append(f'<li><a href="{d.name}/">{about["title"]}</a> <span class="muted">capture {about["capture"]}, '
+            rows.append(f'<li><a href="{d.name}/index.html">{about["title"]}</a> <span class="muted">capture {about["capture"]}, '
                         f'run {about["run"]}, RCV Rs {about["rcv_inr"]:,.0f}</span></li>')
     (root / "index.html").write_text('<!doctype html><meta charset="utf-8"><title>Demos</title>'
-                                     '<link rel="stylesheet" href="/static/app.css"><main><h1>Demo walkthroughs</h1>'
+                                     '<link rel="stylesheet" href="bedroom-after-call/app.css"><main><h1>Demo walkthroughs</h1>'
                                      f'<ul>{"".join(rows)}</ul></main>')
 
 
