@@ -59,7 +59,8 @@
 const [, , cid, , iid] = location.pathname.split("/");
 const api = `/api/captures/${cid}`;
 const TIPS = {
-  laptop: ["The logo on the lid, and the sticker underneath with the model number.", "Brand and model, when you bought it and what you paid, e.g. \"Dell Inspiron, bought two years ago for 60 thousand\"."],
+  laptop: ["Its configuration sets the price: the sticker underneath (model number), close enough to read, and the screen showing Settings, System, About (processor, RAM) or the box's spec label. The palm-rest stickers from a metre away are too small to read.", "Brand, model and configuration, when you bought it, e.g. \"HP Victus, Ryzen 7, RTX 5050, 16 GB, bought last month\"."],
+  phone: ["Settings, About phone (model, storage), or the box label.", "Brand, model and storage, when you bought it."],
   monitor: ["The back sticker with the model number, and the screen showing Settings, System, Display (the resolution).", "Brand, size, what you paid and when, e.g. \"Samsung 24 inch, 11 thousand, last year\"."],
   book: ["The spines, straight on, titles readable, 30 to 50 cm away, no flash. A stack is fine.", "Anything the photo will not show, e.g. \"engineering textbooks, bought new\"."],
   appliance: ["The rating plate or side sticker (model, tonnage or capacity).", "Brand, capacity, what you paid and when, e.g. \"Daikin 1 ton AC, bought four years ago for 28 thousand\"."],

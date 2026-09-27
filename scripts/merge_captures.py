@@ -242,6 +242,9 @@ def carry(cap: Path, data: dict, sources: list[Path], closeups: list[str], unrev
                 if e["state"] == "detected" and (s.name, e["id"]) not in found:  # kept by the owner, missed this time
                     added += 1
                     target = {**e, "id": f"added-{added}", "state": "added", "detected": None}
+                    if e.get("thumb") and (s / "out" / "thumbs" / e["thumb"]).exists():  # the old crop still shows it
+                        (cap / "out" / "thumbs").mkdir(parents=True, exist_ok=True)
+                        shutil.copy(s / "out" / "thumbs" / e["thumb"], cap / "out" / "thumbs" / e["thumb"])
                     data["items"].append(target)
                     new_items.append(target)
                     report.append({"from": f"{s.name}/{e['id']} ({e['name']})", "to": f"{target['id']} ({e['name']})",

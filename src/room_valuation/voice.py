@@ -6,7 +6,7 @@ import re
 import time
 from pathlib import Path
 
-from room_valuation import models
+from room_valuation import models, specs
 from room_valuation.schema import RECENT_YEARS, Item, SourceResult, json_object, number
 
 # Prices and ages are read with rules, not by the 2B model: on the first real capture it
@@ -89,6 +89,8 @@ def _item_claim(d: dict, entry: dict, text: str) -> Item:
         paid = None
     recent = bool(paid) and not free and (age is None or age <= RECENT_YEARS)
     attrs = {k: str(d[k]) for k in ("size", "facts") if d.get(k) not in (None, "", "null")}
+    if spoken := specs.parse(text, entry["category"]):  # "it has a Ryzen 7 260 and an RTX 5050"
+        attrs |= spoken | {"spec_source": "the owner's words, to confirm"}
     if said_range := parse_price_range(text):
         attrs["price_said_as_range"] = f"Rs {said_range[0]:,.0f} to {said_range[1]:,.0f}; the midpoint is used"
     if free:

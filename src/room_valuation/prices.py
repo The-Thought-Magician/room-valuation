@@ -18,6 +18,9 @@ from pathlib import Path
 
 import httpx
 
+from room_valuation import specs
+
+COMPUTERS = {"laptop", "phone", "computer_accessory"}  # priced by configuration
 # PRICE_CACHE points a run at its own cache, e.g. an empty one to search everything afresh
 CACHE = Path(os.environ.get("PRICE_CACHE") or Path(__file__).resolve().parents[2] / "data" / "price_cache")
 QUICK_COMMERCE = ["blinkit.com", "zeptonow.com"]
@@ -230,7 +233,9 @@ def query_for(item) -> tuple[str, list[str]]:
     """Search text, and the words a listing title must contain (the brand)."""
     if item.category == "book" and item.book and item.book.title:
         return f"{item.book.title} {item.book.author or ''} paperback".strip(), []
-    parts = [item.brand, item.model, item.attributes.get("size"), item.name]
+    # a computer's configuration sets its price: 'HP Victus 15 Ryzen 7 260 RTX 5050', not 'HP Victus 15'
+    config = specs.search_words(item.attributes) if item.category in COMPUTERS else ""
+    parts = [item.brand, item.model, item.attributes.get("size"), item.name, config]
     seen, words = set(), []
     for w in " ".join(p for p in parts if p).split():  # "Acer" + "Acer 24 inch monitor" says Acer once
         if w.lower() not in seen:
@@ -241,6 +246,9 @@ def query_for(item) -> tuple[str, list[str]]:
     if len(words) <= 2 and hint and not set(hint.lower().split()) & seen:
         name = f"{name} {hint}"
     must = [item.brand.split()[0]] if item.brand else []
+    gpu = re.search(r"\d{3,4}", item.attributes.get("gpu", "")) if item.category in COMPUTERS else None
+    if gpu:  # a listing with another GPU is another price class
+        must.append(gpu.group(0))
     return name, must
 
 

@@ -296,7 +296,12 @@ def identity(g: Group, n: int, answers: dict) -> Item:
     choice = answers.get(f"id_{n}")
     it = g.members.get(choice.choice if choice is not None else "") or next(iter(g.members.values()))
     measured = it.measured or next((m.measured for m in g.members.values() if m.measured), None)
-    return it.model_copy(update={"measured": measured})
+    # the configuration any source read (a label read beats the owner's word)
+    rank = {"read off the label": 0, "the frontier model's reading": 1, "the owner's words, to confirm": 2}
+    config = {}
+    for m in sorted(g.members.values(), key=lambda m: rank.get(m.attributes.get("spec_source", ""), 3), reverse=True):
+        config |= {k: v for k, v in m.attributes.items() if k in (*prices.specs.PRICE_KEYS, "spec_source")}
+    return it.model_copy(update={"measured": measured, "attributes": it.attributes | config})
 
 
 LISTING_LEVELS = [

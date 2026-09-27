@@ -8,6 +8,7 @@ from PIL import Image
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 OWL_ID = "google/owlv2-base-patch16-ensemble"
 VLM_ID = "Qwen/Qwen3-VL-2B-Instruct"
+VLM_INT8 = False
 ASR_ID = "openai/whisper-large-v3-turbo"
 
 torch.backends.cuda.enable_cudnn_sdp(False)  # cuDNN SDPA is unreliable on Blackwell
@@ -59,15 +60,25 @@ class Detector:
 
 
 class VLM:
-    """Qwen3-VL-2B for crop identification, spine reading and text extraction."""
+    """Qwen3-VL for crop identification, spine reading and text extraction. int8 weights
+    (torchao, weight-only) when the model does not fit the card in bf16: bitsandbytes has no
+    Blackwell kernels and the official FP8 checkpoint does not load in transformers."""
 
-    def __init__(self):
+    def __init__(self, model_id: str | None = None, int8: bool | None = None):
         from transformers import AutoProcessor, Qwen3VLForConditionalGeneration
 
+        model_id = model_id or VLM_ID
+        int8 = VLM_INT8 if int8 is None else int8
         dtype = torch.bfloat16 if DEVICE == "cuda" else torch.float32
-        model = Qwen3VLForConditionalGeneration.from_pretrained(VLM_ID, dtype=dtype, attn_implementation="sdpa")
-        self.model = model.to(DEVICE).eval()
-        self.processor = AutoProcessor.from_pretrained(VLM_ID)
+        kw = {}
+        if int8 and DEVICE == "cuda":
+            from torchao.quantization import Int8WeightOnlyConfig
+            from transformers import TorchAoConfig
+
+            kw = {"quantization_config": TorchAoConfig(Int8WeightOnlyConfig()), "device_map": DEVICE}
+        model = Qwen3VLForConditionalGeneration.from_pretrained(model_id, dtype=dtype, attn_implementation="sdpa", **kw)
+        self.model = (model if kw else model.to(DEVICE)).eval()
+        self.processor = AutoProcessor.from_pretrained(model_id)
 
     def ask(self, prompt: str, image: Image.Image | None = None, max_new_tokens: int = 256) -> str:
         content = ([{"type": "image", "image": image}] if image is not None else []) + [{"type": "text", "text": prompt}]

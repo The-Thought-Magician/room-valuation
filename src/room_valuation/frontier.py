@@ -17,6 +17,7 @@ from pathlib import Path
 
 import httpx
 
+from room_valuation import specs
 from room_valuation.schema import CATEGORIES, GENRES, Book, Item, SourceResult, number
 
 PROMPT = """You are valuing the contents of a room in {city}, India, for a home insurance claim.
@@ -44,6 +45,10 @@ Rules:
   modules you can count, and the plate size (e.g. 8M).
 - Model and serial stickers: read every label you can. Put a model number in model, and a serial
   number in attributes as "serial". An insurer uses them to confirm the exact item.
+- Laptops, desktops, phones and tablets: the price depends on the configuration. Read the CPU,
+  GPU, RAM and storage from any sticker, label, box or screen showing system information, and put
+  them in attributes as "cpu", "gpu", "ram", "storage". Only what you can read; never guess a
+  configuration, and price the configuration you read.
 - Prices: search the web for the current price to buy the item NEW in India (Amazon.in, Flipkart,
   Croma, Reliance Digital, brand sites; books: Amazon.in, Flipkart, Bookswagon). rcv_inr is per unit,
   in rupees. price_source is the URL you used. price_kind is "exact" when you identified this exact
@@ -87,10 +92,15 @@ def _to_result(data: dict, source: str, seconds: float) -> SourceResult:
             b = raw["book"]
             book = Book(title=b.get("title"), author=b.get("author"), isbn=b.get("isbn"),
                         genre=b.get("genre") if b.get("genre") in GENRES else "other", lookup=source)
+        attrs = {str(k): str(v) for k, v in (raw.get("attributes") or {}).items()}
+        read = specs.parse(" ".join(str(x) for x in (raw.get("evidence"), raw.get("model"), *attrs.values()) if x), cat)
+        if read:  # the configuration it read, in the same keys and form as the local pipeline's
+            attrs |= {k: v for k, v in read.items() if k not in attrs or k in specs.PRICE_KEYS}
+            attrs["spec_source"] = "the frontier model's reading"
         items.append(Item(
             id=f"{source}-{i}", source=source, category=cat, name=raw.get("name") or cat,
             brand=raw.get("brand"), model=raw.get("model"),
-            attributes={str(k): str(v) for k, v in (raw.get("attributes") or {}).items()},
+            attributes=attrs,
             quantity=int(raw.get("quantity") or 1), condition=raw.get("condition"),
             evidence=raw.get("evidence"), photos=[Path(p).name for p in raw.get("photos") or []],
             book=book, rcv_inr=number(raw.get("rcv_inr")), price_source=raw.get("price_source"),

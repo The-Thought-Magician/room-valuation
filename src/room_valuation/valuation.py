@@ -64,6 +64,13 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
             flags.append("priced only by the owner's word: ask for a receipt")
         elif said and rcv and said > OWNER_ABOVE_MARKET * rcv:
             flags.append(f"the owner says Rs {said:,.0f}, {said / rcv - 1:.0%} above the market price: ask for a receipt")
+        if item.category in prices.COMPUTERS and item.category != "computer_accessory":
+            config = next((it.attributes for it in m.values() if it.attributes.get("cpu") or it.attributes.get("gpu")), None)
+            if not config:
+                flags.append("configuration unknown (CPU, GPU, RAM): priced as the base model; a close-up of the bottom "
+                             "label, the box or Settings > About gives the exact price")
+            elif config.get("spec_source") == "the owner's words, to confirm":
+                flags.append("priced with the configuration the owner stated: confirm it from a label or Settings > About")
         measured = next((it.measured for it in m.values() if it.measured), None)
         if chosen and chosen.product_size:
             why = prices.size_mismatch(measured, prices.listing_size(chosen.product_size))

@@ -458,3 +458,29 @@ def test_chunk_alignment_recovers_a_similarity_transform():
     assert gw.chunks(10) == [list(range(10))]
     parts = gw.chunks(60)
     assert parts[0][-gw.OVERLAP:] == parts[1][: gw.OVERLAP] and parts[-1][-1] == 59
+
+
+def test_computer_configuration_is_read_and_priced():
+    from room_valuation import specs
+
+    label = "HP Victus 15-fb3001AX | AMD Ryzen 7 260 | 16GB DDR5 | 512GB SSD | NVIDIA GeForce RTX 5050 | 15.6\" FHD 144Hz"
+    assert specs.parse(label) == {"cpu": "Ryzen 7 260", "gpu": "RTX 5050", "ram": "16 GB", "storage": "512 GB SSD",
+                                  "screen": "15.6 inch", "refresh": "144 Hz", "resolution": "FHD"}
+    about = "Processor AMD Ryzen 7 260 w/ Radeon 780M Graphics 3.80 GHz | Installed RAM 16.0 GB (15.3 GB usable)"
+    assert specs.parse(about)["ram"] == "16 GB" and specs.parse(about)["cpu"] == "Ryzen 7 260"
+    assert specs.parse("Intel Core i7-13620H, GeForce RTX 4060")["cpu"] == "Core i7-13620H"
+    assert specs.parse("VICTUS | Thank you for your purchase") == {}
+    laptop = Item(id="local-1", source="local", category="laptop", name="laptop", brand="HP",
+                  attributes={"cpu": "Ryzen 7 260", "gpu": "RTX 5050", "spec_source": "read off the label"})
+    q, must = prices.query_for(laptop)
+    assert q == "HP laptop Ryzen 7 260 RTX 5050" and must == ["HP", "5050"]  # a listing with another GPU is another price
+
+
+def test_unknown_or_owner_stated_configuration_is_flagged():
+    base = Item(id="opus-0", source="opus", category="laptop", name="HP Victus 15", rcv_inr=74000)
+    said = Item(id="voice-0", source="voice", category="laptop", name="HP Victus", rcv_inr=190000,
+                age_years=0.1, attributes={"gpu": "RTX 5050", "spec_source": "the owner's words, to confirm"})
+    groups = [Group(members={"frontier": base}), Group(members={"frontier": base.model_copy(), "voice": said})]
+    lines = valuation.line_items(groups, {})
+    assert any(f.startswith("configuration unknown") for f in lines[0]["flags"])
+    assert any("configuration the owner stated" in f for f in lines[1]["flags"])

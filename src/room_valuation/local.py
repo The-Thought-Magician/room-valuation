@@ -21,7 +21,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from room_valuation import books, geometry, models, ocr, prices
+from room_valuation import books, geometry, models, ocr, prices, specs
 from room_valuation.schema import CATEGORIES, GENRES, Book, Item, SourceResult, json_object
 
 VOCAB = {
@@ -273,7 +273,7 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
             continue
         for p in shots:
             image = Image.open(p).convert("RGB")
-            text = ocr.read_text(image)
+            text = ocr.read_small_text(image)
             ans = json_object(vlm.ask(CLOSEUP.format(name=it.name, ocr=text or "nothing"), _downsize(image), 200))
             log.append({"item": it.id, "closeup": p.name, "ocr": text, "vlm": ans})
             for key in ("brand", "model"):
@@ -283,6 +283,9 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
                 it.attributes["model_source"] = "read off the label"
             if (serial := _null(ans.get("serial"))) and _on_label(serial, text):
                 it.attributes["serial"] = serial
+            read = specs.parse(text, it.category)  # the configuration, from the OCR text only
+            if read:
+                it.attributes |= read | {"spec_source": "read off the label"}
             for key in ("size", "specs"):
                 if _null(ans.get(key)):
                     it.attributes[key] = _null(ans.get(key))

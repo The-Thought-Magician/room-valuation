@@ -16,9 +16,13 @@ from PIL import Image
 
 @functools.cache
 def _engine():
-    from rapidocr import RapidOCR
+    """PP-OCRv6 medium, the largest tier (RapidOCR defaults to small). On the bedroom's close-ups
+    and spines it read 81 percent of the known words against 72 (the Good Knight pack: 6 of 6
+    against 3 of 6), about three times slower (2026-09-27, see scripts/eval_readers.py)."""
+    from rapidocr import ModelType, OCRVersion, RapidOCR
 
-    return RapidOCR()
+    return RapidOCR(params={"Det.ocr_version": OCRVersion.PPOCRV6, "Det.model_type": ModelType.MEDIUM,
+                            "Rec.ocr_version": OCRVersion.PPOCRV6, "Rec.model_type": ModelType.MEDIUM})
 
 
 def _lines(image: Image.Image, min_score: float) -> list[dict]:
@@ -66,6 +70,28 @@ def read_text(image: Image.Image, min_score: float = 0.6) -> str:
     """All confident text on a label or sticker, row by row, joined with ' | '."""
     _, lines = _best_rotation(image, min_score)
     return " | ".join(" ".join(ln["text"] for ln in sorted(b, key=lambda ln: ln["x0"])) for b in _bands(lines))
+
+
+def read_small_text(image: Image.Image, min_score: float = 0.6, grid: int = 3) -> str:
+    """read_text over the whole image, then over overlapping tiles at full resolution, enlarged:
+    a spec sticker on a laptop photographed from a metre away is a few dozen pixels wide, too
+    small for one pass over the whole frame. New lines from the tiles are added once."""
+    seen = [read_text(image, min_score)]
+    w, h = image.size
+    if max(w, h) < 1200:
+        return seen[0]
+    tw, th = w // grid, h // grid
+    for i in range(grid):
+        for j in range(grid):
+            pad_w, pad_h = tw // 4, th // 4
+            box = (max(0, i * tw - pad_w), max(0, j * th - pad_h), min(w, (i + 1) * tw + pad_w), min(h, (j + 1) * th + pad_h))
+            tile = image.crop(box)
+            tile = tile.resize((tile.width * 2, tile.height * 2))
+            text = read_text(tile, min_score)
+            new = [s for s in text.split(" | ") if s and all(s not in t for t in seen)]
+            if new:
+                seen.append(" | ".join(new))
+    return " | ".join(s for s in seen if s)
 
 
 def spines(image: Image.Image, min_score: float = 0.6) -> list[dict]:
