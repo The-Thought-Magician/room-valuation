@@ -86,3 +86,33 @@ PRICE_KEYS = ("cpu", "gpu", "ram", "storage")  # what moves a computer's price; 
 def search_words(spec: dict[str, str]) -> str:
     """The spec as search words, most price-defining first: 'Ryzen 7 260 RTX 5050 16 GB'."""
     return " ".join(spec[k] for k in ("cpu", "gpu", "ram", "storage") if spec.get(k))
+
+
+# Label lines that carry numbers but not the product's: the radio module, the regulatory model
+# (HP's RMN / TPN-...), the BIS registration, safety standards, the power rating, the warranty.
+NOT_PRODUCT = re.compile(r"(?:radio|regulatory|wlan|wi-?fi|bluetooth)\s*(?:module\s*)?(?:model)?\s*[:#]?\s*\S+|rmn\s*[:#]?\s*\S+|"
+                         r"\btpn-\S+|is\s*1\d{4}|iec\s*\S*|r-\d{6,}|\S*bis\.gov\S*|www\.\S+|input\s*[:#]?|"
+                         r"\d+(?:\.\d+)?\s*v\s*dc|\d+(?:\.\d+)?\s*a\b|warranty\s*\S*|made in \w+", re.I)
+_ID = r"([A-Z0-9][A-Z0-9\-/#.]{3,24})"
+
+
+def _code(token: str) -> bool:
+    """A product code mixes letters and digits: 15-fb3185AX, C28DWPA#ACJ, KA242Y."""
+    return bool(re.search(r"\d", token) and re.search(r"[A-Za-z]", token)) and len(re.sub(r"[^A-Za-z0-9]", "", token)) >= 5
+
+
+def label_ids(text: str) -> dict[str, str]:
+    """Model number, product number and serial off a label, by rules: the small VLM put the radio
+    module's model in the model field and the regulatory number in the serial (2026-09-27)."""
+    out = {}
+    for line in re.split(r"\s*\|\s*|\n", text or ""):
+        if m := re.search(r"\b(?:s/?n|serial(?:\s*no\.?)?)\s*[#:.]?\s*" + _ID, line, re.I):
+            out.setdefault("serial", m.group(1))
+        if m := re.search(r"\b(?:prod(?:uct)?\s*(?:id|no\.?|number)?|p/n|pn)\s*[#:.]?\s*" + _ID, line, re.I):
+            if _code(m.group(1)):
+                out.setdefault("product_id", m.group(1))
+        clean = NOT_PRODUCT.sub(" ", line)
+        if m := re.search(r"\b(?:model(?:\s*(?:no\.?|number))?\s*[#:.]?|laptop|notebook|monitor)\s+" + _ID, clean, re.I):
+            if _code(m.group(1)) and "model" not in out:
+                out["model"] = m.group(1)
+    return out

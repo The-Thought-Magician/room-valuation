@@ -66,6 +66,8 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
             flags.append(f"the owner says Rs {said:,.0f}, {said / rcv - 1:.0%} above the market price: ask for a receipt")
         if item.category in prices.COMPUTERS and item.category != "computer_accessory":
             config = next((it.attributes for it in m.values() if it.attributes.get("cpu") or it.attributes.get("gpu")), None)
+            if any(it.attributes.get("model_source") == "read off the label" for it in m.values()):
+                config = config or {"spec_source": "the model number read off the label"}
             if not config:
                 flags.append("configuration unknown (CPU, GPU, RAM): priced as the base model; a close-up of the bottom "
                              "label, the box or Settings > About gives the exact price")

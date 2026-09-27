@@ -126,6 +126,8 @@ def quick_commerce(query: str) -> list[dict]:
 
 
 MAX_LISTINGS = 10  # listings kept per search for Jev to judge (jev.judge_listings)
+# a replacement cost is the price new: second-hand listings are not candidates
+USED = re.compile(r"\b(used|refurbished|renewed|pre-?owned|open[- ]box|second[- ]hand|unboxed)\b", re.I)
 
 
 def quartiles(values: list[float]) -> tuple[float, float]:
@@ -149,7 +151,7 @@ def price_item(query: str, category: str, must_have: list[str] | None = None) ->
     scored = []
     for li in listings:
         words = _tokens(li["title"])
-        if need and not need <= words:
+        if need and not need <= words or USED.search(li["title"] or ""):
             continue
         scored.append({**li, "overlap": round(len(q & words) / max(1, len(q)), 2), "size": listing_size(li["title"])})
     scored.sort(key=lambda li: -li["overlap"])
@@ -270,6 +272,9 @@ def lookup(item) -> tuple[float | None, str | None, str | None, dict]:
     tries = []
     if exact:
         tries.append((f"{item.brand or ''} {exact}".strip(), sorted(_tokens(exact)), "exact"))
+        if pid := item.attributes.get("product_id"):  # HP's product number: C28DWPA#ACJ is searched as C28DWPA
+            code = re.split(r"[#/]", pid)[0]
+            tries.append((f"{item.brand or ''} {code}".strip(), sorted(_tokens(code)), "exact"))
     q, must = query_for(item)
     tries.append((q, must, None))
     p = {}
@@ -282,6 +287,8 @@ def lookup(item) -> tuple[float | None, str | None, str | None, dict]:
             break
     if not p.get("rcv_inr"):
         return None, None, p.get("note"), p
+    if p.get("kind") == "exact":  # what the listings of this exact model say its configuration is
+        p["spec"] = specs.parse(" ".join(li["title"] or "" for li in p["listings"]), item.category)
     what = f"listings of model {exact}" if p.get("kind") == "exact" else "matching listings"
     note = f"median of {p['matched']} {what} for '{p['query']}'" + (f" ({', '.join(p['sellers'])})" if p.get("sellers") else "")
     return p["rcv_inr"], p.get("url"), note, p
@@ -292,3 +299,5 @@ def take(item, raw: dict) -> None:
     item.price_low_inr, item.price_high_inr = raw.get("low"), raw.get("high")
     item.price_kind = raw.get("kind")
     item.listings = raw.get("listings") or []
+    if raw.get("spec") and not (item.attributes.get("cpu") or item.attributes.get("gpu")):
+        item.attributes |= raw["spec"] | {"spec_source": "listings of the exact model read off the label"}

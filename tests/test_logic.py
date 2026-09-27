@@ -484,3 +484,15 @@ def test_unknown_or_owner_stated_configuration_is_flagged():
     lines = valuation.line_items(groups, {})
     assert any(f.startswith("configuration unknown") for f in lines[0]["flags"])
     assert any("configuration the owner stated" in f for f in lines[1]["flags"])
+
+
+def test_label_ids_by_rules_not_the_radio_module():
+    from room_valuation import specs
+
+    bottom = ("3252 (Part 1)/IEC 60950-1 SN# 5CD5361YV5 | www.bis.gov.in R-41074926 Victus by HP Gaming Laptop "
+              "15-fb3185AX ProdID C28DWPA#ACJ")
+    assert specs.label_ids(bottom) == {"serial": "5CD5361YV5", "product_id": "C28DWPA#ACJ", "model": "15-fb3185AX"}
+    power = "Made in China INPUT:19.5Vdc10.3A Contains Realtek Radio Model: RTL8852BE Warranty 1y1yOy 200W RMN: TPN-Q279"
+    assert specs.label_ids(power) == {}  # the radio module and the regulatory number are not the product
+    assert specs.label_ids("Carrier Model No: CAI18EK5R39F0 | Serial No. 1234AB5678")["model"] == "CAI18EK5R39F0"
+    assert prices.USED.search("HP Victus (Refurbished)") and not prices.USED.search("HP Victus 15-fb3185AX")

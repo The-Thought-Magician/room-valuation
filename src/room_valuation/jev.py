@@ -305,8 +305,8 @@ def identity(g: Group, n: int, answers: dict) -> Item:
 
 
 LISTING_LEVELS = [
-    "a different product: another kind of object, one much bigger or smaller than the size measured, or an "
-    "accessory, spare part, refill or bundle",
+    "a different product: another kind of object, one much bigger or smaller than the size measured, an "
+    "accessory, spare part, refill or bundle, or a used, refurbished or open-box one",
     "a similar product: the same kind of object and roughly the same size, but a different model, material or type",
     "this exact product: same kind of object, same brand and model, or the same specification when no model "
     "is known, and about the same size",

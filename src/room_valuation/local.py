@@ -279,9 +279,15 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
             for key in ("brand", "model"):
                 if _null(ans.get(key)):
                     setattr(it, key, _null(ans.get(key)))
+            ids = specs.label_ids(text)  # rules on the OCR text: the VLM mixed up model, radio module and serial
+            if ids.get("model"):
+                it.model = ids["model"]
             if it.model and _on_label(it.model, text):  # prices.lookup then searches this exact model
                 it.attributes["model_source"] = "read off the label"
-            if (serial := _null(ans.get("serial"))) and _on_label(serial, text):
+            for key in ("product_id", "serial"):
+                if ids.get(key):
+                    it.attributes[key] = ids[key]
+            if "serial" not in it.attributes and (serial := _null(ans.get("serial"))) and _on_label(serial, text):
                 it.attributes["serial"] = serial
             read = specs.parse(text, it.category)  # the configuration, from the OCR text only
             if read:
