@@ -1,0 +1,328 @@
+{
+ "summary": "13/13 ground-truth items found; 4 with a recent purchase price, mean |RCV error| 15.6%",
+ "items": [
+  {
+   "truth": "HP Victus gaming laptop (Ryzen 7 260, RTX 5050)",
+   "paid_inr": 190000,
+   "age_years": 0.08,
+   "found": true,
+   "line": "HP HP Victus 15 gaming laptop 15-fb3185AX (Ryzen 7 260, RTX 5050 8GB, 24GB, 1TB)",
+   "sources": [
+    "frontier",
+    "local",
+    "object",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 84995,
+    "frontier": 74129.0,
+    "object": 131999.0,
+    "voice": 190000.0
+   },
+   "chosen_from": "object",
+   "rcv_inr": 131999.0,
+   "acv_inr": 129359,
+   "price_confidence": 0.94,
+   "rcv_error_pct": -30.5,
+   "per_source_error_pct": {
+    "local": -55.3,
+    "frontier": -61.0,
+    "object": -30.5,
+    "voice": 0.0
+   }
+  },
+  {
+   "truth": "Acer 24 inch monitor",
+   "paid_inr": 16000,
+   "age_years": 3,
+   "found": true,
+   "line": "Acer Acer ZeroFrame desktop monitor, about 24 inch, thin black bezel, round stand with a red accent ring",
+   "sources": [
+    "frontier",
+    "local",
+    "object",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 11499,
+    "frontier": 12999.0,
+    "object": 9999.0,
+    "voice": null
+   },
+   "chosen_from": "object",
+   "rcv_inr": 9999.0,
+   "acv_inr": 5000,
+   "price_confidence": 0.95
+  },
+  {
+   "truth": "chair",
+   "paid_inr": 5500,
+   "age_years": null,
+   "found": true,
+   "line": "Green Soul Green Soul high-back mesh ergonomic office chair (probably Jupiter Superb High Back)",
+   "sources": [
+    "frontier",
+    "local",
+    "object",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": null,
+    "frontier": 8990.0,
+    "object": 8690.0,
+    "voice": 5500.0
+   },
+   "chosen_from": "object",
+   "rcv_inr": 8690.0,
+   "acv_inr": 5648,
+   "price_confidence": 0.66
+  },
+  {
+   "truth": "L-shaped study table (desk)",
+   "paid_inr": 8000,
+   "age_years": 0.75,
+   "found": true,
+   "line": "L-shaped computer desk, black laminated top on black square-tube steel frame",
+   "sources": [
+    "frontier",
+    "local",
+    "object",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 6999,
+    "frontier": 8999.0,
+    "object": 9000.0,
+    "voice": 8000.0
+   },
+   "chosen_from": "object",
+   "rcv_inr": 9000.0,
+   "acv_inr": 8438,
+   "price_confidence": 0.84,
+   "rcv_error_pct": 12.5,
+   "per_source_error_pct": {
+    "local": -12.5,
+    "frontier": 12.5,
+    "object": 12.5,
+    "voice": 0.0
+   }
+  },
+  {
+   "truth": "split AC",
+   "paid_inr": 35000,
+   "age_years": 1,
+   "found": true,
+   "line": "Carrier Carrier split air conditioner (wall-mounted inverter indoor unit)",
+   "sources": [
+    "frontier",
+    "local",
+    "object",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 32490,
+    "frontier": 35890.0,
+    "object": 35490.0,
+    "voice": 35000.0
+   },
+   "chosen_from": "object",
+   "rcv_inr": 35490.0,
+   "acv_inr": 31054,
+   "price_confidence": 0.88,
+   "rcv_error_pct": 1.4,
+   "per_source_error_pct": {
+    "local": -7.2,
+    "frontier": 2.5,
+    "object": 1.4,
+    "voice": 0.0
+   }
+  },
+  {
+   "truth": "bed",
+   "paid_inr": 450,
+   "age_years": 35,
+   "found": true,
+   "line": "Window above the bed: wooden frame, glass shutters, MS grill",
+   "sources": [
+    "frontier"
+   ],
+   "candidates_inr": {
+    "frontier": 18000.0
+   },
+   "chosen_from": "frontier",
+   "rcv_inr": 18000.0,
+   "acv_inr": 7200,
+   "price_confidence": null
+  },
+  {
+   "truth": "steel almirah",
+   "paid_inr": 350,
+   "age_years": 40,
+   "found": true,
+   "line": "two-door steel almirah (cupboard), pale green",
+   "sources": [
+    "frontier",
+    "local",
+    "object",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 10999,
+    "frontier": 18100.0,
+    "object": 12500.0,
+    "voice": null
+   },
+   "chosen_from": "object",
+   "rcv_inr": 12500.0,
+   "acv_inr": 3125,
+   "price_confidence": 0.5
+  },
+  {
+   "truth": "Razer DeathAdder mouse",
+   "paid_inr": 2500,
+   "age_years": 4,
+   "found": true,
+   "line": "Razer Razer DeathAdder Essential wired gaming mouse (black)",
+   "sources": [
+    "frontier",
+    "local",
+    "object",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 1749,
+    "frontier": 1749.0,
+    "object": 1728.0,
+    "voice": null
+   },
+   "chosen_from": "object",
+   "rcv_inr": 1728.0,
+   "acv_inr": 346,
+   "price_confidence": 0.41
+  },
+  {
+   "truth": "suitcase",
+   "paid_inr": 2500,
+   "age_years": 2,
+   "found": true,
+   "line": "Hard-shell spinner trolley suitcase, airport-signage print (LAX, Departures), medium check-in size",
+   "sources": [
+    "frontier",
+    "local",
+    "object",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": null,
+    "frontier": 3799.0,
+    "object": 2049.0,
+    "voice": 2500.0
+   },
+   "chosen_from": "object",
+   "rcv_inr": 2049.0,
+   "acv_inr": 683,
+   "price_confidence": 0.75,
+   "rcv_error_pct": -18.0,
+   "per_source_error_pct": {
+    "frontier": 52.0,
+    "object": -18.0,
+    "voice": 0.0
+   }
+  },
+  {
+   "truth": "stool",
+   "paid_inr": 600,
+   "age_years": 8,
+   "found": true,
+   "line": "wooden stool with turned legs",
+   "sources": [
+    "frontier",
+    "local",
+    "object",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 387,
+    "frontier": 1500.0,
+    "object": 1500.0,
+    "voice": null
+   },
+   "chosen_from": "object",
+   "rcv_inr": 1500.0,
+   "acv_inr": 375,
+   "price_confidence": 0.45
+  },
+  {
+   "truth": "whiteboard sheet",
+   "paid_inr": 150,
+   "age_years": null,
+   "found": true,
+   "line": "Flexible vinyl whiteboard sheet (dry-erase), hung on two white PVC rods and taped to the wall",
+   "sources": [
+    "frontier",
+    "local",
+    "object",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": null,
+    "frontier": 400.0,
+    "object": 500.0,
+    "voice": 150.0
+   },
+   "chosen_from": "object",
+   "rcv_inr": 500.0,
+   "acv_inr": 200,
+   "price_confidence": 0.58
+  },
+  {
+   "truth": "JioFiber router",
+   "paid_inr": 0,
+   "age_years": null,
+   "found": true,
+   "line": "Wi-Fi router (wall-mounted, dark navy, brand not readable)",
+   "sources": [
+    "frontier",
+    "local",
+    "object",
+    "voice"
+   ],
+   "candidates_inr": {
+    "local": 2035,
+    "frontier": 2500.0,
+    "object": 3729.0,
+    "voice": null
+   },
+   "chosen_from": "object",
+   "rcv_inr": 3729.0,
+   "acv_inr": 2424,
+   "price_confidence": 0.74
+  },
+  {
+   "truth": "Good Knight liquid mosquito repellent",
+   "paid_inr": null,
+   "age_years": null,
+   "found": true,
+   "line": "Godrej Good Knight Good Knight Flash liquid vaporiser (plug-in machine with 45 ml refill)",
+   "sources": [
+    "frontier",
+    "local",
+    "object"
+   ],
+   "candidates_inr": {
+    "local": 162,
+    "frontier": 110.0,
+    "object": 110.0
+   },
+   "chosen_from": "object",
+   "rcv_inr": 110.0,
+   "acv_inr": 72,
+   "price_confidence": 0.65
+  }
+ ],
+ "report_totals": {
+  "rcv_inr": 330180,
+  "acv_inr": 239152,
+  "items": 52
+ }
+}

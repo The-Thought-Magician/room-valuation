@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room valuation: demo walkthrough</title>
+<link rel="stylesheet" href="app.css">
+<style>
+  main { max-width:1180px; padding-bottom:40px; }
+  nav.steps { position:sticky; top:0; z-index:5; background:var(--bg); display:flex; gap:6px; flex-wrap:wrap; padding:10px 0; border-bottom:1px solid var(--line); }
+  nav.steps button { padding:7px 11px; font-size:14px; }
+  nav.steps button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+  nav.steps .keys { margin-left:auto; font-size:12px; color:var(--muted); align-self:center; }
+  .pane { display:none; } .pane.on { display:block; }
+  .grid { display:grid; gap:8px; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); }
+  .grid img { width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px; border:1px solid var(--line); cursor:zoom-in; background:#f2f4f7; }
+  .grid.small { grid-template-columns:repeat(auto-fill, minmax(96px,1fr)); }
+  .grid figure { margin:0; } .grid figcaption { font-size:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cols { display:grid; gap:12px; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 4px; }
+  .stat { background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px 12px; min-width:120px; }
+  .stat b { display:block; font-size:20px; } .stat span { font-size:12px; color:var(--muted); }
+  .viewer { position:relative; display:inline-block; max-width:100%; }
+  .viewer img { max-width:100%; max-height:70vh; display:block; border-radius:10px; }
+  .viewer .box { position:absolute; border:2px solid #22c55e; border-radius:3px; cursor:pointer; }
+  .viewer .box span { position:absolute; left:-2px; top:-20px; background:#22c55e; color:#fff; font-size:11px; padding:1px 5px; border-radius:4px; white-space:nowrap; }
+  .viewer .box.off { border-color:#f97316; } .viewer .box.off span { background:#f97316; }
+  .strip { display:flex; gap:6px; overflow-x:auto; padding:6px 0; }
+  .strip img { height:64px; border-radius:6px; border:2px solid transparent; cursor:pointer; }
+  .strip img.on { border-color:var(--accent); }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:12px; color:var(--muted); font-weight:600; }
+  td.num, th.num { text-align:right; white-space:nowrap; }
+  tr.line { cursor:pointer; } tr.line:hover { background:#f5f8ff; }
+  tr.detail td { background:#fafbff; }
+  .flag { color:var(--warn); font-size:12px; }
+  .src { font-size:12px; padding:1px 7px; border-radius:99px; border:1px solid var(--line); white-space:nowrap; }
+  .src.local { background:#ecfdf3; } .src.frontier { background:#fff6ed; } .src.voice { background:#fdf2fa; } .src.market { background:#eff8ff; }
+  .chosen { font-weight:700; outline:2px solid var(--accent); }
+  pre { background:#0f172a; color:#e2e8f0; padding:10px; border-radius:8px; font-size:12px; overflow:auto; max-height:420px; white-space:pre-wrap; }
+  .pbar { display:flex; align-items:center; gap:6px; font-size:13px; } .pbar i { display:inline-block; height:10px; background:var(--accent); border-radius:3px; }
+  .ocr { font-family:ui-monospace, monospace; font-size:12px; background:#f2f4f7; padding:6px 8px; border-radius:6px; margin:4px 0; }
+  .ok { color:var(--ok); } .bad { color:#b42318; text-decoration:line-through; }
+  .item-card { display:grid; grid-template-columns:220px 1fr; gap:12px; }
+  .item-card .pics img { width:100%; border-radius:8px; border:1px solid var(--line); margin-bottom:6px; cursor:zoom-in; }
+  #zoom { position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:20; cursor:zoom-out; }
+  #zoom img { max-width:95vw; max-height:92vh; }
+  video { display:block; margin:0 auto; max-width:100%; max-height:70vh; border-radius:10px; background:#000; }
+  .say { border-left:3px solid var(--accent); padding:4px 10px; color:#344054; font-size:14px; margin:8px 0; }
+  @media (max-width:700px) { .item-card { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="step">Demo walkthrough of a real capture</div>
+  <h1 id="title">Room valuation</h1>
+  <p class="lead" id="lead"></p>
+  <nav class="steps" id="nav"></nav>
+  <div id="panes"></div>
+</main>
+<div id="zoom"><img alt=""></div>
+<script src="data.js"></script>
+<script src="demo.js"></script>
+</body>
+</html>

@@ -83,12 +83,13 @@ def main():
             L += ["", "![floor plan](floor_plan.png)"]
     L += [""]
     L += ["## Items", "", "Price candidates: Local (pipeline 1's Serper search, repriced from the listings Jev judged this "
-          "product or similar), Frontier (the frontier model's web price), Market (a second search after Jev, for what was "
+          "product or similar), Frontier (the frontier model's web price, room pass), Per object (the frontier model given "
+          "every photo of this one object), Market (a second search after Jev, for what was "
           "still unpriced). Owner: what the owner said they paid; evidence to check, not a candidate. Price from: the one "
           "Jev trusted. Kind: exact (this model) or closest (the nearest similar product), with the 25th to 75th "
           "percentile of its listings.", "",
-          "| Item | Qty | RCV | Kind and range | ACV | Price from | Local | Frontier | Owner | Market | Flags |",
-          "|---|---|---|---|---|---|---|---|---|---|---|"]
+          "| Item | Qty | RCV | Kind and range | ACV | Price from | Local | Frontier | Per object | Owner | Market | Flags |",
+          "|---|---|---|---|---|---|---|---|---|---|---|---|"]
     rows = sorted(rep["items"], key=lambda ln: (ln["category"] == "book", ln["category"] in ("electrical_fixture", "building_fixture"),
                                                -(ln["rcv_inr"] or 0)))
     section = None
@@ -97,7 +98,7 @@ def main():
             "electrical_fixture", "building_fixture") else "Contents"
         if sec != section:
             section = sec
-            L.append(f"| **{sec}** | | | | | | | | | | |")
+            L.append(f"| **{sec}** | | | | | | | | | | | |")
         c = {k: v.get("rcv_inr") for k, v in ln["candidates"].items()}
         out_note = f"**{ln['review']['action']}** by owner" if ln.get("review") else ""
         flags = "; ".join(x for x in [out_note] + [f[:70] for f in ln["flags"][:2]] if x)
@@ -108,16 +109,18 @@ def main():
                                             else "") if x) or "–")
         owner = ln.get("owner_price_inr") or c.get("voice")
         L.append(f"| {label(ln)[:70]}{genre} | {ln['quantity']} | {inr(ln['rcv_inr'])} | {kind} | {inr(ln['acv_inr'])} | "
-                 f"{ln['price_from'] or '–'} | {inr(c.get('local'))} | {inr(c.get('frontier'))} | {inr(owner)} | {inr(c.get('market'))} | {flags} |")
+                 f"{ln['price_from'] or '–'} | {inr(c.get('local'))} | {inr(c.get('frontier'))} | {inr(c.get('object'))} | {inr(owner)} | "
+                 f"{inr(c.get('market'))} | {flags} |")
     L += [""]
     if sc:
         L += ["## Against the owner's ground truth", "", sc["summary"], "",
-              "| Owner's item | Paid | Age (y) | Local | Frontier | Owner | Market | Chosen | RCV | Error |", "|---|---|---|---|---|---|---|---|---|---|"]
+              "| Owner's item | Paid | Age (y) | Local | Frontier | Per object | Owner | Chosen | RCV | Error |",
+              "|---|---|---|---|---|---|---|---|---|---|"]
         for r in sc["items"]:
             c = r.get("candidates_inr") or {}
             err = f"{r['rcv_error_pct']:+.1f}%" if r.get("rcv_error_pct") is not None else ("not found" if not r["found"] else "–")
             L.append(f"| {r['truth']} | {inr(r['paid_inr'])} | {r['age_years'] if r['age_years'] is not None else '–'} | "
-                     f"{inr(c.get('local'))} | {inr(c.get('frontier'))} | {inr(c.get('voice'))} | {inr(c.get('market'))} | {r.get('chosen_from') or '–'} | "
+                     f"{inr(c.get('local'))} | {inr(c.get('frontier'))} | {inr(c.get('object'))} | {inr(c.get('voice'))} | {r.get('chosen_from') or '–'} | "
                      f"{inr(r.get('rcv_inr'))} | {err} |")
         L += ["", "Error is only computed where the purchase is within 2 years, so the price paid is a fair replacement cost."]
     lb = rep["leaderboard"]
