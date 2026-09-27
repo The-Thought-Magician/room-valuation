@@ -249,7 +249,7 @@ Edit and Write are disabled.
 The ground truth is what the owner paid, from memory, in `data/ground_truth/bedroom.json`.
 The pipeline never reads it; `score.py` uses it after the run.
 
-### After the CTO call (capture 20260927-061610-8b4353, run 20260927-091101)
+### After the CTO call (capture 20260927-061610-8b4353, run 20260927-095309)
 
 The merged bedroom rebuilt from its raw photos and video: a fresh detection over 8 photos and
 30 frames (kept by coverage), every box placed in 3D, the owner's review carried over by photo
@@ -259,18 +259,18 @@ once per object ($11.66). The owner's prices are evidence only.
 
 | | Result |
 |---|---|
-| RCV / ACV | **₹3.30 lakh / ₹2.39 lakh** (contents ₹2.52 / ₹2.04 lakh, building fixtures ₹0.79 / ₹0.36 lakh) |
-| Held for review, not in the total | 3 lines, ₹630 to ₹21,049: the "wardrobe" (a blurred curtain), a stool and a bedsheet where Jev was unsure and the prices 4 to 6 times apart |
-| Items | 52 lines; 13 of 13 ground-truth items; 11 of 11 books, plus 1 flagged fragment |
+| RCV / ACV | **₹3.28 lakh / ₹2.39 lakh** (contents ₹2.48 / ₹2.03 lakh, building fixtures ₹0.79 / ₹0.36 lakh) |
+| Held for review, not in the total | 5 lines, ₹3,214 to ₹53,413: the "wardrobe" (a blurred curtain), and a stool, a whiteboard sheet, a bedsheet and the suitcase, where Jev was unsure and the prices 3 to 15 times apart |
+| Items | 50 lines; 13 of 13 ground-truth items; 11 of 11 books, plus 1 flagged fragment |
 | **Mean RCV error, 4 recent purchases** | **15.6%**, with no owner price used |
-| Jev | 107 pairs scored, 286 skipped; 499 questions in 14 calls, about 10 s; 256 listings judged (39 this product, 103 similar, 114 different) |
+| Jev | 108 pairs scored, 285 skipped; 588 questions in 16 calls; 301 listings judged (41 this product, 132 similar, 128 different); every line's category chosen by Jev |
 
 | Item | Owner paid | Local (Serper) | Opus, room | Opus, per object | Chosen | Error |
 |---|---|---|---|---|---|---|
-| HP Victus laptop, 1 month | ₹1.9 lakh | ₹85k (exact model) | ₹74k | ₹1.32 lakh (15-fb3185AX, read off the label) | per object | -30.5% |
-| Carrier split AC, 1 year | ₹35k | ₹32.5k | ₹35.9k | ₹35.5k | per object | +1.4% |
-| L-shaped desk, 9 months | ₹8k | none | ₹9k | ₹9k | per object | +12.5% |
-| Suitcase, 2 years | ₹2.5k | none | ₹3.8k | ₹2k | per object | -18.0% |
+| HP Victus laptop, 1 month | ₹1.9 lakh | ₹85k (exact model, 2 listings) | ₹74k | ₹1.32 lakh (15-fb3185AX, read off the label) | per object | -30.5% |
+| Carrier split AC, 1 year | ₹35k | ₹35k | ₹35.9k | ₹35.5k | per object | +1.4% |
+| L-shaped desk, 9 months | ₹8k | ₹9.3k | ₹9k | ₹9k | per object | +12.5% |
+| Suitcase, 2 years | ₹2.5k | ₹31k (a "LAX" listing: the airport print read as a brand; held) | ₹3.8k | ₹2k | per object, held | -18.0% |
 
 - **The laptop.** Before, every source priced the base HP Victus 15 (₹74k to ₹79k) and the
   15 percent came from trusting the owner's ₹1.9 lakh. Now the model number is read off the
@@ -278,7 +278,11 @@ once per object ($11.66). The owner's prices are evidence only.
   specification, and it is priced new at ₹1,31,999 (Vijay Sales; MRP ₹2,01,865). The owner's
   ₹1.9 lakh is 44 percent above that, so the line asks for a receipt.
 - **Each source alone** on those four: Opus per object 15.6 percent, the Opus room pass 32
-  percent.
+  percent. Pipeline 1 now reads each item from all its photos at once and searches without a
+  brand it cannot confirm: it priced 36 of its 39 items (32 before), the AC at 0 percent and the
+  desk at +16 (it found no listing before), the laptop at -55 (two listings of the exact model,
+  one second-hand), and the suitcase at a ₹31k "LAX" listing, which Jev's doubt held out of the
+  total.
 - **Depreciation** is capped per category: the 40-year-old almirah keeps 25 percent of its
   replacement cost, not 10.
 

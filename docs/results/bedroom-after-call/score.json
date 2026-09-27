@@ -22,7 +22,7 @@
    "chosen_from": "object",
    "rcv_inr": 131999.0,
    "acv_inr": 129359,
-   "price_confidence": 0.94,
+   "price_confidence": 0.93,
    "rcv_error_pct": -30.5,
    "per_source_error_pct": {
     "local": -55.3,
@@ -44,7 +44,7 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": 11499,
+    "local": 6558,
     "frontier": 12999.0,
     "object": 9999.0,
     "voice": null
@@ -52,7 +52,7 @@
    "chosen_from": "object",
    "rcv_inr": 9999.0,
    "acv_inr": 5000,
-   "price_confidence": 0.95
+   "price_confidence": 0.88
   },
   {
    "truth": "chair",
@@ -67,7 +67,7 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 8690,
     "frontier": 8990.0,
     "object": 8690.0,
     "voice": 5500.0
@@ -75,7 +75,7 @@
    "chosen_from": "object",
    "rcv_inr": 8690.0,
    "acv_inr": 5648,
-   "price_confidence": 0.66
+   "price_confidence": 0.4
   },
   {
    "truth": "L-shaped study table (desk)",
@@ -90,7 +90,7 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": 6999,
+    "local": 9300,
     "frontier": 8999.0,
     "object": 9000.0,
     "voice": 8000.0
@@ -98,10 +98,10 @@
    "chosen_from": "object",
    "rcv_inr": 9000.0,
    "acv_inr": 8438,
-   "price_confidence": 0.84,
+   "price_confidence": 0.79,
    "rcv_error_pct": 12.5,
    "per_source_error_pct": {
-    "local": -12.5,
+    "local": 16.2,
     "frontier": 12.5,
     "object": 12.5,
     "voice": 0.0
@@ -120,7 +120,7 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": 32490,
+    "local": 34990,
     "frontier": 35890.0,
     "object": 35490.0,
     "voice": 35000.0
@@ -128,10 +128,10 @@
    "chosen_from": "object",
    "rcv_inr": 35490.0,
    "acv_inr": 31054,
-   "price_confidence": 0.88,
+   "price_confidence": 0.85,
    "rcv_error_pct": 1.4,
    "per_source_error_pct": {
-    "local": -7.2,
+    "local": -0.0,
     "frontier": 2.5,
     "object": 1.4,
     "voice": 0.0
@@ -142,17 +142,23 @@
    "paid_inr": 450,
    "age_years": 35,
    "found": true,
-   "line": "Window above the bed: wooden frame, glass shutters, MS grill",
+   "line": "box bed with storage, no headboard, wood-grain laminate (diwan style)",
    "sources": [
-    "frontier"
+    "frontier",
+    "local",
+    "object",
+    "voice"
    ],
    "candidates_inr": {
-    "frontier": 18000.0
+    "local": 26499,
+    "frontier": 14000.0,
+    "object": 12000.0,
+    "voice": null
    },
-   "chosen_from": "frontier",
-   "rcv_inr": 18000.0,
-   "acv_inr": 7200,
-   "price_confidence": null
+   "chosen_from": "object",
+   "rcv_inr": 12000.0,
+   "acv_inr": 3000,
+   "price_confidence": 0.96
   },
   {
    "truth": "steel almirah",
@@ -167,7 +173,7 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": 10999,
+    "local": 19949,
     "frontier": 18100.0,
     "object": 12500.0,
     "voice": null
@@ -175,7 +181,7 @@
    "chosen_from": "object",
    "rcv_inr": 12500.0,
    "acv_inr": 3125,
-   "price_confidence": 0.5
+   "price_confidence": 0.49
   },
   {
    "truth": "Razer DeathAdder mouse",
@@ -190,7 +196,7 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": 1749,
+    "local": 1699,
     "frontier": 1749.0,
     "object": 1728.0,
     "voice": null
@@ -198,7 +204,7 @@
    "chosen_from": "object",
    "rcv_inr": 1728.0,
    "acv_inr": 346,
-   "price_confidence": 0.41
+   "price_confidence": 0.43
   },
   {
    "truth": "suitcase",
@@ -213,7 +219,7 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 31048,
     "frontier": 3799.0,
     "object": 2049.0,
     "voice": 2500.0
@@ -221,9 +227,10 @@
    "chosen_from": "object",
    "rcv_inr": 2049.0,
    "acv_inr": 683,
-   "price_confidence": 0.75,
+   "price_confidence": 0.23,
    "rcv_error_pct": -18.0,
    "per_source_error_pct": {
+    "local": 1141.9,
     "frontier": 52.0,
     "object": -18.0,
     "voice": 0.0
@@ -250,7 +257,7 @@
    "chosen_from": "object",
    "rcv_inr": 1500.0,
    "acv_inr": 375,
-   "price_confidence": 0.45
+   "price_confidence": 0.33
   },
   {
    "truth": "whiteboard sheet",
@@ -265,7 +272,7 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": null,
+    "local": 1316,
     "frontier": 400.0,
     "object": 500.0,
     "voice": 150.0
@@ -273,7 +280,7 @@
    "chosen_from": "object",
    "rcv_inr": 500.0,
    "acv_inr": 200,
-   "price_confidence": 0.58
+   "price_confidence": 0.49
   },
   {
    "truth": "JioFiber router",
@@ -288,7 +295,7 @@
     "voice"
    ],
    "candidates_inr": {
-    "local": 2035,
+    "local": 1671,
     "frontier": 2500.0,
     "object": 3729.0,
     "voice": null
@@ -296,7 +303,7 @@
    "chosen_from": "object",
    "rcv_inr": 3729.0,
    "acv_inr": 2424,
-   "price_confidence": 0.74
+   "price_confidence": 0.84
   },
   {
    "truth": "Good Knight liquid mosquito repellent",
@@ -310,19 +317,19 @@
     "object"
    ],
    "candidates_inr": {
-    "local": 162,
+    "local": 186,
     "frontier": 110.0,
     "object": 110.0
    },
    "chosen_from": "object",
    "rcv_inr": 110.0,
    "acv_inr": 72,
-   "price_confidence": 0.65
+   "price_confidence": 0.95
   }
  ],
  "report_totals": {
-  "rcv_inr": 330180,
-  "acv_inr": 239152,
-  "items": 52
+  "rcv_inr": 327579,
+  "acv_inr": 238835,
+  "items": 50
  }
 }

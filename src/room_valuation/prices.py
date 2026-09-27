@@ -126,6 +126,9 @@ def quick_commerce(query: str) -> list[dict]:
 
 
 MAX_LISTINGS = 10  # listings kept per search for Jev to judge (jev.judge_listings)
+# words a model adds to a search that no listing title carries ("stool for sale in India"): they
+# only lower the share of query words a title can match
+FILLER = {"in", "india", "for", "sale", "buy", "online", "price", "new", "use", "the", "a", "an", "of", "to"}
 # a replacement cost is the price new: second-hand listings are not candidates
 USED = re.compile(r"\b(used|refurbished|renewed|pre-?owned|open[- ]box|second[- ]hand|unboxed)\b", re.I)
 
@@ -291,7 +294,9 @@ def lookup(item) -> tuple[float | None, str | None, str | None, dict]:
             tries.append((f"{item.brand or ''} {code}".strip(), sorted(_tokens(code)), "exact"))
     q, must = query_for(item)
     if said := item.attributes.get("search_as"):  # pipeline 1's reading of the item from all its photos at once
-        tries.append((said, must, None))
+        said = " ".join(w for w in said.split() if w.lower() not in FILLER)
+        if len(said) >= 4:
+            tries.append((said, must, None))
     tries.append((q, must, None))
     p = {}
     for query, need, kind in tries:
