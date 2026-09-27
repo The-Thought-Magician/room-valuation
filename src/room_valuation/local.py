@@ -221,6 +221,7 @@ def detect(photos: list[tuple[Path, str]], progress=None, threshold: float = 0.1
     return _merge(items, geo), log + ([{"geometry": geometry.summary(geo)}] if geo else [])
 
 
+SMALL_PRINT = {"laptop", "monitor", "phone", "computer_accessory", "networking", "appliance", "audio"}
 CLOSEUP = (
     "This is a close-up photo of {name}, taken to show its label, logo or model sticker. "
     "Text read by OCR: {ocr}. Reply with one JSON object and nothing else, with keys: brand, model "
@@ -273,7 +274,8 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
             continue
         for p in shots:
             image = Image.open(p).convert("RGB")
-            text = ocr.read_small_text(image)
+            # small print matters where a model number or configuration sets the price
+            text = ocr.read_small_text(image) if it.category in SMALL_PRINT else ocr.read_text(image)
             ans = json_object(vlm.ask(CLOSEUP.format(name=it.name, ocr=text or "nothing"), _downsize(image), 200))
             log.append({"item": it.id, "closeup": p.name, "ocr": text, "vlm": ans})
             for key in ("brand", "model"):

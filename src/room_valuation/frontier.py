@@ -113,22 +113,29 @@ def _to_result(data: dict, source: str, seconds: float) -> SourceResult:
                         notes=data.get("notes") or [], seconds=round(seconds, 1))
 
 
-def run_opus(photos: list[tuple[Path, str]], city: str, workdir: Path, timeout_s: int = 1200) -> SourceResult:
-    prompt = PROMPT.format(city=city, photo_list=_photo_list(photos), categories=", ".join(CATEGORIES),
-                           genres=", ".join(GENRES))
+def _claude(prompt: str, workdir: Path, raw_file: str, max_turns: int = 60, timeout_s: int = 1200) -> tuple[str, dict]:
+    """One `claude -p` run with Opus: Read for the photos, WebSearch and WebFetch for prices and
+    specifications; no Bash or writes. Returns the reply text and the envelope."""
     env = {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}  # use the Claude Code login
-    t0 = time.time()
     proc = subprocess.run(
         ["claude", "-p", "--model", "claude-opus-5-5", "--output-format", "json",
          "--allowedTools", "Read,WebSearch,WebFetch", "--disallowedTools", "Bash,Edit,Write,NotebookEdit",
-         "--max-turns", "60", prompt],
+         "--max-turns", str(max_turns), prompt],
         cwd=workdir, env=env, capture_output=True, text=True, timeout=timeout_s,
     )
-    (workdir / "opus_raw.json").write_text(proc.stdout or proc.stderr)
+    (workdir / raw_file).write_text(proc.stdout or proc.stderr)
     envelope = json.loads(proc.stdout)
     if envelope.get("is_error"):
         raise RuntimeError(f"claude -p failed: {envelope.get('result')}")
-    result = _to_result(_parse(envelope["result"]), "opus", time.time() - t0)
+    return envelope["result"], envelope
+
+
+def run_opus(photos: list[tuple[Path, str]], city: str, workdir: Path, timeout_s: int = 1200) -> SourceResult:
+    prompt = PROMPT.format(city=city, photo_list=_photo_list(photos), categories=", ".join(CATEGORIES),
+                           genres=", ".join(GENRES))
+    t0 = time.time()
+    text, envelope = _claude(prompt, workdir, "opus_raw.json", timeout_s=timeout_s)
+    result = _to_result(_parse(text), "opus", time.time() - t0)
     result.notes.append(f"claude -p reported cost ${envelope.get('total_cost_usd', 0):.2f}, "
                         f"{envelope.get('num_turns')} turns")
     return result
@@ -158,3 +165,112 @@ def run_astra(photos: list[tuple[Path, str]], city: str, workdir: Path, timeout_
 
 def run(backend: str, photos: list[tuple[Path, str]], city: str, workdir: Path) -> SourceResult:
     return {"opus": run_opus, "astra": run_astra}[backend](photos, city, workdir)
+
+
+OBJECT_PROMPT = """You are identifying and pricing ONE object in a room in {city}, India, for a home insurance claim.
+The owner's item list calls it "{name}" (category {category}).{note}
+Every photo of this object (read each one with the Read tool):
+{photo_list}
+
+1. Identify it as exactly as the photos allow: brand, model number, variant. Read every label, sticker,
+   rating plate and screen. Laptops, desktops, phones and tablets: the CPU, GPU, RAM and storage, from any
+   label, the box or a screen showing system information, or from the official specification of a model
+   number you read. Never guess what you cannot read or look up; say what is uncertain.
+2. Dimensions: search the web for this product's dimensions (width x height x depth, cm) from the
+   manufacturer or a retailer's specification. If the exact model is unknown, the closest equivalent's,
+   and say so. Also estimate its size from the photos.
+3. Price: search the web for what it costs to buy this object NEW in {city} or elsewhere in India today
+   (Amazon.in, Flipkart, Croma, Reliance Digital, the brand's site, local retailers). Price like kind and
+   quality: the same type, size and grade. price_kind is "exact" when you priced this exact model,
+   "closest" for the nearest equivalent (say what and why in price_note), "estimate" when no page gave a
+   price (then price_source is "estimate"). A used or refurbished listing is not a price.
+
+Reply with ONLY a JSON object, no prose, no code fence:
+{{"category": "{category}", "name": "", "brand": null, "model": null, "attributes": {{}}, "quantity": 1,
+  "condition": "good", "evidence": "text you read on it", "dimensions_cm": {{"width": 0, "height": 0, "depth": 0}},
+  "dimensions_source": "URL or 'estimate from the photos'", "seen_size_cm": {{"width": 0, "height": 0}},
+  "rcv_inr": 0, "price_kind": "exact", "price_source": "", "price_note": ""}}
+"""
+OBJECT_WORKERS = 4  # parallel claude -p runs
+OBJECT_MAX_PHOTOS = 6  # per object: the close-ups, then crops of the largest detections
+
+
+def object_photos(entry: dict, closeups: list[Path], photo_dir: Path, out: Path) -> list[tuple[Path, str]]:
+    """Every photo of one listed item: its close-ups, then crops of where it was detected (the
+    largest boxes first, each crop with some of the room around it)."""
+    from PIL import Image
+
+    shots = [(p, "close-up the owner took of it") for p in closeups]
+    regions = sorted((entry.get("detected") or {}).get("regions") or [],
+                     key=lambda r: -(r["box"][2] - r["box"][0]) * (r["box"][3] - r["box"][1]))
+    seen = set()
+    for r in regions:
+        if len(shots) >= OBJECT_MAX_PHOTOS or r["photo"] in seen or not (photo_dir / r["photo"]).exists():
+            continue
+        seen.add(r["photo"])
+        im = Image.open(photo_dir / r["photo"]).convert("RGB")
+        w, h = im.size
+        x0, y0, x1, y1 = r["box"]
+        mx, my = 0.25 * (x1 - x0), 0.25 * (y1 - y0)
+        crop = im.crop((int(max(0, x0 - mx) * w), int(max(0, y0 - my) * h), int(min(1, x1 + mx) * w), int(min(1, y1 + my) * h)))
+        crop.thumbnail((1280, 1280))
+        dst = out / f"{entry['id']}_{len(shots):02d}.jpg"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        crop.save(dst, quality=90)
+        shots.append((dst, f"crop around it in the room photo {r['photo']}"))
+    return shots[:OBJECT_MAX_PHOTOS]
+
+
+def run_objects(entries: list[dict], closeups: dict[str, list[Path]], photo_dir: Path, city: str,
+                workdir: Path, progress=None) -> SourceResult:
+    """Pipeline 2, second pass: one Opus run per listed object, with every photo of it at once,
+    for its identity, its dimensions from the web and its local price. Each result is tied to its
+    item (Item.link), like an owner note, so Jev sees it as a fourth reading of that object."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    say = progress or (lambda **kw: None)
+    t0 = time.time()
+    todo = []
+    for e in entries:
+        if e["category"] == "book":  # spines are read by pipeline 1 and the room pass
+            continue
+        shots = object_photos(e, closeups.get(e["id"], []), photo_dir, workdir / "objects")
+        if shots:
+            todo.append((e, shots))
+    cost, notes = 0.0, []
+
+    def one(job):
+        e, shots = job
+        note = f"\nThe owner's note on it: \"{e['note']}\"." if e.get("note") else ""
+        prompt = OBJECT_PROMPT.format(city=city, name=e["name"], category=e["category"], note=note,
+                                      photo_list=_photo_list(shots))
+        saved = workdir / "objects" / f"{e['id']}.json"  # the same prompt and photos: the answer is reused
+        if saved.exists() and json.loads(saved.read_text()).get("prompt") == prompt:
+            s = json.loads(saved.read_text())
+            return e, shots, s["answer"], {"total_cost_usd": 0, "reused": True}
+        text, env = _claude(prompt, workdir, f"objects/{e['id']}_raw.json", max_turns=30, timeout_s=900)
+        answer = _parse(text)
+        saved.write_text(json.dumps({"prompt": prompt, "answer": answer, "cost_usd": env.get("total_cost_usd")}, indent=1))
+        return e, shots, answer, env
+
+    items = []
+    with ThreadPoolExecutor(OBJECT_WORKERS) as pool:
+        for k, fut in enumerate([pool.submit(one, job) for job in todo]):
+            say(step="Opus, one object at a time", done=k, total=len(todo))
+            try:
+                e, shots, raw, env = fut.result()
+            except Exception as ex:  # one object failing leaves the others
+                notes.append(f"{todo[k][0]['name']}: {type(ex).__name__}")
+                continue
+            cost += env.get("total_cost_usd") or 0
+            item = _to_result({"items": [raw]}, "object", 0).items[0]
+            dims = raw.get("dimensions_cm") or {}
+            if dims.get("width") and dims.get("height"):
+                item.product_size = " x ".join(f"{float(dims[k]):g}" for k in ("width", "height", "depth") if dims.get(k)) + " cm"
+                item.attributes["dimensions_source"] = str(raw.get("dimensions_source") or "")
+            item.id, item.link = f"object-{e['id']}", e["id"]
+            item.photos = [p.name for p, _ in shots]
+            items.append(item)
+    notes.insert(0, f"{len(items)} of {len(todo)} listed objects, one claude -p run each with all their photos; "
+                    f"reported cost ${cost:.2f}")
+    return SourceResult(source="object", items=items, notes=notes, seconds=round(time.time() - t0, 1))

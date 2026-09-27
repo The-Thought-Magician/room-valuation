@@ -162,7 +162,7 @@ def detect(capture: Path) -> dict:
     return data
 
 
-REPLAYABLE = ("frontier", "local", "voice")
+REPLAYABLE = ("frontier", "object", "local", "voice")
 
 
 def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> dict:
@@ -199,9 +199,13 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
             (workdir / f"{name}_error.txt").write_text(traceback.format_exc())
             _status(workdir, name, "failed", error=errors[name])
 
-    with ThreadPoolExecutor(1) as pool:  # the frontier model is remote, it runs beside the GPU work
+    with ThreadPoolExecutor(2) as pool:  # the frontier model is remote, it runs beside the GPU work
         use_frontier = backend != "none" or ("frontier" in reuse and (workdir / "frontier.json").exists())
         remote = pool.submit(guarded, "frontier", frontier.run, backend, all_photos, city, workdir) if use_frontier else None
+        # and once per listed object, with every photo of that object (Opus only)
+        use_objects = backend == "opus" or ("object" in reuse and (workdir / "object.json").exists())
+        per_object = pool.submit(guarded, "object", frontier.run_objects, entries, closeups, workdir / "photos", city, workdir,
+                                 progress=lambda **kw: _status(workdir, "object", "running", **kw)) if use_objects else None
         _status(workdir, "local", "running", step="waiting for the GPU", done=0, total=1)
         with models.gpu_lock():
             guarded("local", local.value, entries, closeups, by_name, workdir,
@@ -210,8 +214,9 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
                 guarded("voice", voice.run_items, notes, workdir,
                         progress=lambda **kw: _status(workdir, "voice", "running", **kw),
                         reuse_transcripts="transcripts" in reuse, entries=entries)
-        if remote:
-            remote.result()
+        for fut in (remote, per_object):
+            if fut:
+                fut.result()
 
     _status(workdir, "area", "running")
     tape = (area.from_tape(meta["length_cm"], meta["width_cm"], meta.get("tape_source", "tape measurement"),
@@ -229,7 +234,7 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
 
     _status(workdir, "jev", "running")
     jev.CALLS.clear()
-    sources = [results[k].items for k in ("local", "frontier", "voice") if k in results]
+    sources = [results[k].items for k in ("local", "frontier", "object", "voice") if k in results]
     groups, pairs, skipped = jev.align(sources)
     answers = jev.rank_groups(groups)  # identity, condition, genre
     listing_log = jev.judge_listings(groups, answers, ("local",))  # exact, similar or different, per listing
@@ -297,7 +302,7 @@ def _keep_run(workdir: Path, report: dict, pairs: list, backend: str, reuse: tup
     commit, dirty = git("rev-parse", "--short", "HEAD"), bool(git("status", "--porcelain", "src"))
     (d / "settings.json").write_text(json.dumps({"commit": commit, "uncommitted_changes": dirty, "backend": backend,
                                                  "reuse": list(reuse), "jev_model": jev.MODEL}, indent=1))
-    for name in ("frontier.json", "local.json", "voice.json", "local_log.json", "listing_verdicts.json"):
+    for name in ("frontier.json", "object.json", "local.json", "voice.json", "local_log.json", "listing_verdicts.json"):
         if (workdir / name).exists():
             shutil.copy(workdir / name, d / name)
     truth = root / "data" / "ground_truth" / "bedroom.json"

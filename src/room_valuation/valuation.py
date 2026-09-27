@@ -9,6 +9,7 @@ from room_valuation.schema import BUILDING
 REVIEW_CONFIDENCE = 0.5  # below this Jev confidence a line is flagged for a human
 HOLD_SPREAD = 3.0  # Jev unsure and the market prices this many times apart: no pick, held for review
 OWNER_ABOVE_MARKET = 1.3  # an owner's price this far above the market price asks for a receipt
+SOURCES = ("local", "frontier", "object", "voice", "market")
 
 
 def _pick(answer) -> tuple[str, float, dict]:
@@ -74,10 +75,10 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
             elif config.get("spec_source") == "the owner's words, to confirm":
                 flags.append("priced with the configuration the owner stated: confirm it from a label or Settings > About")
         measured = next((it.measured for it in m.values() if it.measured), None)
-        if chosen and chosen.product_size:
-            why = prices.size_mismatch(measured, prices.listing_size(chosen.product_size))
+        for src, it in m.items():  # the product's dimensions (from the web, or a listing) against the 3D measurement
+            why = prices.size_mismatch(measured, prices.listing_size(it.product_size)) if it.product_size else None
             if why:
-                flags.append(f"the priced product's size does not fit what was measured: {why}")
+                flags.append(f"the {src} source's product size does not fit what was measured: {why}")
         free = next((it.attributes.get("acquired") for it in m.values() if it.attributes.get("acquired")), None)
         if free:
             flags.append(f"owner: {free}")
@@ -158,14 +159,14 @@ def leaderboard(lines: list[dict]) -> dict:
     board = {}
     for kind in ("identity", "price"):
         contested = [ln for ln in lines if ln[f"{kind}_probs"]]
-        for src in ("local", "frontier", "voice", "market"):
+        for src in SOURCES:
             took = [ln for ln in contested if src in ln[f"{kind}_probs"]]
             won = [ln for ln in took if ln[f"{kind}_from"] == src]
             board.setdefault(src, {})[kind] = {
                 "contested": len(took), "chosen": len(won),
                 "mean_probability": round(sum(ln[f"{kind}_probs"][src] for ln in took) / len(took), 3) if took else None,
             }
-    for src in ("local", "frontier", "voice", "market"):
+    for src in SOURCES:
         board[src]["items_found"] = sum(1 for ln in lines if src in ln["sources"])
         board[src]["found_alone"] = sum(1 for ln in lines if ln["sources"] == [src])
     return board

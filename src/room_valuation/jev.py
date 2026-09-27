@@ -41,6 +41,8 @@ STATE = {
         "local": "small local vision models on the photos; reliable on what is there, weak on exact models",
         "frontier": "a large vision model with web search on the same photos",
         "voice": "the owner describing their things out loud; knows what they bought, may misremember prices",
+        "object": "the large vision model again, given every photo of this one object and researching its exact "
+                  "model, dimensions and price on the web",
     },
     "how_to_compare": "Sizes, models and prices read from photos are estimates and are often off by a few "
                       "inches or centimetres. Judge sameness by the kind of object, where it "
@@ -194,7 +196,7 @@ def align(sources: list[list[Item]]) -> tuple[list[Group], list[dict], int]:
     closeup_links(flat)
     ids = {it.id for it in flat}
     linked = [it for it in flat if it.link in ids]  # voice notes recorded on an item's own page
-    said = {it.link: it.evidence for it in linked if it.evidence}  # the owner's words describe the item too
+    said = {it.link: it.evidence for it in linked if it.evidence and it.source == "voice"}  # the owner's words
 
     def view(it: Item) -> dict:
         return _view(it) | ({"owner_says": said[it.id]} if it.id in said else {})
