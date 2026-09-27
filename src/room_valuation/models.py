@@ -7,6 +7,11 @@ from PIL import Image
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 OWL_ID = "google/owlv2-base-patch16-ensemble"
+# Qwen3-VL-2B in bf16, kept after trying Qwen3-VL-4B (int8 via torchao; its bf16 does not fit
+# 8 GB) on the bedroom's real photos (scripts/eval_readers.py, 2026-09-27): crops 0.85 against
+# 0.70, close-ups 0.50 against 0.56, spines 10 of 11 for both, 85 s against 154 s. The 4B left
+# brands blank where the 2B read them, and still read the laptop as a Dell from a shop sticker.
+# On these photos the limit is what is legible, not the model. VLM_INT8 loads a bigger one.
 VLM_ID = "Qwen/Qwen3-VL-2B-Instruct"
 VLM_INT8 = False
 ASR_ID = "openai/whisper-large-v3-turbo"
@@ -70,14 +75,12 @@ class VLM:
         model_id = model_id or VLM_ID
         int8 = VLM_INT8 if int8 is None else int8
         dtype = torch.bfloat16 if DEVICE == "cuda" else torch.float32
-        kw = {}
-        if int8 and DEVICE == "cuda":
-            from torchao.quantization import Int8WeightOnlyConfig
-            from transformers import TorchAoConfig
+        model = Qwen3VLForConditionalGeneration.from_pretrained(model_id, dtype=dtype, attn_implementation="sdpa")
+        if int8 and DEVICE == "cuda":  # quantized on the CPU, then moved: the bf16 weights never touch the card
+            from torchao.quantization import Int8WeightOnlyConfig, quantize_
 
-            kw = {"quantization_config": TorchAoConfig(Int8WeightOnlyConfig()), "device_map": DEVICE}
-        model = Qwen3VLForConditionalGeneration.from_pretrained(model_id, dtype=dtype, attn_implementation="sdpa", **kw)
-        self.model = (model if kw else model.to(DEVICE)).eval()
+            quantize_(model, Int8WeightOnlyConfig())
+        self.model = model.to(DEVICE).eval()
         self.processor = AutoProcessor.from_pretrained(model_id)
 
     def ask(self, prompt: str, image: Image.Image | None = None, max_new_tokens: int = 256) -> str:

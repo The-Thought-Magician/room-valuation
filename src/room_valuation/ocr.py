@@ -56,7 +56,7 @@ def _best_rotation(image: Image.Image, min_score: float) -> tuple[int, list[dict
     image = image.copy()
     image.thumbnail((1600, 1600))
     best = (0.0, 0, [])
-    for rot in (0, 90, 270):
+    for rot in (0, 90, 180, 270):  # 180: a label under a laptop, photographed from the front, is upside down
         lines = _lines(image.rotate(rot, expand=True) if rot else image, min_score)
         # only text lying flat counts: in the wrong rotation the OCR still reads some vertical
         # spines, but their tall boxes all overlap and merge different books into one band

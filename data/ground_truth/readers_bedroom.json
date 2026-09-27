@@ -1,0 +1,18 @@
+{
+ "about": "What the OCR and the VLM should read on the bedroom's real photos (capture 20260927-061610-8b4353). Only for scripts/eval_readers.py; the pipeline never reads it.",
+ "spines": {"photos": ["room_001.jpg", "room_007.jpg"],
+            "words": "antony cleopatra great gatsby fitzgerald history world chapters barnes principle thread koch ironhorse marston rock paper scissors feeney nonviolent communication rosenberg hare amber eyes annie black book torment",
+            "titles": ["antony and cleopatra", "great gatsby", "history of the world", "80/20 principle", "thread", "iron horse", "rock paper scissors", "nonviolent communication", "hare with amber eyes", "black book", "torment"]},
+ "closeups": [
+  {"photo": "item_local-46_closeup_00.jpg", "name": "MCB box", "words": ["havells", "eurobreaker", "b25"], "wrong": []},
+  {"photo": "item_added-4_closeup_00.jpg", "name": "mosquito repellent", "words": ["good knight", "flash", "45"], "wrong": []},
+  {"photo": "item_local-79_closeup_00.jpg", "name": "laptop", "words": ["hp", "victus"], "wrong": ["dell", "14 inch", "1440"]}
+ ],
+ "crops": [
+  {"item": "laptop", "category": "laptop", "brand": "hp"}, {"item": "monitor", "category": "monitor", "brand": "acer"},
+  {"item": "air conditioner", "category": "appliance", "brand": "carrier"}, {"item": "cupboard", "category": "furniture"},
+  {"item": "stool", "category": "furniture"}, {"item": "router", "category": "networking", "brand": "jio"},
+  {"item": "mouse", "category": "computer_accessory", "brand": "razer"}, {"item": "extension", "category": "electrical_fixture"},
+  {"item": "bed"}
+ ]
+}
