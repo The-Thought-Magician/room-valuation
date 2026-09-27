@@ -4,12 +4,14 @@ from collections import Counter
 
 from room_valuation import prices
 from room_valuation.jev import CONDITION_LEVELS, Group, market_candidates
-from room_valuation.schema import BUILDING
+from room_valuation.schema import BUILDING, CATEGORY_DEFS
 
 REVIEW_CONFIDENCE = 0.5  # below this Jev confidence a line is flagged for a human
 HOLD_SPREAD = 3.0  # Jev unsure and the market prices this many times apart: no pick, held for review
 OWNER_ABOVE_MARKET = 1.3  # an owner's price this far above the market price asks for a receipt
 SOURCES = ("local", "frontier", "object", "voice", "market")
+# where the model decides the price (a 3050 or a 5050 laptop, a 24 or a 27 inch monitor, a 1 or 1.5 ton AC)
+MODEL_PRICED = {"laptop", "monitor", "phone", "audio", "networking", "appliance", "computer_accessory"}
 
 
 def _pick(answer) -> tuple[str, float, dict]:
@@ -28,6 +30,8 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
         else:
             id_src, id_conf, id_probs = next(iter(m)), None, {}
         item = m[id_src]
+        if f"cat_{n}" in answers and answers[f"cat_{n}"].choice in CATEGORY_DEFS:  # Jev, from every reading
+            item = item.model_copy(update={"category": answers[f"cat_{n}"].choice})
         # price: from the market candidates; the owner's figure is checked against it
         cands = market_candidates(g)
         if f"price_{n}" in answers:
@@ -65,6 +69,10 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
             flags.append("priced only by the owner's word: ask for a receipt")
         elif said and rcv and said > OWNER_ABOVE_MARKET * rcv:
             flags.append(f"the owner says Rs {said:,.0f}, {said / rcv - 1:.0%} above the market price: ask for a receipt")
+        if chosen and item.category in MODEL_PRICED and chosen.price_kind != "exact" and not any(
+                it.attributes.get("model_source") == "read off the label" for it in m.values()):
+            flags.append("exact model not seen: priced as the closest equivalent; a close-up of its label, rating "
+                         "plate or box gives the exact price")
         if item.category in prices.COMPUTERS and item.category != "computer_accessory":
             config = next((it.attributes for it in m.values() if it.attributes.get("cpu") or it.attributes.get("gpu")), None)
             if any(it.attributes.get("model_source") == "read off the label" for it in m.values()):

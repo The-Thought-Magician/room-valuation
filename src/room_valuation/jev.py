@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from typesafe_sdk import Choice, Score, TypeSafeClient
 
 from room_valuation import prices, specs
-from room_valuation.schema import GENRES, Item
+from room_valuation.schema import CATEGORY_DEFS, GENRES, Item
 
 MODEL = os.environ.get("TYPESAFE_MODEL", "jev-latest")
 BATCH = 40  # questions per request; one call per batch is cheaper than one per question
@@ -393,6 +393,12 @@ def rank_groups(groups: list[Group]) -> dict:
                               "question": "These descriptions are of one object. Which one identifies it most "
                                           "specifically and correctly, given the text read off it and the owner's words?"},
                 criteria={s: None for s in g.members},
+            )
+        if next(iter(g.members.values())).category != "book":  # a category sets the useful life and the cap
+            q[f"cat_{n}"] = Choice(
+                instructions={"descriptions": {s: _view(it) for s, it in g.members.items()},
+                              "question": "These describe one object. Which category does it belong to?"},
+                criteria=CATEGORY_DEFS,
             )
         conds = {s: it.condition for s, it in g.members.items() if it.condition}
         if conds:

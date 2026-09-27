@@ -83,8 +83,10 @@ class VLM:
         self.model = model.to(DEVICE).eval()
         self.processor = AutoProcessor.from_pretrained(model_id)
 
-    def ask(self, prompt: str, image: Image.Image | None = None, max_new_tokens: int = 256) -> str:
-        content = ([{"type": "image", "image": image}] if image is not None else []) + [{"type": "text", "text": prompt}]
+    def ask(self, prompt: str, image: Image.Image | list[Image.Image] | None = None, max_new_tokens: int = 256) -> str:
+        """One question about one image, several images of one thing, or none."""
+        images = image if isinstance(image, list) else [image] if image is not None else []
+        content = [{"type": "image", "image": im} for im in images] + [{"type": "text", "text": prompt}]
         inputs = self.processor.apply_chat_template(
             [{"role": "user", "content": content}], add_generation_prompt=True, tokenize=True,
             return_dict=True, return_tensors="pt",

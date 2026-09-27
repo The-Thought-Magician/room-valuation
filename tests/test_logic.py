@@ -537,7 +537,7 @@ def test_a_later_closeup_does_not_overwrite_a_model_read_by_rules(monkeypatch):
 
     class FakeVLM:
         def ask(self, *a, **k):
-            return next(replies)
+            return next(replies, '{"brand": "HP", "name": "gaming laptop", "category": "laptop", "search": "HP Victus 15"}')
     monkeypatch.setattr(local.models, "VLM", FakeVLM)
     monkeypatch.setattr(local.models, "free", lambda: None)
     monkeypatch.setattr(local.ocr, "read_small_text", lambda im: next(labels))
@@ -548,3 +548,35 @@ def test_a_later_closeup_does_not_overwrite_a_model_read_by_rules(monkeypatch):
     it = items[0]
     assert it.model == "15-fb3185AX" and it.attributes["model_source"] == "read off the label"
     assert it.attributes["product_id"] == "C28DWPA#ACJ" and it.attributes["serial"] == "5CD5361YV5"
+
+
+def test_jev_category_choice_sets_the_depreciation():
+    bed = Item(id="local-0", source="local", category="bedding", name="bed", rcv_inr=12000, age_years=40)
+    line = valuation.line_items([Group(members={"local": bed})], {"cat_0": answer("furniture", {"furniture": 0.9})})[0]
+    assert line["category"] == "furniture" and "12 y life" in line["acv_basis"] and line["acv_inr"] == 3000
+
+
+def test_whole_object_reading_drops_a_brand_only_one_closeup_claimed(tmp_path):
+    from PIL import Image
+
+    photo = tmp_path / "room_000.jpg"
+    Image.new("RGB", (64, 64)).save(photo)
+
+    class FakeVLM:
+        def ask(self, prompt, images, n):
+            assert len(images) == 1
+            return ('{"category": "furniture", "name": "L-shaped computer desk", "brand": null, '
+                    '"search": "L shaped computer desk"}')
+    desk = Item(id="local-8", source="local", category="furniture", name="table", brand="Dell")
+    entry = {"name": "table", "detected": {"regions": [{"photo": "room_000.jpg", "box": [0.1, 0.1, 0.9, 0.9]}]}}
+    local._whole(FakeVLM(), desk, entry, [], {"room_000.jpg": photo}, "PE", "Dell", [])
+    assert desk.brand is None and desk.attributes["search_as"] == "L shaped computer desk"
+
+
+def test_an_unseen_model_is_flagged():
+    monitor = Item(id="object-2", source="object", category="monitor", name="Acer 24 inch monitor", rcv_inr=9999,
+                   price_kind="closest")
+    exact = Item(id="object-3", source="object", category="monitor", name="Acer KA242Y", rcv_inr=9000, price_kind="exact")
+    lines = valuation.line_items([Group(members={"object": monitor}), Group(members={"object": exact})], {})
+    assert any(f.startswith("exact model not seen") for f in lines[0]["flags"])
+    assert not any(f.startswith("exact model not seen") for f in lines[1]["flags"])

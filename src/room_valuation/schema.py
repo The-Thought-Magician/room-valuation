@@ -33,6 +33,29 @@ CATEGORIES = [
     "book", "decor", "kitchenware", "bag_clothing", "other",
 ]
 
+# What each category holds, for Jev's category choice: the category sets the useful life and the
+# depreciation cap, so a box bed filed as bedding (5 years, 80 percent) instead of furniture
+# (12 years, 75 percent) is a valuation error, not a label.
+CATEGORY_DEFS = {
+    "laptop": "laptops and notebook computers",
+    "monitor": "computer monitors and televisions",
+    "computer_accessory": "keyboards, mice, webcams, chargers, adapters, hard disks, laptop stands",
+    "phone": "mobile phones and tablets",
+    "audio": "headphones, earphones, speakers",
+    "networking": "wifi routers, modems, network switches",
+    "appliance": "air conditioners, fans, coolers, heaters, irons, kettles, refrigerators, printers, plug-in devices",
+    "lighting": "lamps, bulbs, tube lights",
+    "electrical_fixture": "switch boards, sockets, MCB boxes, extension boards, fan regulators",
+    "building_fixture": "doors and windows with their frames and hardware",
+    "furniture": "beds, cots, tables, desks, chairs, stools, wardrobes, almirahs, cupboards, shelves, sofas",
+    "bedding": "mattresses, pillows, bedsheets, blankets, quilts",
+    "book": "books",
+    "decor": "curtains, mirrors, clocks, posters, photo frames, plants, whiteboards",
+    "kitchenware": "bottles, mugs, cups, plates, lunch boxes, cookware",
+    "bag_clothing": "bags, backpacks, suitcases, shoes, clothes",
+    "other": "anything else",
+}
+
 # insured under the building (dwelling) cover, not contents: reported as a separate total
 BUILDING = {"electrical_fixture", "building_fixture"}
 

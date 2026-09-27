@@ -290,6 +290,8 @@ def lookup(item) -> tuple[float | None, str | None, str | None, dict]:
             code = re.split(r"[#/]", pid)[0]
             tries.append((f"{item.brand or ''} {code}".strip(), sorted(_tokens(code)), "exact"))
     q, must = query_for(item)
+    if said := item.attributes.get("search_as"):  # pipeline 1's reading of the item from all its photos at once
+        tries.append((said, must, None))
     tries.append((q, must, None))
     p = {}
     for query, need, kind in tries:
