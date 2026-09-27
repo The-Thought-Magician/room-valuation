@@ -5,7 +5,8 @@ const inr = v => v == null || v === 0 ? "–" : "₹" + Math.round(v).toLocaleSt
 const pct = v => v == null ? "–" : Math.round(v * 100) + "%";
 const photo = n => `media/photos/${n}`;
 const pic = (n, cap) => `<figure><img loading="lazy" src="${photo(n)}" alt="">${cap === false ? "" : `<figcaption>${esc(cap ?? n)}</figcaption>`}</figure>`;
-const src = (s, on) => `<span class="src ${s} ${on ? "chosen" : ""}">${s === "frontier" ? "Opus" : s === "voice" ? "owner" : s}</span>`;
+const SRC = { frontier: "Opus", object: "Opus, per object", voice: "owner" };
+const src = (s, on) => `<span class="src ${s} ${on ? "chosen" : ""}">${SRC[s] || s}</span>`;
 const stat = (b, s) => `<div class="stat"><b>${b}</b><span>${s}</span></div>`;
 const say = t => `<div class="say">${t}</div>`;
 const link = u => /^https?:/.test(u || "") ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(new URL(u).hostname.replace("www.", ""))}</a>` : esc(u || "");
@@ -167,9 +168,29 @@ function pipeline2() {
     <div class="stats">${stat(f.items.length, "items")}${stat(Math.round(f.seconds || D.status?.stages?.frontier?.seconds || 0) + " s", "wall time")}
       ${stat(f.room_area_m2 ? f.room_area_m2 + " m²" : "–", "its area estimate")}</div></section>
     <section><h2>Its notes for the insurer</h2><ul>${(f.notes || []).map(n => `<li>${esc(n)}</li>`).join("")}</ul></section>
-    <section><h2>What it found</h2><table><tr><th>Item</th><th>Qty</th><th>Evidence</th><th class="num">Price</th><th>Source</th></tr>
+    ${objectPass()}
+    <section><h2>What the room pass found</h2><table><tr><th>Item</th><th>Qty</th><th>Evidence</th><th class="num">Price</th><th>Source</th></tr>
       ${f.items.map(i => `<tr><td><b>${esc(i.name)}</b><div class="muted">${esc(i.category)}</div></td><td>${i.quantity}</td><td class="muted">${esc(i.evidence || "")}</td>
         <td class="num">${inr(i.rcv_inr)}</td><td>${link(i.price_source)}<div class="muted" style="font-size:12px">${esc(i.price_note || "")}</div></td></tr>`).join("")}</table></section>`;
+}
+
+function objectPass() {
+  const o = D.objects;
+  if (!o || !o.items?.length) return "";
+  const measured = Object.fromEntries(D.items.map(i => [i.id, i.measured]));
+  return `<section><h2>Second pass: one Opus run per object, with every photo of it</h2>
+    ${say("Each object on the owner's list gets its own run: its close-ups and crops of every place it was detected, all at once. Opus identifies it as exactly as the labels allow, finds its dimensions on the web, and prices it new in the room's city. Its answer joins Jev as a fourth reading of that object, and its dimensions are checked against the 3D measurement.")}
+    <div class="stats">${stat(o.items.length, "objects")}${stat(Math.round(o.seconds || 0) + " s", "wall time, 4 in parallel")}${stat(esc((o.notes?.[0] || "").split("cost ")[1] || "–"), "reported cost")}</div></section>
+    ${[...o.items].sort((a, b) => (b.rcv_inr || 0) - (a.rcv_inr || 0)).map(i => {
+      const m = measured[i.link];
+      return `<section><div class="item-card"><div class="pics">${(i.photos || []).slice(0, 6).map(p => `<img src="${photo(p)}">`).join("")}</div><div>
+        <h2>${esc(nm(i.brand, i.name))} <span class="muted" style="font-weight:400">${esc(i.model || "")}</span></h2>
+        <p><b>${inr(i.rcv_inr)}</b> <span class="muted">(${esc(i.price_kind || "")})</span> ${link(i.price_source)}</p>
+        <div class="muted" style="font-size:13px">${esc(i.price_note || "")}</div>
+        <p class="hint">Dimensions from the web: ${esc(i.product_size || "not found")} ${link(i.attributes?.dimensions_source)}${m ? ` · measured in 3D: about ${m.width_cm} x ${m.height_cm} cm` : ""}</p>
+        ${["cpu", "gpu", "ram", "storage"].some(k => i.attributes?.[k]) ? `<p class="hint">Configuration: ${["cpu", "gpu", "ram", "storage"].map(k => i.attributes[k]).filter(Boolean).map(esc).join(", ")}</p>` : ""}
+        <div class="ocr">${esc(i.evidence || "")}</div></div></div></section>`;
+    }).join("")}`;
 }
 
 function jevQ(k) {

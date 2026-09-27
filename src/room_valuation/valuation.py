@@ -76,9 +76,19 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
                 flags.append("priced with the configuration the owner stated: confirm it from a label or Settings > About")
         measured = next((it.measured for it in m.values() if it.measured), None)
         for src, it in m.items():  # the product's dimensions (from the web, or a listing) against the 3D measurement
-            why = prices.size_mismatch(measured, prices.listing_size(it.product_size)) if it.product_size else None
-            if why:
-                flags.append(f"the {src} source's product size does not fit what was measured: {why}")
+            size = prices.listing_size(it.product_size) if it.product_size else None
+            why = prices.size_mismatch(measured, size, item.category)
+            if not why:
+                continue
+            flags.append(f"3D size check: the {src} source's product is {why}")
+            # seen only in its own crop (not by the room pass, no owner note) and fitting nothing that size:
+            # most likely not the object it was called (the blurred curtain called a wardrobe)
+            alone = "frontier" not in m and "voice" not in m
+            if src == price_src and alone and not held and (prices.size_ratio(measured, size) or 0) > 3:
+                held = {"low_inr": 0, "high_inr": rcv * (item.quantity or 1),
+                        "reason": f"seen only in its own crop, and the priced product ({it.product_size}) is over 3 times "
+                                  f"the size measured in 3D"}
+                flags.append(f"held for review: {held['reason']}; not in the total")
         free = next((it.attributes.get("acquired") for it in m.values() if it.attributes.get("acquired")), None)
         if free:
             flags.append(f"owner: {free}")

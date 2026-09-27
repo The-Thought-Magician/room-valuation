@@ -189,11 +189,28 @@ def listing_size(title: str) -> dict | None:
 
 
 SIZE_TOLERANCE = 1.8  # measured sizes are estimates (geometry.py), so only a big gap counts
+# The front-surface measurement holds for rigid things seen whole (the laptop: 37 cm against 36).
+# It does not for soft or sprawling ones: on the fresh bedroom run a bedsheet measured 32 x 45 cm,
+# the charger with its cable 26 x 66, a switchboard with its wiring a metre tall (2026-09-27).
+SIZE_CHECKED = {"furniture", "appliance", "laptop", "monitor", "networking", "audio", "kitchenware"}
 
 
-def size_mismatch(measured: dict | None, size: dict | None) -> str | None:
-    """Why a product of this size cannot be the object measured in the room, or None."""
+def size_ratio(measured: dict | None, size: dict | None) -> float | None:
+    """How many times apart the product's stated size and the measured size are."""
     if not measured or not size:
+        return None
+    w, h = measured["width_cm"], measured["height_cm"]
+    if size.get("diagonal_in"):
+        seen = (w * w + h * h) ** 0.5 / 2.54
+        return max(seen, size["diagonal_in"]) / max(1e-6, min(seen, size["diagonal_in"]))
+    big, seen = size["dims_cm"][0], max(w, h)
+    return max(big, seen) / max(1e-6, min(big, seen))
+
+
+def size_mismatch(measured: dict | None, size: dict | None, category: str | None = None) -> str | None:
+    """Why a product of this size cannot be the object measured in the room, or None. Only for
+    rigid categories (SIZE_CHECKED) when a category is given."""
+    if not measured or not size or (category and category not in SIZE_CHECKED):
         return None
     w, h = measured["width_cm"], measured["height_cm"]
     if size.get("diagonal_in"):

@@ -67,6 +67,8 @@ def main():
     photos = sorted(p.name for p in (cap / "out" / "photos").glob("*.jpg"))
     for n in photos:
         jpg(cap / "out" / "photos" / n, m / "photos" / n, 1400)
+    for p in sorted((cap / "out" / "objects").glob("*.jpg")):  # the crops each per-object Opus run was given
+        jpg(p, m / "photos" / p.name, 1000)
     for p in (cap / "out" / "thumbs").glob("*.jpg"):
         shutil.copy(p, m / "thumbs" / p.name)
     video = next((p for p in cap.glob("video.*")), None)
@@ -109,6 +111,7 @@ def main():
         "local_log": load(run / "local_log.json") or load(cap / "out" / "local_log.json", []),
         "local": load(run / "local.json"),
         "frontier": load(run / "frontier.json"),
+        "objects": load(run / "object.json") or load(cap / "out" / "object.json"),
         "voice": load(run / "voice.json"),
         "status": load(cap / "out" / "status.json"),
         "jev_pairs": load(run / "jev_pairs.json", []),

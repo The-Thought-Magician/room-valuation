@@ -68,8 +68,8 @@ const cid = location.pathname.split("/").pop();
 const api = `/api/captures/${cid}`;
 const inr = v => v == null ? "–" : "₹" + Math.round(v).toLocaleString("en-IN");
 const pct = v => v == null ? "" : ` ${(100 * v).toFixed(0)}%`;
-const ORDER = ["frontier", "local", "voice", "area", "jev", "market", "report"];
-const NAMES = { frontier: "pipeline 2: frontier model", local: "pipeline 1: local models",
+const ORDER = ["frontier", "object", "local", "voice", "area", "jev", "market", "report"];
+const NAMES = { frontier: "pipeline 2: frontier model, the room", object: "pipeline 2: frontier model, one run per object", local: "pipeline 1: local models",
   voice: "owner notes", area: "floor area", jev: "Jev: match and rank", market: "market prices for unpriced items (Serper)", report: "report" };
 
 async function poll() {

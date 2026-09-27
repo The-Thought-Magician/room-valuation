@@ -10,12 +10,17 @@ Numbers below are from the merged bedroom capture (`docs/results/bedroom-merged`
 - The owner gives photos, a video, or both, plus room details: room name, city, and tape
   dimensions if known.
 - Photos are EXIF-upright and at most 2048 px.
-- A video goes through `run.video_frames`:
+- A video goes through `run.video_frames`, chosen by coverage, not by count, so a video of any
+  length works:
   1. ffmpeg takes 2 frames a second.
-  2. The blurriest third is dropped (variance of the Laplacian).
-  3. At most 16 frames are kept, evenly spaced.
+  2. Motion blur is dropped: variance of the Laplacian under 0.8 of the median.
+  3. A frame is kept each time under 8 percent of its ORB features match the last kept frame,
+     that is, when the camera has moved on to something new. There is no cap: a longer walk
+     through more room keeps more frames, a slow pan over one wall keeps few.
   4. They are used exactly like photos.
-- The merged bedroom had 8 photos and 16 frames.
+- The bedroom's 39 s walk-through gives 79 frames at 2 a second; 30 are kept (it was a fixed 16
+  before the CTO call). Neighbouring frames half a second apart match only 15 to 25 percent of
+  their features on this fast, close walk-through, hence the low threshold.
 - The capture is stored under `data/captures/<id>/`: `meta.json`, `photos/room/`, `video.*`,
   `session.json`.
 
@@ -27,11 +32,27 @@ Numbers below are from the merged bedroom capture (`docs/results/bedroom-merged`
 3. **Qwen3-VL-2B** looks at each crop and returns category, name, readable brand/model,
    size, printed text and condition. Answers that repeat the prompt's example are dropped
    (see section 9).
-4. The same object in several photos becomes one item:
-   - within one photo: box containment above 0.45
-   - across photos: same brand, or similar names
-5. Book boxes become one "books" card. Its spines are read in step 4, not from the crop.
-6. The owner sees the list with counts per type, removes false or duplicate items, and adds
+4. **Every box is placed in 3D** (`geometry.py`, run between the two models so VGGT has the GPU):
+   - `scripts/geometry_worker.py` runs in the floor plan take-home's environment. VGGT-1B gives
+     a 3D point for every pixel and a camera for every photo and frame, in one world.
+   - Any number of images: VGGT runs in chunks of 24 that share 6 images, and each chunk is
+     aligned to the first by a similarity transform (Umeyama) on the pixels of the shared
+     images. 24 images peaked at 5.2 GB on the 8 GB card.
+   - MoGe-2 monocular metric depth gives the scale, and the cameras' up axes level the world.
+   - A box becomes the points of the object's front surface (the nearest depth band inside the
+     box, shrunk off the background). Their median is the position; their spread across and up
+     is the width and height. Each view is measured on its own and the median taken.
+   - Checked on the bedroom: the 15.6 inch laptop measured 37 cm wide (it is 36), the 24 inch
+     monitor 40 cm (it is 53). Sizes only rule out a product at nearly double or half the size.
+5. The same object in several photos becomes one item:
+   - **3D first:** two boxes within a quarter metre (or 40 percent of the object's larger
+     side), of a similar size (within 2.5 times), are one object whatever each view called it.
+     Two same-named objects a metre or more apart stay two. A pillow on the bed is one place
+     but not one size, so it stays a pillow.
+   - otherwise: box containment above 0.45 within one photo; same brand or similar names
+     across photos
+6. Book boxes become one "books" card. Its spines are read in step 4, not from the crop.
+7. The owner sees the list with counts per type, removes false or duplicate items, and adds
    anything missed. This is stored in `session.json`.
 
 ## 3. One page per item (`web/item.html`)
@@ -54,9 +75,26 @@ card once crashed one of them.
 ### Pipeline 1: local models (`local.refine`, `local.price_all`)
 
 - **Close-ups:**
-  - PP-OCR reads every line of text on the label. These are PaddleOCR's PP-OCRv6 models run
-    through RapidOCR on ONNX Runtime, because PaddlePaddle has no Python 3.14 build.
+  - PP-OCR reads every line of text on the label. These are PaddleOCR's PP-OCRv6 models (the
+    medium tier) run through RapidOCR on ONNX Runtime, because PaddlePaddle has no Python 3.14
+    build. Labels are read at 0, 90, 180 and 270 degrees: the etched label under a laptop,
+    photographed from the front, is upside down. Electronics are also read in enlarged
+    overlapping tiles, for small print.
   - Qwen3-VL reads brand, model, size and specs, given the OCR text as a hint.
+  - **Model, product and serial numbers are read by rules on the OCR text** (`specs.label_ids`),
+    not by the VLM: on the laptop's labels the 2B put "Victus by HP Gaming Laptop" in the model
+    field, and took the radio module for the model and the regulatory number for the serial.
+    The rules take the code after the product name or "Model", the ProdID or P/N line and the SN#
+    line, and skip radio, regulatory (RMN, TPN), BIS, standards, power and warranty lines.
+  - **The configuration** (`specs.parse`): CPU, GPU, RAM, storage, screen, refresh and
+    resolution, by rules, from the OCR, the frontier model's reading or the owner's words. A
+    computer with no configuration is flagged: priced as the base model, with the photo that
+    would fix it (the label underneath, the box, Settings > About).
+  - The models were chosen on the room's own photos (`scripts/eval_readers.py`, expected words in
+    `data/ground_truth/readers_bedroom.json`): PP-OCRv6 medium read 81 percent of the known words
+    against 72 for small. Qwen3-VL-4B (int8 through torchao; its bf16 does not fit 8 GB and
+    bitsandbytes has no Blackwell kernels) scored 0.70 on crops against the 2B's 0.85, 0.56 on
+    close-ups against 0.50, the same on spines, in twice the time. The 2B stays.
 - **Books** (`local._read_spines`):
   - One full-resolution crop per photo around all book boxes, or the spine close-ups.
   - PP-OCR reads at 0, 90 and 270 degrees. The rotation where the text lies flat wins, and
@@ -76,12 +114,20 @@ card once crashed one of them.
     - vague one-word names get a category word ("switch" becomes "switch electrical wall",
       after "switch" matched Nintendo Switch listings)
     - books search "title author paperback"
+    - a model number read off a close-up's label is searched as that exact model first, then its
+      product number, and only listings naming it count (`prices.lookup`). The configuration those
+      listings state fills the item's spec when none was read
+    - a computer's search carries its configuration (`specs.search_words`: "HP laptop Ryzen 7
+      260 RTX 5050"), and a listing must name its GPU
+    - used, refurbished and open-box listings are dropped: a replacement cost is the price new
   - Sources:
     - Serper Google Shopping for India (Amazon.in, Flipkart, Croma, Reliance, Zepto appear
       as sellers)
     - a Google site search of blinkit.com and zeptonow.com for small goods
   - Only listings whose titles share at least half the query words, and the brand, count.
-    The median of those is the price.
+    The median of those is this pipeline's own price, with the 25th to 75th percentile as its
+    range. The best 10 listings (a looser cut) are kept, with any size their titles state
+    ("90 x 60 cm", "4x3 ft", "24 inch"), for Jev to judge one by one (section 5).
   - An unreadable spine gets the median of the identified books.
   - Every query is cached in `data/price_cache/`.
 
@@ -95,9 +141,28 @@ card once crashed one of them.
   - spine titles and genres
   - switch, socket and regulator counts per switchboard
   - doors and windows as building fixtures
-  - a new price in India per item, with the URL it came from
+  - a new price in India per item, with the URL it came from, priced like kind and quality
+    (same type, size and grade), marked exact (this model) or closest, with the size of the
+    product it priced
+  - model numbers and serials off every readable sticker
   - condition, room area, shelf count, and notes for the insurer
-- On the merged capture: 43 items in 306 s, reported as $3.23 of usage by `claude -p`.
+- On the merged capture: 43 items in 306 s, reported as $3.23 of usage by `claude -p`. On the
+  fresh run after the CTO call: 48 items in 414 s, $3.80.
+- **Second pass, one run per object** (`frontier.run_objects`, added after the CTO call). Every
+  object on the owner's list (books aside) gets its own `claude -p` run with every photo of it at
+  once: its close-ups, and crops (with some room around them) of the largest boxes it was
+  detected in, up to 6. The prompt asks for:
+  1. its exact identity from every label, sticker and screen; for computers the CPU, GPU, RAM and
+     storage, from a label or from the official specification of a model number it read
+  2. its dimensions from the manufacturer or a retailer's specification, on the web
+  3. its new price in the room's city, like kind and quality, exact or closest, never a used
+     listing
+  Each answer is tied to its item (`Item.link`), like an owner note, so Jev sees it as a fourth
+  reading of that object. Answers are cached by prompt in `out/objects/`, so a replay costs
+  nothing. On the bedroom: 26 objects in 451 s, 4 in parallel, $11.66. The laptop came back as
+  the 15-fb3185AX read off its label, Ryzen 7 260, RTX 5050, 24 GB, 1 TB, ₹1,31,999 new at Vijay
+  Sales, 35.8 x 25.5 x 2.35 cm. The room pass stays, because it finds what the detector missed:
+  doors, windows, the MCB box, shoes.
 - The raw output is kept in `out/opus_raw.json`.
 - `run_astra` is the same prompt through the OpenAI Responses API with `web_search`
   (`gpt-6-astra`). It is written but untested, because the key had no credits.
@@ -107,12 +172,16 @@ card once crashed one of them.
 - Whisper large-v3-turbo transcribes each note. ffmpeg decodes it to 16 kHz mono first,
   because Chrome records webm and iPhones record m4a.
 - **Prices and ages are read by rules** (`voice.parse_price`, `parse_age`), not by a model:
-  - prices: "16K", "1.9 lakhs", "Rs. 2500", "500 rupees"
+  - prices: "16K", "1.9 lakhs", "Rs. 2500", "500 rupees", "five hundred rupees"
+  - spoken ranges: "fifteen, sixteen thousand" or "15 to 16k" give the midpoint, and the range
+    is kept on the item as a note
   - ages: "3 years back", "one month old", "last year"
   - Qwen 2B had invented a ₹12,000 charger and read "40 years back" as one year.
 - "Came free" or "company provided" is flagged, and ₹0 is never a price.
-- A price paid is a replacement-cost candidate only if the purchase was within 2 years. The
-  ₹450 paid for a 35-year-old bed says nothing about replacing it.
+- **The owner's price is evidence, not a candidate** (since the CTO call: "the owner obviously
+  wants to maximise how much they get"). It is checked against the market price: more than 30
+  percent above it asks for a receipt. It is used as the price only when no market source
+  priced the item, and then flagged. The age still sets the depreciation.
 - Qwen reads only the brand from the text.
 - Each owner statement is linked to its item (`Item.link`).
 
@@ -156,24 +225,39 @@ As its docs advise, it only judges; counting, thresholds and arithmetic stay in 
      photo
 
    Anything else near a match is flagged as a possible double count.
-5. **Per merged item:**
+5. **Per merged item, first round:**
    - a Choice picks which reading identifies it
-   - a Choice picks which price to trust
    - a Score gives its condition
    - a Choice gives the genre for books
-
-   Real example from the merged run, for the laptop's price:
+6. **Every listing judged against that identity** (`jev.judge_listings`). One Score per listing
+   behind a search price, with the identity Jev chose and the size measured in 3D:
 
    ```
-   candidates: local    Rs 77,245  median of 18 listings for 'HP VICTUS 14 inches laptop'
-               frontier Rs 78,858  exact SKU not readable
-               voice    Rs 1,90,000  what the owner says they paid, 0.08 years ago
-   how_to_judge: "A price the owner paid within the last 12 months for this exact item is the strongest evidence ..."
-   answer: voice, probabilities {voice 0.69, local 0.29, frontier 0.02}, confidence 0.53
+   criteria: ["a different product: another kind of object, or an accessory, spare part, refill or bundle",
+              "a similar product: the same kind of object, but a different model, size, material or type",
+              "this exact product: same kind, same brand and model (or the same specification when no model
+               is known), and about the same size"]
    ```
 
-   Confidence under 0.5 flags the line for review.
-6. **Batching:** 40 questions per call, 6 calls in parallel. On the merged capture that was
+   Code then prices the source again: the median of the listings of this exact product is the
+   **exact** price; failing that, the median of the similar ones is the **closest** price (the
+   two fields Alok asked for); the 25th to 75th percentile is the range. For rigid objects measured
+   from two views or more, a listing whose stated size is more than 1.8 times off the measured
+   size is a different product: like kind and quality includes size. A source left with no listing loses its price, and the market search
+   (section 6) tries again with Jev's identity.
+7. **Second round: which market price to trust.** A Choice among pipeline 1, the frontier model
+   and the market search. The owner's figure is not a candidate:
+
+   ```
+   how_to_judge: "A listing judged to be this exact product is the strongest evidence. Next best is the
+                  closest similar product of the same type and size. A class estimate with no listing is
+                  weaker, and a median over many different models is weakest."
+   ```
+
+   Confidence under 0.5 flags the line for review. When Jev is that unsure and the market prices
+   are 3 or more times apart (the whiteboard sheet: ₹400 from Opus against a ₹10.6k framed
+   board), the line is **held for review**: left out of the total, reported with its range.
+8. **Batching:** 40 questions per call, 6 calls in parallel. On the merged capture that was
    236 questions in 7 calls, 85k input tokens, about 5 s and well under a cent. Every call
    (state, questions, answers, model, usage) is kept in `out/runs/<time>/jev_calls.jsonl`.
 
@@ -186,8 +270,9 @@ and the owner's price from within 2 years. A merged item can still have no price
 - the owner said nothing about it
 
 Each such item is searched once more, with the identity Jev chose (usually a better query than
-the local reading), and the result joins as a **market** candidate. An unreadable book gets the
-room's median book price.
+the local reading), its listings are judged the same way, and the result joins as a **market**
+candidate. An item whose local listings Jev judged all wrong gets this second search too. An
+unreadable book gets the room's median book price.
 
 **Why both.** At first Serper ran only after Jev, and pipeline 1 gave no prices. That scored
 worse, and it departs from the brief, where pipeline 1 produces values for Jev to rank against
@@ -205,17 +290,31 @@ two captures and one item on the third.
 
 ## 7. Valuation (`valuation.py`, `prices.acv`, `area.py`)
 
-- **RCV** is the chosen price times the quantity.
-- **ACV** is `RCV x max(0.10, 1 - age / useful life)`:
-  - The age comes from the owner, if said. Otherwise the condition stands in for it: like
-    new 10% of the life used, good 35%, fair 60%, poor 85%.
-  - Useful lives: laptop 5 years, monitor 6, appliance 8, furniture 10, book 10, building
-    fixture 30, and so on.
+- **RCV** is the chosen market price times the quantity, with its range and whether it is the
+  exact product or the closest.
+- **ACV** is `RCV x (1 - min(cap, age / useful life x condition adjustment))`, as US contents
+  adjusters depreciate (`prices.DEPRECIATION`, researched 2026-09-27):
+  - Claims Pages' depreciation guide (built with adjusters) gives useful lives by category, and
+    says an item still working for its purpose is not depreciated past 90 percent. Xactimate
+    has a "max depreciation" per carrier and state. Cozmo's CTO: "usually 75 to 80 percent".
+    California's 10 CCR 2695.9: depreciation must reflect a measurable loss of value, and
+    labour is never depreciated.
+  - The table, as defaults for a carrier's own: electronics 80 percent cap (laptop 4 years,
+    monitor 6, phone 3), appliances 75 (8 years), furniture 75 (12), bedding 80 (5), decor 75,
+    books 50 (they keep value; adjusters often do not depreciate them), and electrical and
+    building fixtures 70 (priced with installation, which is not depreciated).
+  - The age comes from the owner, if said, and the condition adjusts it: like new counts 0.75
+    of the age, fair 1.15, poor 1.3. With no age, the condition stands in for it: like new 10
+    percent of the life used, good 35, fair 60, poor 85.
+  - Before the CTO call it was a 10 percent floor for everything. The 40-year-old almirah now
+    keeps 25 percent of its replacement cost, not 10.
 - **Contents** and **building fixtures** (doors, windows, switchboards, the MCB box) are
   totalled apart, because an insurer covers them under different policies.
 - **Books** are totalled by genre.
 - Lines are flagged when their price confidence is low, a possible double count exists, the
-  owner said the item was free or provided, or no source gave a price.
+  owner said the item was free or provided, the owner's price is far above the market (a
+  receipt is asked for), the measured size does not fit the product the frontier model priced,
+  or no source gave a price. Held lines are totalled apart, as a range.
 - **Area**, in order of preference:
   1. tape dimensions
   2. a floor plan the floor plan take-home already measured (its ARCore depth tier: 15.68 m²
@@ -239,6 +338,8 @@ two captures and one item on the third.
 | Artifact | Where | Used for |
 |---|---|---|
 | Every Serper response | `data/price_cache/*.json` | replays never search twice |
+| 3D of the photos and frames | `out/geometry/vggt.npz` | positions and sizes; reused when the photo list is the same |
+| Jev's verdict on every listing | `out/listing_verdicts.json`, and on each line's candidates | exact and closest prices |
 | Market searches after Jev | `out/market_log.json` | which items were searched, with what query |
 | Frontier raw output and parsed items | `out/opus_raw.json`, `out/frontier.json` | `--reuse frontier` |
 | Local close-up and spine reading | `out/local_refined.json` | `--reuse refine` (no GPU) |
@@ -252,9 +353,17 @@ the README's tuning table was found and checked this way.
 
 ## 10. Known limits
 
-- **Local-only duplicates.** Two lines both from the local detector (a "wardrobe" next to the
-  almirah) cannot be merged by Jev, since a group holds one item per source. The owner's
-  review catches them.
+- **Local-only duplicates** are now merged by 3D position at detection. What 3D cannot catch is
+  a false detection at a place of its own: the "wardrobe" was a blurred frame of the curtain.
+  Its measured 25 x 44 cm fits no wardrobe listing, so it gets no price and is flagged.
+- **3D sizes are estimates, and only for rigid things.** The laptop measured 37 cm against 36,
+  the monitor 25 percent small. On the fresh run a bedsheet measured 32 x 45 cm, the charger with
+  its cable 26 x 66, a switchboard with its wiring a metre tall, the bed 44 x 14 (seen edge-on).
+  So sizes are checked only for furniture, appliances, laptops, monitors, networking, audio and
+  kitchenware, shown as a "3D size check" flag, and a line is held on size only when nothing but
+  its own crop saw it (not the room pass, no owner note) and the priced product is over 3 times
+  the measured size: the blurred curtain the detector called a wardrobe, which the per-object
+  pass priced as a ₹18,100 steel almirah.
 - **The small VLM copies prompt examples.** On the merged capture the laptop got
   "specs: 1400 W" from the air-fryer example in the close-up prompt. Values equal to a prompt
   example are now dropped. Owner notes and the frontier model outrank the local reading
@@ -263,5 +372,9 @@ the README's tuning table was found and checked this way.
   dimensions or a measured plan.
 - **Windows and doors** are the frontier model's supply-plus-install estimates, not
   listings.
+- **The depreciation table** is a researched default, not a carrier's own. Replace
+  `prices.DEPRECIATION` with the carrier's table.
+- **No serial lookup.** Serials are read and kept as evidence; there is no manufacturer API to
+  turn one into a specification.
 - **One room per capture.** A whole house is several captures; there is no roll-up yet.
 - **The GPT-6 Astra backend is untested.**

@@ -348,7 +348,10 @@ def judge_listings(groups: list[Group], answers: dict, sources: tuple[str, ...] 
         li = it.listings[k]
         score = float(got[key].score) if key in got else 0.0
         verdict = "exact" if score >= MERGE_SCORE else "similar" if score >= MAYBE_SCORE else "different"
-        why = prices.size_mismatch(identity(groups[n], n, answers).measured, li.get("size"))
+        ident = identity(groups[n], n, answers)
+        # only a size measured from two views or more rules a listing out
+        why = prices.size_mismatch(ident.measured, li.get("size"), ident.category) \
+            if ident.measured and ident.measured.get("views", 1) >= 2 else None
         if why:
             verdict = "different"
         li.update({"verdict": verdict, "jev_score": round(score, 2), **({"size_mismatch": why} if why else {})})

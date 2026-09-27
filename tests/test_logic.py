@@ -377,8 +377,8 @@ def test_jev_listing_verdicts_reprice_exact_then_closest(monkeypatch):
     def lst(title, price):
         return {"title": title, "price": price, "seller": "s", "url": title, "size": prices.listing_size(title)}
 
-    sheet = Item(id="local-0", source="local", category="other", name="whiteboard", rcv_inr=10637,
-                 measured={"position_m": [0, 0, 0], "width_cm": 85, "height_cm": 67},
+    sheet = Item(id="local-0", source="local", category="furniture", name="whiteboard", rcv_inr=10637,
+                 measured={"position_m": [0, 0, 0], "width_cm": 85, "height_cm": 67, "views": 2},
                  listings=[lst("Large framed whiteboard 8x4 ft", 10637), lst("Roll up whiteboard sheet 90 x 60 cm", 350),
                            lst("Whiteboard sheet roll 3x2 ft", 450), lst("Whiteboard markers pack", 99)])
     mug = Item(id="local-1", source="local", category="kitchenware", name="mug", rcv_inr=500,
@@ -496,3 +496,31 @@ def test_label_ids_by_rules_not_the_radio_module():
     assert specs.label_ids(power) == {}  # the radio module and the regulatory number are not the product
     assert specs.label_ids("Carrier Model No: CAI18EK5R39F0 | Serial No. 1234AB5678")["model"] == "CAI18EK5R39F0"
     assert prices.USED.search("HP Victus (Refurbished)") and not prices.USED.search("HP Victus 15-fb3185AX")
+
+
+def test_a_price_for_a_product_of_another_size_is_held():
+    seen = Item(id="local-0", source="local", category="furniture", name="wardrobe",
+                measured={"position_m": [0, 0, 0], "width_cm": 24, "height_cm": 50})
+    opus = Item(id="object-local-0", source="object", category="furniture", name="steel almirah", rcv_inr=18100,
+                product_size="90 x 180 x 50 cm")
+    line = valuation.line_items([Group(members={"local": seen, "object": opus})], {})[0]
+    assert line["held"] and "over 3 times the size measured" in line["held"]["reason"]
+    assert valuation.totals([line])["rcv_inr"] == 0
+    room = Item(id="opus-3", source="opus", category="furniture", name="wardrobe", rcv_inr=18000)
+    line = valuation.line_items([Group(members={"local": seen, "object": opus, "frontier": room})], {})[0]
+    assert not line["held"] and any(f.startswith("3D size check") for f in line["flags"])  # the room pass saw it too
+    sheet = Item(id="local-1", source="local", category="bedding", name="bedsheet",
+                 measured={"position_m": [0, 0, 0], "width_cm": 32, "height_cm": 45})
+    big = Item(id="object-local-1", source="object", category="bedding", name="bedsheet", rcv_inr=699,
+               product_size="228 x 254 cm")
+    assert not valuation.line_items([Group(members={"local": sheet, "object": big})], {})[0]["flags"]  # soft: not size-checked
+
+
+def test_run_together_partial_spines_are_dropped():
+    def b(i, title, lookup="openlibrary"):
+        return Item(id=f"b{i}", source="local", category="book", name=title,
+                    book=Book(title=title, author="Keith Miles" if "Iron" in title else None, lookup=lookup))
+    found = [b(0, "Iron Horse"), b(1, "Antony and Cleopatra"), b(2, "RONHORSE EDWARD MARSTON", "spine text only"),
+             b(3, "AND CL20PXCIA", "spine text only"), b(4, "SCOYY REN", "spine text only")]
+    kept = local._settle_books(found, found[0])
+    assert [k.name for k in kept] == ["Iron Horse", "Antony and Cleopatra", "unidentified book"]

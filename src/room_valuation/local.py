@@ -432,6 +432,7 @@ def _settle_books(found: list[Item], card: Item) -> list[Item]:
     known = set()
     for b in matched:
         known |= {w for w in _norm(f"{b.book.title} {b.book.author or ''}").split() if len(w) >= 4 and w not in PUBLISHERS}
+    titles = ["".join(_norm(b.book.title).split()) for b in matched]
     rest = []
     for b in found:
         if b in matched:
@@ -439,8 +440,18 @@ def _settle_books(found: list[Item], card: Item) -> list[Item]:
         words = {w for w in _norm(b.name).split() if len(w) >= 4 and w not in PUBLISHERS}
         if words and _fuzzy_words(words, known) >= 1:
             continue
+        # letters run together or cut off
+        if any(_partial_read("".join(_norm(b.name).split()), t) for t in titles):
+            continue
         rest.append(b.model_copy(update={"name": "unidentified book", "evidence": f"spine read as: {b.name}"}))
     return matched + rest or [card.model_copy(update={"name": "book (title not read)"})]
+
+
+def _partial_read(fragment: str, title: str) -> bool:
+    """A long run of letters shared with a known title: most of the fragment, or most of the title
+    ('RONHORSE EDWARD MARSTON' is Iron Horse, 'AND CL20PXCIA' is Antony and Cleopatra)."""
+    run = difflib.SequenceMatcher(None, fragment, title).find_longest_match(0, len(fragment), 0, len(title)).size
+    return run >= 5 and (run >= 0.4 * len(fragment) or run >= 0.7 * len(title))
 
 
 def _union_crop(image: Image.Image, boxes: list[list[float]], margin: float = 0.15, side: int = 2000) -> Image.Image:
