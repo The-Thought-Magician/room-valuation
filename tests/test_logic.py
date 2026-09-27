@@ -303,6 +303,11 @@ def test_closeup_links_and_compatible_categories():
                       photos=["item_added-1_closeup_00.jpg"])
     jev.closeup_links([chair, opus_chair, opus_bed, opus_door, opus_table])
     assert opus_chair.link == "added-1" and opus_bed.link is None and opus_door.link is None and opus_table.link is None
+    table = Item(id="local-8", source="local", category="furniture", name="table")
+    desk = Item(id="opus-9", source="opus", category="furniture", name="L-shaped computer desk",
+                photos=["room_000.jpg", "item_local-8_closeup_00.jpg"])
+    jev.closeup_links([table, desk])
+    assert desk.link == "local-8"  # the only furniture claiming the table's close-up, no word in common
     assert jev.comparable("bedding", "furniture") and not jev.comparable("laptop", "bedding")
 
 

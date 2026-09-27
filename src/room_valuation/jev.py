@@ -116,11 +116,25 @@ def comparable(a: str, b: str) -> bool:
     return a == b or "other" in (a, b) or any({a, b} <= pair for pair in COMPATIBLE)
 
 
+GENERIC = {"small", "large", "white", "black", "brown", "wooden", "plastic", "steel", "metal", "with", "wall",
+           "single", "double", "portable", "electric"}
+
+
+def same_name_word(a: Item, b: Item) -> bool:
+    """Two names sharing a distinctive word (whiteboard, whiteboard) are worth comparing even when
+    the sources filed them under different categories (building fixture, other)."""
+    def words(it):
+        return {w for w in re.findall(r"[a-z]+", it.name.lower()) if len(w) >= 5 and w not in GENERIC}
+    return bool(words(a) & words(b))
+
+
 def closeup_links(flat: list[Item]) -> None:
     """A close-up taken on an item's page is a photo of that item. Of the frontier items that list
     it, the one of the same category that shares a word with the item's name is that item: link
     it, no pairwise guess. Things in the background of the close-up (a door behind the chair)
-    are not the same category or share no word, and stay unlinked."""
+    are not the same category or share no word, and stay unlinked. When only one frontier item
+    of the category claims the close-up, it is the item even with no word in common (the owner's
+    "table" is the frontier's "L-shaped computer desk")."""
     ids = {it.id: it for it in flat if _src(it) == "local"}
     claims: dict[str, list[Item]] = {}
     for it in (x for x in flat if _src(x) == "frontier"):
@@ -131,7 +145,7 @@ def closeup_links(flat: list[Item]) -> None:
     for owner, cands in claims.items():
         name = _words(ids[owner]) or {ids[owner].category}
         scored = [(len(name & _words(c)), -len(c.photos), c) for c in cands if c.id not in linked]
-        scored = [s for s in scored if s[0] > 0 or len(cands) == 1 and not name - {ids[owner].category}]
+        scored = [s for s in scored if s[0] > 0 or len(cands) == 1]
         if scored:
             best = max(scored, key=lambda s: (s[0], s[1]))[2]
             best.link = owner
@@ -162,7 +176,7 @@ def candidate_pairs(flat: list[Item], k: int = 3, min_sim: float = 0.05) -> tupl
     """Only pairs worth a Jev call: same category (or either 'other'), and among each item's k
     most similar items from each other source. Returns the pairs and how many were skipped."""
     allowed = [(a, b) for i, a in enumerate(flat) for b in flat[i + 1 :]
-               if _src(a) != _src(b) and comparable(a.category, b.category)]
+               if _src(a) != _src(b) and (comparable(a.category, b.category) or same_name_word(a, b))]
     best: dict[tuple[str, str], list[tuple[float, tuple[str, str]]]] = {}  # (item, other source) -> scored pairs
     for a, b in allowed:
         s, key = similarity(a, b), (a.id, b.id)
@@ -180,10 +194,14 @@ def align(sources: list[list[Item]]) -> tuple[list[Group], list[dict], int]:
     closeup_links(flat)
     ids = {it.id for it in flat}
     linked = [it for it in flat if it.link in ids]  # voice notes recorded on an item's own page
+    said = {it.link: it.evidence for it in linked if it.evidence}  # the owner's words describe the item too
+
+    def view(it: Item) -> dict:
+        return _view(it) | ({"owner_says": said[it.id]} if it.id in said else {})
     pairs, skipped = candidate_pairs([it for it in flat if it not in linked])
     questions = {
         f"pair_{n}": Score(
-            instructions={"item_a": _view(a), "item_b": _view(b),
+            instructions={"item_a": view(a), "item_b": view(b),
                           "question": "Do item_a and item_b name the same book?" if a.category == b.category == "book"
                           else "Do item_a and item_b describe the same physical object in this room?"},
             criteria=BOOK_LEVELS if a.category == b.category == "book" else SAME_LEVELS,
@@ -282,8 +300,9 @@ def identity(g: Group, n: int, answers: dict) -> Item:
 
 
 LISTING_LEVELS = [
-    "a different product: another kind of object, or an accessory, spare part, refill or bundle",
-    "a similar product: the same kind of object, but a different model, size, material or type",
+    "a different product: another kind of object, one much bigger or smaller than the size measured, or an "
+    "accessory, spare part, refill or bundle",
+    "a similar product: the same kind of object and roughly the same size, but a different model, material or type",
     "this exact product: same kind of object, same brand and model, or the same specification when no model "
     "is known, and about the same size",
 ]
