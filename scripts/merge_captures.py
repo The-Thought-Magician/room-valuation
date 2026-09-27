@@ -14,6 +14,10 @@
    category and name. Anything without a match is kept as an added item. Several notes on one
    item are all kept and read together.
 4. --closeup attaches an extra photo to the new item of that category whose name matches best.
+5. --unreviewed remove: a new detection that matches none of the old items (kept or removed)
+   was never seen by the owner. The earlier review listed the room, so it is marked removed
+   like the owner's own removals (the owner can restore it on the item list). The default,
+   keep, leaves it in.
 """
 
 import argparse
@@ -95,6 +99,12 @@ def placer(src: Path, cap: Path, same: dict[str, str]):
     return place
 
 
+def good(old: dict, target: dict | None, why: str) -> bool:
+    """A match by box or 3D to the same kind of thing (same category or a shared name word)."""
+    return target is not None and why.startswith(("box", "3D")) and (
+        target["category"] == old["category"] or word_sim(old["name"], target["name"]) > 0)
+
+
 def match(old: dict, new_items: list[dict], same: dict[str, str] | None = None, place=None) -> tuple[dict | None, str]:
     """The new item an old one becomes, and why: box overlap in the same photo, then 3D
     position, then category and name."""
@@ -110,7 +120,9 @@ def match(old: dict, new_items: list[dict], same: dict[str, str] | None = None, 
                          + 0.5 * word_sim(old["name"], n["name"]))
                     if s > score:
                         best, score = n, s
-    if best is not None and score >= 0.6:
+    # a box inside another kind of object's box (a tube light on a door) is a weak match: 3D decides first
+    weak = best is not None and best["category"] != old["category"] and not word_sim(old["name"], best["name"])
+    if best is not None and score >= 0.6 and not weak:
         return best, f"box overlap {score:.2f} in the same photo"
     here = place(old) if place and regs else None
     if here:
@@ -124,6 +136,8 @@ def match(old: dict, new_items: list[dict], same: dict[str, str] | None = None, 
         if near:
             d, n = min(near, key=lambda dn: dn[0])
             return n, f"3D position, {d:.2f} m away"
+    if best is not None and score >= 0.6:
+        return best, f"box overlap {score:.2f} in the same photo"
     n = _name_match(old, new_items)
     return (n, "same category and name") if n else (None, "no match")
 
@@ -147,14 +161,16 @@ def main():
     ap.add_argument("captures", nargs="+")
     ap.add_argument("--closeup", action="append", default=[], help="CATEGORY:NAME=PATH")
     ap.add_argument("--into", help="an earlier merge: keep its detection, redo only the carrying")
+    ap.add_argument("--unreviewed", choices=("keep", "remove"), default="keep",
+                    help="new detections that match nothing in the old reviews")
     args = ap.parse_args()
     sources = [Path(c) for c in args.captures]
     if args.into:
         cap = Path(args.into)
-        carry(cap, session.load(cap), sources, args.closeup)
+        carry(cap, session.load(cap), sources, args.closeup, args.unreviewed)
         return
     cap, data = build(sources)
-    carry(cap, data, sources, args.closeup)
+    carry(cap, data, sources, args.closeup, args.unreviewed)
 
 
 def build(sources: list[Path]) -> tuple[Path, dict]:
@@ -184,7 +200,7 @@ def build(sources: list[Path]) -> tuple[Path, dict]:
     return cap, data
 
 
-def carry(cap: Path, data: dict, sources: list[Path], closeups: list[str]) -> None:
+def carry(cap: Path, data: dict, sources: list[Path], closeups: list[str], unreviewed: str = "keep") -> None:
     """Move media, notes and review decisions from the old captures onto the new items."""
     data["items"] = [e for e in data["items"] if e["state"] != "added"]
     for e in data["items"]:  # back to what detection said, so the carrying can be redone
@@ -197,12 +213,21 @@ def carry(cap: Path, data: dict, sources: list[Path], closeups: list[str]) -> No
     report, added = [], 0
     same = {s: photo_map(s, cap) for s in sources}
     place = {s: placer(s, cap, same[s]) for s in sources}
-    # the owner's removals first: a detector duplicate removed in either review is removed here
+    kept, found = set(), set()  # new items that are something the owner kept; the old items found again
+    for s in sources:
+        for e in session.load(s)["items"]:
+            if e["state"] == "detected" and _regions(e):
+                target, why = match(e, new_items, same[s], place[s])
+                if good(e, target, why):
+                    kept.add(target["id"])
+                    found.add((s.name, e["id"]))
+    # the owner's removals first: a detector duplicate removed in either review is removed here,
+    # unless an item the owner kept is the same new item
     for s in sources:
         for e in session.load(s)["items"]:
             if e["state"] == "removed" and _regions(e):
                 target, why = match(e, [n for n in new_items if n["state"] == "detected"], same[s], place[s])
-                if target is not None and why.startswith(("box", "3D")):
+                if target is not None and why.startswith(("box", "3D")) and target["id"] not in kept:
                     target["state"] = "removed"
                     report.append({"from": f"{s.name}/{e['id']} ({e['name']})", "to": f"{target['id']} ({target['name']})",
                                    "why": f"removed by the owner ({why})", "media": []})
@@ -214,6 +239,14 @@ def carry(cap: Path, data: dict, sources: list[Path], closeups: list[str]) -> No
             media = s / "items" / e["id"]
             has_media = media.is_dir() and any(f.suffix.lower() in MEDIA for f in media.glob("*"))
             if not has_media and not e.get("note") and e["state"] != "added":
+                if e["state"] == "detected" and (s.name, e["id"]) not in found:  # kept by the owner, missed this time
+                    added += 1
+                    target = {**e, "id": f"added-{added}", "state": "added", "detected": None}
+                    data["items"].append(target)
+                    new_items.append(target)
+                    report.append({"from": f"{s.name}/{e['id']} ({e['name']})", "to": f"{target['id']} ({e['name']})",
+                                   "why": "kept in the owner's review, not detected this time: kept as an added item",
+                                   "media": []})
                 continue
             # an item the owner kept and wrote a note on wins over a removal of the same item in
             # the other review: restore it rather than attach the note to its neighbour
@@ -237,6 +270,19 @@ def carry(cap: Path, data: dict, sources: list[Path], closeups: list[str]) -> No
                 target["name"] = e["name"]  # the owner's name for it is more specific than the detector's
             report.append({"from": f"{s.name}/{e['id']} ({e['name']})", "to": f"{target['id']} ({target['name']})",
                            "why": why, "media": moved, "note": e.get("note") or None})
+    if unreviewed == "remove":
+        seen = set()
+        for s in sources:
+            for e in session.load(s)["items"]:
+                if e["state"] != "added" and _regions(e):
+                    target, why = match(e, [n for n in new_items if n["state"] != "added"], same[s], place[s])
+                    if target is not None and why.startswith(("box", "3D")):
+                        seen.add(target["id"])
+        for n in new_items:
+            if n["state"] == "detected" and n["id"] not in seen:
+                n["state"] = "removed"
+                report.append({"from": None, "to": f"{n['id']} ({n['name']})", "media": [],
+                               "why": "not reviewed: matches nothing in the owner's earlier review"})
     for spec in closeups:
         head, _, path = spec.partition("=")
         cat, _, name = head.partition(":")

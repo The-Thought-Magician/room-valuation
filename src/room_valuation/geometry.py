@@ -129,8 +129,9 @@ def reconstruct(photos: list[Path], workdir: Path, timeout_s: int = 3600) -> Geo
     log = workdir / "geometry" / "worker.log"
     log.parent.mkdir(parents=True, exist_ok=True)
     try:
-        proc = subprocess.run(["uv", "run", "--project", str(FLOORPLAN_REPO), "python", str(WORKER), str(out),
-                               *[str(p) for p in photos]], cwd=FLOORPLAN_REPO, capture_output=True, text=True,
+        # absolute paths: the worker runs in the take-home's folder
+        proc = subprocess.run(["uv", "run", "--project", str(FLOORPLAN_REPO), "python", str(WORKER), str(out.resolve()),
+                               *[str(p.resolve()) for p in photos]], cwd=FLOORPLAN_REPO, capture_output=True, text=True,
                               timeout=timeout_s)
         log.write_text(proc.stdout + proc.stderr[-6000:])
         if proc.returncode != 0 or not out.exists():

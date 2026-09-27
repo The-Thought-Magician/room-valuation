@@ -127,10 +127,13 @@ def _same(a: Item, b: Item) -> bool:
     if a.category == "book":
         ta, tb = (a.book.title if a.book else a.name), (b.book.title if b.book else b.name)
         return _similar(ta or "", tb or "") > 0.7
-    if a.measured and b.measured:  # 3D first: one place is one object, whatever each view called it
+    if a.measured and b.measured:  # 3D first: one place and one size is one object, whatever each view called it
         d, near = _near(a.measured, b.measured)
         brands_differ = a.brand and b.brand and a.brand.lower() != b.brand.lower()
-        if d <= near and not brands_differ:
+        side_a = max(a.measured["width_cm"], a.measured["height_cm"])
+        side_b = max(b.measured["width_cm"], b.measured["height_cm"])
+        alike = max(side_a, side_b) <= 2.5 * max(1, min(side_a, side_b))  # a pillow on the bed is not the bed
+        if d <= near and alike and not brands_differ:
             return True
         if d > max(1.0, 3 * near):  # two curtains, two chairs: same name, different places
             return False

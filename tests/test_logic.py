@@ -400,6 +400,10 @@ def test_3d_position_merges_one_object_and_splits_two():
     assert len(one) == 1  # one place, two names: one object
     two = local._merge([at(0, "curtain", 0.0, "a.jpg"), at(1, "curtain", 3.0, "b.jpg")])
     assert len(two) == 2  # same name, three metres apart: two objects
+    bed, pillow = at(0, "bed", 0.0, "a.jpg"), at(1, "pillow", 0.2, "b.jpg")
+    bed.category = pillow.category = "bedding"
+    pillow.measured = {**pillow.measured, "width_cm": 45, "height_cm": 20}
+    assert len(local._merge([bed, pillow])) == 2  # the pillow on the bed: one place, not one size
 
 
 def test_spoken_price_ranges_give_the_midpoint_and_a_note():
