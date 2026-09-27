@@ -11,14 +11,8 @@ median of the room's identified books.
 import statistics
 
 from room_valuation import prices
-from room_valuation.jev import Group
+from room_valuation.jev import Group, identity
 from room_valuation.schema import Item
-
-
-def _identity(g: Group, n: int, answers: dict) -> Item:
-    choice = answers.get(f"id_{n}")
-    src = choice.choice if choice is not None else None
-    return g.members.get(src) or next(iter(g.members.values()))
 
 
 def _unreadable(it: Item) -> bool:
@@ -30,9 +24,9 @@ def fill_missing(groups: list[Group], answers: dict, log: list) -> dict:
     searched = priced = 0
     unread = []
     for n, g in enumerate(groups):
-        if any(it.rcv_inr for it in g.members.values()):
+        if any(it.rcv_inr for s, it in g.members.items() if s != "voice"):  # the owner's word is not a market price
             continue
-        ident = _identity(g, n, answers)
+        ident = identity(g, n, answers)
         if _unreadable(ident):
             unread.append((n, g, ident))
             continue
@@ -43,6 +37,7 @@ def fill_missing(groups: list[Group], answers: dict, log: list) -> dict:
             continue
         priced += 1
         g.members["market"] = _market_item(n, ident, rcv, url, note)
+        prices.take(g.members["market"], raw)
     known = [it.rcv_inr for g in groups if not any(_unreadable(m) for m in g.members.values())
              for it in g.members.values() if it.category == "book" and it.rcv_inr]
     for n, g, ident in unread:

@@ -3,10 +3,12 @@
 from collections import Counter
 
 from room_valuation import prices
-from room_valuation.jev import CONDITION_LEVELS, Group
+from room_valuation.jev import CONDITION_LEVELS, Group, market_candidates
 from room_valuation.schema import BUILDING
 
 REVIEW_CONFIDENCE = 0.5  # below this Jev confidence a line is flagged for a human
+HOLD_SPREAD = 3.0  # Jev unsure and the market prices this many times apart: no pick, held for review
+OWNER_ABOVE_MARKET = 1.3  # an owner's price this far above the market price asks for a receipt
 
 
 def _pick(answer) -> tuple[str, float, dict]:
@@ -25,13 +27,15 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
         else:
             id_src, id_conf, id_probs = next(iter(m)), None, {}
         item = m[id_src]
-        # price
+        # price: from the market candidates; the owner's figure is checked against it
+        cands = market_candidates(g)
         if f"price_{n}" in answers:
             price_src, price_conf, price_probs = _pick(answers[f"price_{n}"])
         else:
-            price_src = next((s for s, it in m.items() if it.rcv_inr), None)
+            price_src = next(iter(cands), None)
             price_conf, price_probs = None, {}
         rcv = m[price_src].rcv_inr if price_src else None
+        chosen = m[price_src] if price_src else None
         # condition, age
         condition = item.condition
         if f"cond_{n}" in answers:
@@ -46,6 +50,25 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
                 flags.append(f"low Jev confidence on {label} ({conf:.2f})")
         if rcv is None:
             flags.append("no price from any source")
+        held = None
+        spread = [it.rcv_inr for it in cands.values()]
+        if price_conf is not None and price_conf < REVIEW_CONFIDENCE and len(spread) > 1 \
+                and max(spread) >= HOLD_SPREAD * min(spread):
+            held = {"low_inr": min(spread) * (item.quantity or 1), "high_inr": max(spread) * (item.quantity or 1),
+                    "reason": f"Jev is unsure ({price_conf:.2f}) and the prices are {max(spread) / min(spread):.0f} "
+                              f"times apart"}
+            flags.append(f"held for review: {held['reason']}; not in the total")
+        owner = m.get("voice")
+        said = owner.rcv_inr if owner else None  # a recent purchase; an old price paid is not a replacement cost
+        if price_src == "voice":
+            flags.append("priced only by the owner's word: ask for a receipt")
+        elif said and rcv and said > OWNER_ABOVE_MARKET * rcv:
+            flags.append(f"the owner says Rs {said:,.0f}, {said / rcv - 1:.0%} above the market price: ask for a receipt")
+        measured = next((it.measured for it in m.values() if it.measured), None)
+        if chosen and chosen.product_size:
+            why = prices.size_mismatch(measured, prices.listing_size(chosen.product_size))
+            if why:
+                flags.append(f"the priced product's size does not fit what was measured: {why}")
         free = next((it.attributes.get("acquired") for it in m.values() if it.attributes.get("acquired")), None)
         if free:
             flags.append(f"owner: {free}")
@@ -58,10 +81,19 @@ def line_items(groups: list[Group], answers: dict) -> list[dict]:
             "sources": sorted(m), "identity_from": id_src, "identity_confidence": id_conf, "identity_probs": id_probs,
             "price_from": price_src, "price_confidence": price_conf, "price_probs": price_probs,
             "rcv_unit_inr": rcv, "rcv_inr": rcv * qty if rcv else None, "acv_inr": acv * qty if acv else None,
-            "acv_basis": acv_basis, "price_source": m[price_src].price_source if price_src else None,
-            "price_note": m[price_src].price_note if price_src else None,
+            "acv_basis": acv_basis, "price_source": chosen.price_source if chosen else None,
+            "price_note": chosen.price_note if chosen else None,
+            "price_kind": chosen.price_kind if chosen else None,
+            "price_range_inr": ([chosen.price_low_inr * qty, chosen.price_high_inr * qty]
+                                if chosen and chosen.price_low_inr and chosen.price_high_inr else None),
+            "held": held, "owner_price_inr": owner.price_paid_inr if owner else None, "measured": measured,
             "candidates": {s: {"name": it.name, "brand": it.brand, "model": it.model, "rcv_inr": it.rcv_inr,
-                               "price_source": it.price_source, "price_note": it.price_note, "photos": it.photos}
+                               "price_source": it.price_source, "price_note": it.price_note, "photos": it.photos,
+                               "price_kind": it.price_kind, "product_size": it.product_size,
+                               "range_inr": [it.price_low_inr, it.price_high_inr] if it.price_low_inr else None,
+                               "listings": [{k: li.get(k) for k in ("title", "price", "seller", "url", "verdict",
+                                                                    "jev_score", "size", "size_mismatch")}
+                                            for li in it.listings]}
                            for s, it in m.items()},
             "photos": sorted({p for it in m.values() for p in it.photos}),
             "flags": flags,
@@ -131,6 +163,10 @@ def leaderboard(lines: list[dict]) -> dict:
 
 
 def totals(lines: list[dict]) -> dict:
+    """Held lines (valuation unsure, prices far apart) leave the sums and are reported apart,
+    as the range of what they could add."""
+    held = [ln for ln in lines if ln.get("held")]
+    lines = [ln for ln in lines if not ln.get("held")]
     by_cat = {}
     for ln in lines:
         c = by_cat.setdefault(ln["category"], {"items": 0, "rcv_inr": 0.0, "acv_inr": 0.0})
@@ -145,7 +181,9 @@ def totals(lines: list[dict]) -> dict:
         "building_fixtures": _sum(fixtures),
         **_sum(lines),
         "unpriced": sum(1 for ln in lines if not ln["rcv_inr"]),
-        "needs_review": sum(1 for ln in lines if ln["flags"]),
+        "held_for_review": {"lines": len(held), "low_inr": round(sum(ln["held"]["low_inr"] for ln in held)),
+                            "high_inr": round(sum(ln["held"]["high_inr"] for ln in held))},
+        "needs_review": sum(1 for ln in lines if ln["flags"]) + len(held),
         "possible_double_count_inr": round(sum(ln["rcv_inr"] or 0 for ln in lines
                                                if any(f.startswith("possible double count") for f in ln["flags"]))),
         "books": {"count": len(books), "rcv_inr": round(sum(ln["rcv_inr"] or 0 for ln in books)),

@@ -12,10 +12,15 @@ from room_valuation.schema import RECENT_YEARS, Item, SourceResult, json_object,
 # Prices and ages are read with rules, not by the 2B model: on the first real capture it
 # invented a Rs 12,000 charger and turned "40 years back" into one year (2026-09-26).
 NUM_WORDS = {"a": 1, "an": 1, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7,
-             "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12, "fifteen": 15, "twenty": 20,
-             "thirty": 30, "forty": 40, "fifty": 50, "half": 0.5}
-_NUM = r"(\d+(?:\.\d+)?|" + "|".join(NUM_WORDS) + r")"
-MULT = {"k": 1e3, "thousand": 1e3, "l": 1e5, "lakh": 1e5, "lakhs": 1e5, "lac": 1e5, "lacs": 1e5, "crore": 1e7}
+             "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14,
+             "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19, "twenty": 20,
+             "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90,
+             "half": 0.5}
+# longest first, so "sixteen" is not read as "six"
+_NUM = r"(\d+(?:\.\d+)?|(?:" + "|".join(sorted(NUM_WORDS, key=len, reverse=True)) + r")\b)"
+MULT = {"k": 1e3, "thousand": 1e3, "l": 1e5, "lakh": 1e5, "lakhs": 1e5, "lac": 1e5, "lacs": 1e5, "crore": 1e7,
+        "hundred": 1e2}
+_UNIT = r"\s*(k|thousand|lakhs?|lacs?|l|crore|hundred)\b"
 FREE = re.compile(r"\b(for free|came free|free of cost|was free|got it free|provided by|company provided|"
                   r"came with (?:my|the)|given by|gift(?:ed)?)\b", re.I)
 
@@ -25,10 +30,27 @@ def _n(s: str) -> float:
     return float(NUM_WORDS[s]) if s in NUM_WORDS else float(s)
 
 
+def parse_price_range(text: str) -> tuple[float, float] | None:
+    """A range said out loud, sharing one unit: 'fifteen, sixteen thousand', '15 to 16k',
+    'between 1.5 and 2 lakh', '15-16 thousand'."""
+    t = text.lower()
+    m = re.search(_NUM + r"\s*(?:,|to|-|or|and)\s*" + _NUM + _UNIT, t)
+    if not m:
+        return None
+    lo, hi = sorted((_n(m.group(1)), _n(m.group(2))))
+    if lo <= 0 or hi > 20 * lo:  # "one or two thousand" yes, "2 to 1600" no
+        return None
+    return lo * MULT[m.group(3)], hi * MULT[m.group(3)]
+
+
 def parse_price(text: str) -> float | None:
-    """Rupee amount said out loud: '16K', '1.9 lakhs', 'Rs. 2500', '500 rupees', '5.5k'."""
+    """Rupee amount said out loud: '16K', '1.9 lakhs', 'Rs. 2500', '500 rupees', '5.5k'. A
+    spoken range ('fifteen, sixteen thousand') gives its midpoint; parse_price_range flags it."""
+    r = parse_price_range(text)
+    if r:
+        return (r[0] + r[1]) / 2
     t = text.lower().replace(",", "")
-    m = re.search(_NUM + r"\s*(k|thousand|lakhs?|lacs?|l|crore)\b", t)
+    m = re.search(_NUM + _UNIT, t)
     if m:
         return _n(m.group(1)) * MULT[m.group(2)]
     m = re.search(r"(?:rs\.?|inr|₹)\s*(\d+(?:\.\d+)?)", t) or re.search(r"(\d+(?:\.\d+)?)\s*(?:rupees|rs\b|inr)", t)
@@ -67,6 +89,8 @@ def _item_claim(d: dict, entry: dict, text: str) -> Item:
         paid = None
     recent = bool(paid) and not free and (age is None or age <= RECENT_YEARS)
     attrs = {k: str(d[k]) for k in ("size", "facts") if d.get(k) not in (None, "", "null")}
+    if said_range := parse_price_range(text):
+        attrs["price_said_as_range"] = f"Rs {said_range[0]:,.0f} to {said_range[1]:,.0f}; the midpoint is used"
     if free:
         attrs["acquired"] = "free or provided (the owner said so); may not be the owner's to claim"
     brand = d.get("brand") if d.get("brand") not in (None, "", "null") else None

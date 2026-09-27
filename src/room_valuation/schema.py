@@ -67,10 +67,16 @@ class Item(BaseModel):
     evidence: str | None = None  # text read off the item, or the spoken sentence
     photos: list[str] = Field(default_factory=list)
     regions: list[dict] = Field(default_factory=list)  # [{photo, box}] where it was seen
+    measured: dict | None = None  # from the photos in 3D: position_m, width_cm, height_cm, views (geometry.py)
     book: Book | None = None
     rcv_inr: float | None = None  # replacement cost new, per unit
     price_source: str | None = None  # URL, price list entry id, or "said by owner"
     price_note: str | None = None
+    price_low_inr: float | None = None  # 25th to 75th percentile of the listings behind rcv_inr
+    price_high_inr: float | None = None
+    price_kind: str | None = None  # "exact" (this model), "closest" (a similar product), "estimate"
+    listings: list[dict] = Field(default_factory=list)  # the search's listings, with Jev's verdict on each
+    product_size: str | None = None  # the size of the product the frontier model priced, as it states it
     age_years: float | None = None
     price_paid_inr: float | None = None
     link: str | None = None  # a voice note recorded on an item's page is about that item
@@ -83,6 +89,8 @@ class Item(BaseModel):
                 d[key] = getattr(self, key)
         if self.attributes:
             d["attributes"] = self.attributes
+        if self.measured:
+            d["measured_size_cm"] = f"about {self.measured['width_cm']} wide, {self.measured['height_cm']} high"
         if self.quantity != 1:
             d["quantity"] = str(self.quantity)
         if self.book and self.book.title:

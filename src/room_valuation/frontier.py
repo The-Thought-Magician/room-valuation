@@ -42,11 +42,17 @@ Rules:
   resolution class HD/FHD/QHD/UHD, panel type) and put your reasoning in price_note.
 - Switchboards: one item per board, attributes must list how many switch, socket and regulator
   modules you can count, and the plate size (e.g. 8M).
+- Model and serial stickers: read every label you can. Put a model number in model, and a serial
+  number in attributes as "serial". An insurer uses them to confirm the exact item.
 - Prices: search the web for the current price to buy the item NEW in India (Amazon.in, Flipkart,
   Croma, Reliance Digital, brand sites; books: Amazon.in, Flipkart, Bookswagon). rcv_inr is per unit,
-  in rupees. price_source is the URL you used. If the exact model is unknown, price the closest
-  equivalent and say so in price_note. Never leave rcv_inr empty: estimate and say "estimate" in
-  price_source if no page gave a price.
+  in rupees. price_source is the URL you used. price_kind is "exact" when you identified this exact
+  model and priced it, "closest" when you priced the closest equivalent (say what and why in
+  price_note), "estimate" when no page gave a price (then price_source is "estimate"). Price like
+  kind and quality: the same type, size and grade, not the cheapest item of the category. Never
+  leave rcv_inr empty.
+- product_size: the size of the product you priced, as its listing states it (e.g. "24 inch",
+  "90 x 60 cm", "6 x 3 ft"), or null.
 - condition: one of like_new, good, fair, poor, from visible wear.
 - Also estimate the room floor area in square metres from what the photos show, and count shelves.
 
@@ -54,7 +60,7 @@ Reply with ONLY a JSON object, no prose, no code fence:
 {{"items": [{{"category": "", "name": "", "brand": null, "model": null, "attributes": {{}},
   "quantity": 1, "condition": "good", "evidence": "text you read on it, if any",
   "photos": ["file names where it appears"], "book": null or {{"title": "", "author": "", "isbn": null, "genre": ""}},
-  "rcv_inr": 0, "price_source": "", "price_note": ""}}],
+  "rcv_inr": 0, "price_kind": "exact", "price_source": "", "price_note": "", "product_size": null}}],
  "room_area_m2": 0, "shelves": 0, "notes": ["anything the insurer should know"]}}
 """
 
@@ -89,6 +95,8 @@ def _to_result(data: dict, source: str, seconds: float) -> SourceResult:
             evidence=raw.get("evidence"), photos=[Path(p).name for p in raw.get("photos") or []],
             book=book, rcv_inr=number(raw.get("rcv_inr")), price_source=raw.get("price_source"),
             price_note=raw.get("price_note"),
+            price_kind=raw.get("price_kind") if raw.get("price_kind") in ("exact", "closest", "estimate") else None,
+            product_size=str(raw["product_size"]) if raw.get("product_size") else None,
         ))
     return SourceResult(source=source, items=items, room_area_m2=number(data.get("room_area_m2")),
                         shelves=int(data["shelves"]) if data.get("shelves") is not None else None,

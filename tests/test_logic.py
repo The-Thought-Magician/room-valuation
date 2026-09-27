@@ -34,13 +34,17 @@ def test_placeholder_text_is_dropped():
     assert local._null("Acer") == "Acer"
 
 
-def test_acv_uses_age_then_condition_with_salvage_floor():
-    v, basis = prices.acv(100000, "laptop", 1, None)  # 1 of 5 years used
-    assert v == 80000 and "age 1" in basis
-    v, _ = prices.acv(100000, "laptop", 20, None)  # past its life, floor at 10 percent
-    assert v == 10000
+def test_acv_uses_age_then_condition_with_a_depreciation_cap():
+    v, basis = prices.acv(100000, "laptop", 1, None)  # 1 of 4 years used
+    assert v == 75000 and "age 1" in basis
+    v, basis = prices.acv(100000, "laptop", 20, None)  # past its life: never below the 80 percent cap
+    assert v == 20000 and "capped at 80%" in basis
+    v, _ = prices.acv(100000, "laptop", 2, "like_new")  # kept like new: 2 of 4 years count as 1.5
+    assert v == 62500
     v, basis = prices.acv(10000, "furniture", None, "fair")
     assert v == 4000 and "condition" in basis
+    v, _ = prices.acv(10000, "building_fixture", 100, None)  # fixtures carry installation: 70 percent cap
+    assert v == 3000
 
 
 def test_price_match_filters_and_takes_median(monkeypatch):
@@ -81,20 +85,37 @@ def test_line_items_follow_jev_choices_and_add_up():
     groups = [Group(members={"local": local_i, "frontier": opus_i, "voice": voice_i}), Group(members={"frontier": book})]
     answers = {
         "id_0": answer("frontier", {"local": 0.1, "frontier": 0.7, "voice": 0.2}),
-        "price_0": answer("voice", {"local": 0.1, "frontier": 0.3, "voice": 0.6}, conf=0.4),
+        "price_0": answer("frontier", {"local": 0.4, "frontier": 0.6}, conf=0.4),
         "cond_0": answer(score=2.2),
         "genre_1": answer("self_help", {"self_help": 0.95}),
     }
     lines = valuation.line_items(groups, answers)
     lap = lines[0]
-    assert lap["name"] == "HP Victus gaming laptop" and lap["rcv_inr"] == 190000
-    assert lap["acv_inr"] == 152000  # 1 of 5 years used
+    assert lap["name"] == "HP Victus gaming laptop" and lap["rcv_inr"] == 95000  # the market, not the owner
+    assert lap["acv_inr"] == 71250  # 1 of 4 years used
     assert any("low Jev confidence on price" in f for f in lap["flags"])
+    assert any("owner says Rs 190,000, 100% above the market price: ask for a receipt" in f for f in lap["flags"])
+    assert not lap["held"]  # unsure, but 60k and 95k are close enough to pick
     assert lines[1]["book"]["genre"] == "self_help"
     t = valuation.totals(lines)
-    assert t["rcv_inr"] == 190499 and t["books"]["count"] == 1
+    assert t["rcv_inr"] == 95499 and t["books"]["count"] == 1
     board = valuation.leaderboard(lines)
-    assert board["voice"]["price"]["chosen"] == 1 and board["frontier"]["identity"]["chosen"] == 1
+    assert board["frontier"]["price"]["chosen"] == 1 and board["frontier"]["identity"]["chosen"] == 1
+
+
+def test_unsure_price_far_apart_is_held_out_of_the_total():
+    local_i = Item(id="local-0", source="local", category="other", name="whiteboard", rcv_inr=10637)
+    opus_i = Item(id="opus-0", source="opus", category="other", name="roll-up whiteboard sheet", rcv_inr=400)
+    owner = Item(id="voice-0", source="voice", category="other", name="whiteboard", rcv_inr=150, age_years=1)
+    only_owner = Item(id="voice-1", source="voice", category="decor", name="poster", rcv_inr=300)
+    groups = [Group(members={"local": local_i, "frontier": opus_i, "voice": owner}), Group(members={"voice": only_owner})]
+    lines = valuation.line_items(groups, {"price_0": answer("local", {"local": 0.52, "frontier": 0.48}, conf=0.22)})
+    board = lines[0]
+    assert board["held"]["low_inr"] == 400 and board["held"]["high_inr"] == 10637
+    assert any(f.startswith("held for review") for f in board["flags"])
+    assert lines[1]["price_from"] == "voice" and any("only by the owner's word" in f for f in lines[1]["flags"])
+    t = valuation.totals(lines)
+    assert t["rcv_inr"] == 300 and t["held_for_review"] == {"lines": 1, "low_inr": 400, "high_inr": 10637}
 
 
 def test_similarity_filter_keeps_likely_pairs_and_drops_the_rest():
@@ -331,3 +352,100 @@ def test_score_matches_a_full_name_across_categories():
     line = {"n": 0, "category": "other", "name": "Roll-up whiteboard sheet on PVC pipes", "rcv_inr": 150, "candidates": {}}
     assert score._match({"category": "building_fixture", "name": "whiteboard sheet"}, [line], set()) is line
     assert score._match({"category": "building_fixture", "name": "whiteboard marker"}, [line], set()) is None
+
+
+def test_listing_sizes_and_mismatch():
+    assert prices.listing_size("Whiteboard 4x3 ft magnetic") == {"dims_cm": [122, 91]}
+    assert prices.listing_size("Wardrobe 180x90x50 cm steel") == {"dims_cm": [180, 90, 50]}
+    assert prices.listing_size('HP Victus 15.6" laptop') == {"diagonal_in": 15.6}
+    assert prices.listing_size("Acer 24 inch Full HD monitor") == {"diagonal_in": 24.0}
+    assert prices.listing_size("Blue ceramic mug") is None
+    wardrobe_seen = {"width_cm": 25, "height_cm": 44}  # a blurred curtain the detector called a wardrobe
+    assert "180x90x50 cm" in prices.size_mismatch(wardrobe_seen, prices.listing_size("Wardrobe 180x90x50 cm"))
+    monitor_seen = {"width_cm": 40, "height_cm": 20}  # a 24 inch monitor measured small: within tolerance
+    assert prices.size_mismatch(monitor_seen, prices.listing_size("Acer 24 inch monitor")) is None
+
+
+def test_jev_listing_verdicts_reprice_exact_then_closest(monkeypatch):
+    from room_valuation import jev
+
+    def lst(title, price):
+        return {"title": title, "price": price, "seller": "s", "url": title, "size": prices.listing_size(title)}
+
+    sheet = Item(id="local-0", source="local", category="other", name="whiteboard", rcv_inr=10637,
+                 measured={"position_m": [0, 0, 0], "width_cm": 85, "height_cm": 67},
+                 listings=[lst("Large framed whiteboard 8x4 ft", 10637), lst("Roll up whiteboard sheet 90 x 60 cm", 350),
+                           lst("Whiteboard sheet roll 3x2 ft", 450), lst("Whiteboard markers pack", 99)])
+    mug = Item(id="local-1", source="local", category="kitchenware", name="mug", rcv_inr=500,
+               listings=[lst("Steel water bottle", 500)])
+    groups = [Group(members={"local": sheet}), Group(members={"local": mug})]
+    scores = {"listing_0_local_0": 2.0, "listing_0_local_1": 1.2, "listing_0_local_2": 1.0,
+              "listing_0_local_3": 0.1, "listing_1_local_0": 0.2}
+    monkeypatch.setattr(jev, "ask", lambda q: {k: SimpleNamespace(score=scores[k]) for k in q})
+    log = jev.judge_listings(groups, {})
+    verdicts = [li["verdict"] for li in sheet.listings]
+    assert verdicts == ["different", "similar", "similar", "different"]  # 8x4 ft cannot be an 85 cm board
+    assert "size_mismatch" in sheet.listings[0]
+    assert sheet.price_kind == "closest" and sheet.rcv_inr == 400  # median of 350 and 450
+    assert mug.rcv_inr is None and "none of the 1 listings" in mug.price_note
+    assert len(log) == 5
+
+
+def test_3d_position_merges_one_object_and_splits_two():
+    def at(i, name, x, photo):
+        return Item(id=f"local-{i}", source="local", category="furniture", name=name, photos=[photo],
+                    regions=[{"photo": photo, "box": [0.1, 0.1, 0.4, 0.4]}],
+                    measured={"position_m": [x, 0.0, 0.0], "width_cm": 80, "height_cm": 180})
+    one = local._merge([at(0, "wardrobe", 0.0, "a.jpg"), at(1, "cupboard", 0.15, "b.jpg")])
+    assert len(one) == 1  # one place, two names: one object
+    two = local._merge([at(0, "curtain", 0.0, "a.jpg"), at(1, "curtain", 3.0, "b.jpg")])
+    assert len(two) == 2  # same name, three metres apart: two objects
+
+
+def test_spoken_price_ranges_give_the_midpoint_and_a_note():
+    from room_valuation import voice
+
+    assert voice.parse_price("around fifteen, sixteen thousand") == 15500
+    assert voice.parse_price("15 to 16k") == 15500
+    assert voice.parse_price("sixteen thousand") == 16000  # not "six"
+    assert voice.parse_price("five hundred rupees") == 500
+    entry = {"id": "x", "name": "monitor", "category": "monitor"}
+    claim = voice._item_claim({}, entry, "around fifteen, sixteen thousand, one year back")
+    assert claim.rcv_inr == 15500 and "15,000 to 16,000" in claim.attributes["price_said_as_range"]
+
+
+def test_model_read_off_the_label_is_searched_exactly(monkeypatch):
+    asked = []
+
+    def fake(q, cat, must):
+        asked.append((q, must))
+        return {"rcv_inr": 9000, "matched": 2, "url": "u", "listings": []} if len(asked) == 1 else {}
+    monkeypatch.setattr(prices, "price_item", fake)
+    it = Item(id="local-1", source="local", category="monitor", name="monitor", brand="Acer", model="KA242Y Hbi",
+              attributes={"model_source": "read off the label"})
+    rcv, _, note, raw = prices.lookup(it)
+    assert asked[0] == ("Acer KA242Y", ["ka242y"]) and rcv == 9000 and raw["kind"] == "exact" and "model KA242Y" in note
+    assert local._on_label("KA242Y", "ACER | Model: KA 242Y | 100-240V") and not local._on_label("KA999", "ACER KA242Y")
+
+
+def test_chunk_alignment_recovers_a_similarity_transform():
+    import importlib.util
+    from pathlib import Path
+
+    import numpy as np
+
+    spec = importlib.util.spec_from_file_location("gw", Path(__file__).parents[1] / "scripts" / "geometry_worker.py")
+    gw = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gw)
+    rng = np.random.default_rng(1)
+    src = rng.normal(size=(500, 3))
+    theta = 0.7
+    rot = np.array([[np.cos(theta), 0, np.sin(theta)], [0, 1, 0], [-np.sin(theta), 0, np.cos(theta)]])
+    dst = 1.7 * src @ rot.T + np.array([0.3, -1.0, 2.0])
+    from room_valuation.geometry import umeyama
+
+    s, r, t = umeyama(src, dst)
+    assert abs(s - 1.7) < 1e-6 and np.allclose(r, rot) and np.allclose(t, [0.3, -1.0, 2.0])
+    assert gw.chunks(10) == [list(range(10))]
+    parts = gw.chunks(60)
+    assert parts[0][-gw.OVERLAP:] == parts[1][: gw.OVERLAP] and parts[-1][-1] == 59

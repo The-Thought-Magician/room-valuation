@@ -5,7 +5,8 @@ live search at run time.
 2. Qwen3-VL-2B identifies each crop: category, name, readable brand/model, printed text.
 3. Book photos: PP-OCR (RapidOCR) reads the spines, Qwen3-VL reads them too as a cross-check,
    and each spine text goes to Open Library.
-4. The same object seen in several photos is merged into one item.
+4. The same object seen in several photos is merged into one item: by its 3D position when the
+   photos could be reconstructed (geometry.py), otherwise by box overlap and name.
 5. Each item is priced live from its own reading (prices.query_for and price_item), so Jev
    can rank this pipeline's value against the frontier model's and the owner's. Anything
    still unpriced after Jev gets a second search in market.py.
@@ -20,7 +21,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from room_valuation import books, models, ocr, prices
+from room_valuation import books, geometry, models, ocr, prices
 from room_valuation.schema import CATEGORIES, GENRES, Book, Item, SourceResult, json_object
 
 VOCAB = {
@@ -113,12 +114,26 @@ def _contain(a, b) -> float:
     return ix * iy / small if small > 0 else 0.0
 
 
+def _near(a: dict, b: dict) -> tuple[float, float]:
+    """Distance between two measured objects, and how close counts as one place: a quarter metre,
+    or 40 percent of the bigger object's larger side."""
+    side = max(a["width_cm"], a["height_cm"], b["width_cm"], b["height_cm"]) / 100
+    return geometry.distance(a, b), max(0.25, 0.4 * side)
+
+
 def _same(a: Item, b: Item) -> bool:
     if a.category != b.category:
         return False
     if a.category == "book":
         ta, tb = (a.book.title if a.book else a.name), (b.book.title if b.book else b.name)
         return _similar(ta or "", tb or "") > 0.7
+    if a.measured and b.measured:  # 3D first: one place is one object, whatever each view called it
+        d, near = _near(a.measured, b.measured)
+        brands_differ = a.brand and b.brand and a.brand.lower() != b.brand.lower()
+        if d <= near and not brands_differ:
+            return True
+        if d > max(1.0, 3 * near):  # two curtains, two chairs: same name, different places
+            return False
     shared = set(a.photos) & set(b.photos)
     if shared:  # in one photo: the same object only if the boxes overlap heavily
         return any(_contain(ra["box"], rb["box"]) > 0.45 for ra in a.regions for rb in b.regions
@@ -128,7 +143,7 @@ def _same(a: Item, b: Item) -> bool:
     return (a.brand and b.brand) or _similar(a.name, b.name) > 0.6
 
 
-def _merge(items: list[Item]) -> list[Item]:
+def _merge(items: list[Item], geo: geometry.Geometry | None = None) -> list[Item]:
     groups: list[Item] = []
     for it in items:
         home = next((g for g in groups if _same(g, it)), None)
@@ -137,6 +152,8 @@ def _merge(items: list[Item]) -> list[Item]:
             continue
         home.photos = sorted(set(home.photos) | set(it.photos))
         home.regions += it.regions
+        if geo:  # re-measure from every view it now has
+            home.measured = geo.locate(home.regions) or home.measured
         for key in ("brand", "model", "evidence"):
             if not getattr(home, key) and getattr(it, key):
                 setattr(home, key, getattr(it, key))
@@ -145,9 +162,10 @@ def _merge(items: list[Item]) -> list[Item]:
 
 
 def detect(photos: list[tuple[Path, str]], progress=None, threshold: float = 0.18,
-           max_boxes: int = 14) -> tuple[list[Item], list[dict]]:
-    """The item list for the owner to review: every detected object, identified from its crop.
-    Book boxes become one 'books' card whose spines are read later from close-ups."""
+           max_boxes: int = 14, workdir: Path | None = None) -> tuple[list[Item], list[dict]]:
+    """The item list for the owner to review: every detected object, identified from its crop,
+    placed and measured in 3D when the photos reconstruct. Book boxes become one 'books' card
+    whose spines are read later from close-ups."""
     say = progress or (lambda **kw: None)
     det = models.Detector()
     raw = []
@@ -159,6 +177,10 @@ def detect(photos: list[tuple[Path, str]], progress=None, threshold: float = 0.1
         raw.append((path, tag, area_ok[:max_boxes]))
     del det
     models.free()
+    geo = None
+    if workdir is not None:  # between the two models, so VGGT has the card to itself
+        say(step="placing objects in 3D", done=0, total=1)
+        geo = geometry.reconstruct([p for p, _ in photos], workdir)
 
     vlm = models.VLM()
     items, log = [], []
@@ -187,22 +209,32 @@ def detect(photos: list[tuple[Path, str]], progress=None, threshold: float = 0.1
             items.append(Item(id=f"local-{n}", source="local", category=cat, name=name,
                               brand=_null(ans.get("brand")), model=_null(ans.get("model")), attributes=attrs,
                               condition=ans.get("condition") if ans.get("condition") in prices.CONDITION_LIFE_USED else None,
-                              evidence=_null(ans.get("text")), photos=[path.name], regions=region))
+                              evidence=_null(ans.get("text")), photos=[path.name], regions=region,
+                              measured=geo.locate(region) if geo else None))
             log.append({"photo": path.name, "detector": b, "vlm": ans})
             n += 1
     del vlm
     models.free()
-    return _merge(items), log
+    return _merge(items, geo), log + ([{"geometry": geometry.summary(geo)}] if geo else [])
 
 
 CLOSEUP = (
     "This is a close-up photo of {name}, taken to show its label, logo or model sticker. "
     "Text read by OCR: {ocr}. Reply with one JSON object and nothing else, with keys: brand, model "
-    "(model number exactly as printed), size (e.g. 27 inch, 1.5 ton), specs (resolution, capacity, power, "
-    "anything printed), name (short generic name). Use null for anything not shown. "
-    'Example: {{"brand": "Philips", "model": "HD9252", "size": "4.1 litre", "specs": "1400 W", '
+    "(model number exactly as printed), serial (serial number exactly as printed, often after S/N or SN), "
+    "size (e.g. 27 inch, 1.5 ton), specs (resolution, capacity, power, anything printed), "
+    "name (short generic name). Use null for anything not shown. "
+    'Example: {{"brand": "Philips", "model": "HD9252", "serial": null, "size": "4.1 litre", "specs": "1400 W", '
     '"name": "air fryer"}}'
 )
+
+
+def _on_label(value: str, ocr_text: str) -> bool:
+    """A model or serial number the VLM claims, found in the OCR text (spaces and case aside):
+    the small model sometimes invents model numbers, the OCR only reads what is printed."""
+    squash = lambda s: re.sub(r"[^a-z0-9]", "", s.lower())  # noqa: E731
+    v = squash(value)
+    return len(v) >= 4 and v in squash(ocr_text)
 
 
 def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: dict[str, Path],
@@ -244,6 +276,10 @@ def refine(entries: list[dict], closeups: dict[str, list[Path]], room_photos: di
             for key in ("brand", "model"):
                 if _null(ans.get(key)):
                     setattr(it, key, _null(ans.get(key)))
+            if it.model and _on_label(it.model, text):  # prices.lookup then searches this exact model
+                it.attributes["model_source"] = "read off the label"
+            if (serial := _null(ans.get("serial"))) and _on_label(serial, text):
+                it.attributes["serial"] = serial
             for key in ("size", "specs"):
                 if _null(ans.get(key)):
                     it.attributes[key] = _null(ans.get(key))
@@ -421,6 +457,7 @@ def price_items(items: list[Item], log: list) -> None:
             it.book.genre = "other"
         if it not in unread:
             it.rcv_inr, it.price_source, it.price_note, raw = prices.lookup(it)
+            prices.take(it, raw)
             log.append({"item": it.id, "price": raw})
     known = [it.rcv_inr for it in items if it.category == "book" and it not in unread and it.rcv_inr]
     for it in unread:

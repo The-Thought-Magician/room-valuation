@@ -53,9 +53,29 @@ def _normalize(src: Path, dst: Path) -> Path:
     return dst
 
 
-def video_frames(video: Path, workdir: Path, max_frames: int = 16) -> list[Path]:
-    """Sharp frames from a room video: 2 frames a second, the blurriest third dropped
-    (variance of the Laplacian), then evenly spaced down to max_frames. Cached in out/frames."""
+# keep a frame once under 8 percent of its ORB features match the last kept frame. On the bedroom
+# walk-through (fast, close, some blur) even neighbouring frames half a second apart match only 15
+# to 25 percent, so 8 percent means the view has moved on. 30 of 79 frames kept (2026-09-27).
+NEW_CONTENT = 0.08
+BLUR_FLOOR = 0.8  # of the median sharpness
+
+
+def _overlap(orb, matcher, a, b) -> float:
+    """Share of frame b's ORB features that match frame a (Lowe's ratio test)."""
+    if a is None or b is None or len(a) < 2 or len(b) < 2:
+        return 0.0
+    pairs = matcher.knnMatch(b, a, k=2)
+    good = sum(1 for p in pairs if len(p) == 2 and p[0].distance < 0.75 * p[1].distance)
+    return good / len(b)
+
+
+def video_frames(video: Path, workdir: Path) -> list[Path]:
+    """Frames from a room video, chosen by coverage, not by count: 2 frames a second, motion
+    blur dropped (variance of the Laplacian under BLUR_FLOOR of the median), then a frame is kept each
+    time the camera has moved on to something the last kept frame does not show. A longer
+    video of more room gives more frames; a slow pan over one wall gives few. Cached in
+    out/frames."""
+    import statistics
     import subprocess
 
     import cv2
@@ -68,17 +88,21 @@ def video_frames(video: Path, workdir: Path, max_frames: int = 16) -> list[Path]
     subprocess.run(["ffmpeg", "-loglevel", "error", "-i", str(video), "-vf", "fps=2,scale='min(1920,iw)':-2",
                     "-q:v", "3", str(raw / "f_%04d.jpg")], check=True)
     frames = sorted(raw.glob("f_*.jpg"))
-    sharp = {f: cv2.Laplacian(cv2.imread(str(f), cv2.IMREAD_GRAYSCALE), cv2.CV_64F).var() for f in frames}
-    cut = sorted(sharp.values())[len(sharp) // 3] if len(sharp) >= 6 else 0
-    kept = [f for f in frames if sharp[f] >= cut]
-    if len(kept) > max_frames:
-        step = len(kept) / max_frames
-        kept = [kept[int(i * step)] for i in range(max_frames)]
+    gray = {f: cv2.imread(str(f), cv2.IMREAD_GRAYSCALE) for f in frames}
+    sharp = {f: cv2.Laplacian(g, cv2.CV_64F).var() for f, g in gray.items()}
+    floor = BLUR_FLOOR * statistics.median(sharp.values()) if sharp else 0
+    orb, matcher = cv2.ORB_create(1500), cv2.BFMatcher(cv2.NORM_HAMMING)
+    kept, last = [], None
+    for f in frames:
+        if sharp[f] < floor:
+            continue
+        small = cv2.resize(gray[f], (640, round(640 * gray[f].shape[0] / gray[f].shape[1])))
+        des = orb.detectAndCompute(small, None)[1]
+        if last is None or _overlap(orb, matcher, last, des) < NEW_CONTENT:
+            kept.append(f)
+            last = des
     dst.mkdir(exist_ok=True)
-    out = []
-    for i, f in enumerate(kept):
-        out.append(_normalize(f, dst / f"frame_{i:02d}.jpg"))
-    return out
+    return [_normalize(f, dst / f"frame_{i:02d}.jpg") for i, f in enumerate(kept)]
 
 
 def room_photos(capture: Path, workdir: Path) -> list[tuple[Path, str]]:
@@ -129,7 +153,8 @@ def detect(capture: Path) -> dict:
         raise ValueError("no room photos in the capture")
     _status(workdir, "detect", "running", step="waiting for the GPU", done=0, total=1)
     with models.gpu_lock():
-        items, log = local.detect(photos, progress=lambda **kw: _status(workdir, "detect", "running", **kw))
+        items, log = local.detect(photos, progress=lambda **kw: _status(workdir, "detect", "running", **kw),
+                                  workdir=workdir)
     (workdir / "detect_log.json").write_text(json.dumps(log, indent=1, default=str))
     entries = session.from_detection(items, workdir / "photos", workdir / "thumbs")
     data = session.update(capture, lambda d: d.update(stage="review", items=entries, photos=[p.name for p, _ in photos]))
@@ -206,12 +231,16 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
     jev.CALLS.clear()
     sources = [results[k].items for k in ("local", "frontier", "voice") if k in results]
     groups, pairs, skipped = jev.align(sources)
-    answers = jev.rank_groups(groups)
+    answers = jev.rank_groups(groups)  # identity, condition, genre
+    listing_log = jev.judge_listings(groups, answers, ("local",))  # exact, similar or different, per listing
     _status(workdir, "market", "running")
     market_log: list = []
-    market_counts = market.fill_missing(groups, answers, market_log)  # Serper, after Jev, only the unpriced
+    market_counts = market.fill_missing(groups, answers, market_log)  # Serper again, only for the unpriced
+    listing_log += jev.judge_listings(groups, answers, ("market",))
     (workdir / "market_log.json").write_text(json.dumps(market_log, indent=1, default=str))
+    (workdir / "listing_verdicts.json").write_text(json.dumps(listing_log, indent=1, default=str))
     _status(workdir, "market", "done", **market_counts)
+    answers |= jev.rank_prices(groups, answers)
     lines = valuation.line_items(groups, answers)
     _status(workdir, "jev", "done", groups=len(groups), pairs=len(pairs), pairs_skipped=skipped)
 
@@ -227,6 +256,8 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
                    "added": sum(1 for e in entries if e["state"] == "added"),
                    "closeups": sum(len(v) for v in closeups.values()), "voice_notes": len(notes)},
         "errors": errors, "jev_pairs_scored": len(pairs), "jev_pairs_skipped": skipped, "market": market_counts,
+        "listings_judged": {v: sum(1 for x in listing_log if x["verdict"] == v) for v in ("exact", "similar", "different")},
+        "geometry": _geometry_info(workdir),
         "seconds": round(time.time() - t0, 1),
     }
     report = valuation.reviewed_report(report, line_review)  # the owner's last word, kept across replays
@@ -236,6 +267,12 @@ def value(capture: Path, backend: str = "opus", reuse: tuple[str, ...] = ()) -> 
     session.update(capture, lambda d: d.update(stage="done"))
     _status(workdir, "report", "done", seconds=report["seconds"])
     return report
+
+
+def _geometry_info(workdir: Path) -> dict | None:
+    log = workdir / "detect_log.json"
+    rows = json.loads(log.read_text()) if log.exists() else []
+    return next((r["geometry"] for r in rows if isinstance(r, dict) and "geometry" in r), None)
 
 
 def _keep_run(workdir: Path, report: dict, pairs: list, backend: str, reuse: tuple) -> Path:
@@ -260,7 +297,7 @@ def _keep_run(workdir: Path, report: dict, pairs: list, backend: str, reuse: tup
     commit, dirty = git("rev-parse", "--short", "HEAD"), bool(git("status", "--porcelain", "src"))
     (d / "settings.json").write_text(json.dumps({"commit": commit, "uncommitted_changes": dirty, "backend": backend,
                                                  "reuse": list(reuse), "jev_model": jev.MODEL}, indent=1))
-    for name in ("frontier.json", "local.json", "voice.json", "local_log.json"):
+    for name in ("frontier.json", "local.json", "voice.json", "local_log.json", "listing_verdicts.json"):
         if (workdir / name).exists():
             shutil.copy(workdir / name, d / name)
     truth = root / "data" / "ground_truth" / "bedroom.json"

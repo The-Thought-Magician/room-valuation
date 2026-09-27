@@ -24,14 +24,28 @@ QUICK_COMMERCE = ["blinkit.com", "zeptonow.com"]
 QC_CATEGORIES = {"computer_accessory", "audio", "phone", "lighting", "kitchenware", "appliance", "decor",
                  "bag_clothing", "networking", "electrical_fixture", "bedding"}
 
-# insurance-style useful life by category, for straight-line depreciation (years)
-USEFUL_LIFE = {
-    "laptop": 5, "monitor": 6, "computer_accessory": 4, "phone": 4, "audio": 5, "networking": 5,
-    "appliance": 8, "lighting": 5, "electrical_fixture": 15, "building_fixture": 30, "furniture": 10, "bedding": 5,
-    "book": 10, "decor": 10, "kitchenware": 5, "bag_clothing": 3, "other": 5,
+# Straight-line depreciation as US contents adjusters apply it: age over the category's useful
+# life, adjusted for condition, never past a cap. Sources (researched 2026-09-27):
+# - Claims Pages' personal property depreciation guide (built with adjusters): useful lives by
+#   category, and an item still working for its purpose is not depreciated past 90 percent.
+# - Xactimate contents: a "max depreciation" setting per carrier and state, no published default.
+# - Cozmo's CTO, 2026-09-26: "there's usually a depreciation cap, usually 75 to 80 percent".
+# - California 10 CCR 2695.9: depreciation must be itemised and reflect a measurable loss of
+#   value; labour is never depreciated (building fixtures are priced with installation, hence
+#   their lower cap).
+# The caps are defaults for a carrier's own table to replace. Books keep more value than
+# electronics; adjusters often do not depreciate them at all.
+# category: (useful life in years, most it may lose)
+DEPRECIATION = {
+    "laptop": (4, 0.80), "monitor": (6, 0.80), "computer_accessory": (4, 0.80), "phone": (3, 0.80),
+    "audio": (5, 0.80), "networking": (5, 0.80), "appliance": (8, 0.75), "lighting": (7, 0.75),
+    "electrical_fixture": (15, 0.70), "building_fixture": (30, 0.70), "furniture": (12, 0.75), "bedding": (5, 0.80),
+    "book": (10, 0.50), "decor": (8, 0.75), "kitchenware": (7, 0.75), "bag_clothing": (3, 0.80), "other": (7, 0.80),
 }
+# no age given: the visible condition stands for how much of the life is used
 CONDITION_LIFE_USED = {"like_new": 0.1, "good": 0.35, "fair": 0.6, "poor": 0.85}
-SALVAGE_FLOOR = 0.10
+# age given: condition moves the age-based rate (an old item kept like new loses less)
+CONDITION_ADJUST = {"like_new": 0.75, "good": 1.0, "fair": 1.15, "poor": 1.3}
 
 
 def provider() -> str | None:
@@ -108,10 +122,22 @@ def quick_commerce(query: str) -> list[dict]:
     return out
 
 
+MAX_LISTINGS = 10  # listings kept per search for Jev to judge (jev.judge_listings)
+
+
+def quartiles(values: list[float]) -> tuple[float, float]:
+    """25th and 75th percentile: the price range shown next to a median."""
+    if len(values) < 2:
+        return (values[0], values[0]) if values else (None, None)
+    q = statistics.quantiles(sorted(values), n=4, method="inclusive")
+    return round(q[0]), round(q[2])
+
+
 def price_item(query: str, category: str, must_have: list[str] | None = None) -> dict:
     """Search, keep listings whose titles share enough words with the query, and take the
-    median of the matches as the replacement cost. The median resists the accessory and
-    bundle listings that shopping results always mix in."""
+    median of the matches as the replacement cost, with the 25th to 75th percentile as its
+    range. The median resists the accessory and bundle listings that shopping results always
+    mix in. The best MAX_LISTINGS matches (a looser cut) are kept for Jev to judge one by one."""
     listings = shopping(query)
     if category in QC_CATEGORIES:
         listings += quick_commerce(query)
@@ -122,29 +148,75 @@ def price_item(query: str, category: str, must_have: list[str] | None = None) ->
         words = _tokens(li["title"])
         if need and not need <= words:
             continue
-        overlap = len(q & words) / max(1, len(q))
-        if overlap >= 0.5:
-            scored.append({**li, "overlap": round(overlap, 2)})
-    if not scored:
-        return {"query": query, "rcv_inr": None, "listings": listings[:5], "matched": 0,
+        scored.append({**li, "overlap": round(len(q & words) / max(1, len(q)), 2), "size": listing_size(li["title"])})
+    scored.sort(key=lambda li: -li["overlap"])
+    matched = [li for li in scored if li["overlap"] >= 0.5]
+    judge = [li for li in scored if li["overlap"] >= 0.34][:MAX_LISTINGS]
+    if not matched:
+        return {"query": query, "rcv_inr": None, "listings": judge, "matched": 0,
                 "note": "no listing matched the item well enough"}
-    price = statistics.median(li["price"] for li in scored)
-    closest = min(scored, key=lambda li: abs(li["price"] - price))
-    return {"query": query, "rcv_inr": round(price), "matched": len(scored), "url": closest["url"],
-            "seller": closest["seller"], "listings": sorted(scored, key=lambda li: -li["overlap"])[:8],
-            "sellers": sorted({li["seller"] for li in scored if li.get("seller")})}
+    price = statistics.median(li["price"] for li in matched)
+    closest = min(matched, key=lambda li: abs(li["price"] - price))
+    low, high = quartiles([li["price"] for li in matched])
+    return {"query": query, "rcv_inr": round(price), "low": low, "high": high, "matched": len(matched),
+            "url": closest["url"], "seller": closest["seller"], "listings": judge,
+            "sellers": sorted({li["seller"] for li in matched if li.get("seller")})}
+
+
+_UNIT_CM = {"cm": 1.0, "mm": 0.1, "m": 100.0, "in": 2.54, "inch": 2.54, "inches": 2.54, "ft": 30.48, "feet": 30.48}
+_DIMS = re.compile(r"(\d+(?:\.\d+)?)\s*(?:cm|mm|in|inch|ft|feet)?\s*[x×*]\s*(\d+(?:\.\d+)?)"
+                   r"(?:\s*(?:cm|mm|in|inch|ft|feet)?\s*[x×*]\s*(\d+(?:\.\d+)?))?\s*(cm|mm|m|inches|inch|in|ft|feet)\b")
+_DIAGONAL = re.compile(r"(\d{2}(?:\.\d)?)\s*(?:\"|”|''|-?\s?inch(?:es)?\b|in\b)")
+
+
+def listing_size(title: str) -> dict | None:
+    """The product's size as a listing title states it: '90 x 60 cm', '4x3 ft', '24 inch'."""
+    t = (title or "").lower()
+    m = _DIMS.search(t)
+    if m:
+        k = _UNIT_CM[m.group(4)]
+        dims = sorted((float(x) * k for x in m.groups()[:3] if x), reverse=True)
+        return {"dims_cm": [round(d) for d in dims]}
+    m = _DIAGONAL.search(t)
+    if m and 5 <= float(m.group(1)) <= 100:
+        return {"diagonal_in": float(m.group(1))}
+    return None
+
+
+SIZE_TOLERANCE = 1.8  # measured sizes are estimates (geometry.py), so only a big gap counts
+
+
+def size_mismatch(measured: dict | None, size: dict | None) -> str | None:
+    """Why a product of this size cannot be the object measured in the room, or None."""
+    if not measured or not size:
+        return None
+    w, h = measured["width_cm"], measured["height_cm"]
+    if size.get("diagonal_in"):
+        seen = (w * w + h * h) ** 0.5 / 2.54
+        ratio = max(seen, size["diagonal_in"]) / max(1e-6, min(seen, size["diagonal_in"]))
+        what = f"{size['diagonal_in']:g} inch against about {seen:.0f} inch measured"
+    else:
+        big, seen = size["dims_cm"][0], max(w, h)
+        ratio = max(big, seen) / max(1e-6, min(big, seen))
+        what = f"{'x'.join(str(d) for d in size['dims_cm'])} cm against about {w} x {h} cm measured"
+    return what if ratio > SIZE_TOLERANCE else None
 
 
 def acv(rcv: float, category: str, age_years: float | None, condition: str | None) -> tuple[float, str]:
-    """Actual cash value: straight-line depreciation over the category's useful life down to
-    a 10 percent salvage floor. Age when the owner said it, otherwise visible condition."""
-    life = USEFUL_LIFE.get(category, 5)
+    """Actual cash value: straight-line depreciation over the category's useful life, capped
+    (DEPRECIATION). Age when the owner said it, adjusted for condition; otherwise the visible
+    condition stands for the share of the life used."""
+    life, cap = DEPRECIATION.get(category, DEPRECIATION["other"])
     if age_years is not None:
-        used, basis = min(1.0, age_years / life), f"age {age_years:g} y of a {life} y life"
+        adjust = CONDITION_ADJUST.get(condition or "good", 1.0)
+        used = age_years / life * adjust
+        basis = f"age {age_years:g} y of a {life} y life" + (f", condition {condition}" if adjust != 1.0 else "")
     else:
         used = CONDITION_LIFE_USED.get(condition or "good", 0.35)
         basis = f"condition '{condition or 'unknown'}' read as {used:.0%} of a {life} y life used"
-    return round(rcv * max(SALVAGE_FLOOR, 1 - used)), basis
+    if used > cap:
+        basis += f", capped at {cap:.0%} depreciation"
+    return round(rcv * (1 - min(cap, max(0.0, used)))), basis
 
 
 # a one-word name searches badly ("switch" matched Nintendo Switch listings, 2026-09-26): the
@@ -172,14 +244,43 @@ def query_for(item) -> tuple[str, list[str]]:
     return name, must
 
 
+def model_number(item) -> str | None:
+    """A model number read off the item's own label (local.refine checks the OCR shows it):
+    letters and digits together, like 15-fb0136AX or HD9252."""
+    if item.attributes.get("model_source") != "read off the label" or not item.model:
+        return None
+    toks = [t for t in re.findall(r"[A-Za-z0-9][A-Za-z0-9\-/]{3,}", item.model)
+            if re.search(r"\d", t) and re.search(r"[A-Za-z]", t)]
+    return max(toks, key=len) if toks else None
+
+
 def lookup(item) -> tuple[float | None, str | None, str | None, dict]:
-    """One search for an item: (price, url, note, raw result). A failed lookup costs one price."""
+    """One search for an item: (price, url, note, raw result). With a model number read off the
+    label it first searches that exact model, and only listings naming it count. A failed
+    lookup costs one price."""
+    exact = model_number(item)
+    tries = []
+    if exact:
+        tries.append((f"{item.brand or ''} {exact}".strip(), sorted(_tokens(exact)), "exact"))
     q, must = query_for(item)
-    try:
-        p = price_item(q, item.category, must)
-    except Exception as e:
-        p = {"query": q, "rcv_inr": None, "note": f"price lookup failed: {type(e).__name__}"}
+    tries.append((q, must, None))
+    p = {}
+    for query, need, kind in tries:
+        try:
+            p = {"query": query, **price_item(query, item.category, need), "kind": kind}
+        except Exception as e:
+            p = {"query": query, "rcv_inr": None, "note": f"price lookup failed: {type(e).__name__}"}
+        if p.get("rcv_inr"):
+            break
     if not p.get("rcv_inr"):
         return None, None, p.get("note"), p
-    note = f"median of {p['matched']} matching listings for '{q}'" + (f" ({', '.join(p['sellers'])})" if p.get("sellers") else "")
+    what = f"listings of model {exact}" if p.get("kind") == "exact" else "matching listings"
+    note = f"median of {p['matched']} {what} for '{p['query']}'" + (f" ({', '.join(p['sellers'])})" if p.get("sellers") else "")
     return p["rcv_inr"], p.get("url"), note, p
+
+
+def take(item, raw: dict) -> None:
+    """Copy a lookup's range, kind and listings onto the item it priced."""
+    item.price_low_inr, item.price_high_inr = raw.get("low"), raw.get("high")
+    item.price_kind = raw.get("kind")
+    item.listings = raw.get("listings") or []

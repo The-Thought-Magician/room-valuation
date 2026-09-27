@@ -8,11 +8,13 @@ computed by Jev), totals and depreciation are arithmetic in valuation.py.
 
 import os
 import re
+import statistics
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 
 from typesafe_sdk import Choice, Score, TypeSafeClient
 
+from room_valuation import prices
 from room_valuation.schema import GENRES, Item
 
 MODEL = os.environ.get("TYPESAFE_MODEL", "jev-latest")
@@ -271,8 +273,89 @@ def _merge_scored(flat: list[Item], scored: list[dict]) -> list[Group]:
     return groups
 
 
+def identity(g: Group, n: int, answers: dict) -> Item:
+    """The member whose description Jev chose, with the 3D measurement any member carries."""
+    choice = answers.get(f"id_{n}")
+    it = g.members.get(choice.choice if choice is not None else "") or next(iter(g.members.values()))
+    measured = it.measured or next((m.measured for m in g.members.values() if m.measured), None)
+    return it.model_copy(update={"measured": measured})
+
+
+LISTING_LEVELS = [
+    "a different product: another kind of object, or an accessory, spare part, refill or bundle",
+    "a similar product: the same kind of object, but a different model, size, material or type",
+    "this exact product: same kind of object, same brand and model, or the same specification when no model "
+    "is known, and about the same size",
+]
+
+
+def judge_listings(groups: list[Group], answers: dict, sources: tuple[str, ...] = ("local",)) -> list[dict]:
+    """Jev reads each shopping listing a source's price came from and says whether it is this
+    object, a similar product or a different one, against the identity Jev settled on and the
+    size measured in 3D. Code then prices the source again: the median of the listings of
+    this exact product is the exact price; failing that, the median of the similar ones is the
+    closest price; the 25th to 75th percentile is the range. A listing whose stated size is far
+    from the measured size (prices.SIZE_TOLERANCE) is a different product: like kind and
+    quality includes size. A source left with no listing loses its price. Returns one log row
+    per judged listing."""
+    q, where = {}, {}
+    for n, g in enumerate(groups):
+        ident = identity(g, n, answers)
+        view = _view(ident)
+        for src in sources:
+            it = g.members.get(src)
+            for k, li in enumerate((it.listings if it else [])[: prices.MAX_LISTINGS]):
+                key = f"listing_{n}_{src}_{k}"
+                where[key] = (n, src, k)
+                q[key] = Score(
+                    instructions={"object": view,
+                                  "listing": {"title": li["title"], "price": f"Rs {li['price']:,.0f}",
+                                              "seller": li.get("seller")},
+                                  "question": "Is this shopping listing this exact object, a similar product, or a "
+                                              "different product?"},
+                    criteria=LISTING_LEVELS,
+                )
+    got = ask(q) if q else {}
+    log, touched = [], set()
+    for key, (n, src, k) in where.items():
+        it = groups[n].members[src]
+        li = it.listings[k]
+        score = float(got[key].score) if key in got else 0.0
+        verdict = "exact" if score >= MERGE_SCORE else "similar" if score >= MAYBE_SCORE else "different"
+        why = prices.size_mismatch(identity(groups[n], n, answers).measured, li.get("size"))
+        if why:
+            verdict = "different"
+        li.update({"verdict": verdict, "jev_score": round(score, 2), **({"size_mismatch": why} if why else {})})
+        touched.add((n, src))
+        log.append({"group": n, "source": src, "title": li["title"], "price": li["price"], "verdict": verdict,
+                    "score": round(score, 2), "size_mismatch": why})
+    for n, src in touched:
+        _reprice(groups[n].members[src])
+    return log
+
+
+def _reprice(it: Item) -> None:
+    judged = [li for li in it.listings if li.get("verdict")]
+    exact = [li for li in judged if li["verdict"] == "exact"]
+    close = exact or [li for li in judged if li["verdict"] == "similar"]
+    if not close:
+        it.rcv_inr, it.price_kind, it.price_low_inr, it.price_high_inr = None, None, None, None
+        sized = sum(1 for li in judged if li.get("size_mismatch"))
+        it.price_note = (f"Jev judged none of the {len(judged)} listings to be this object or a similar product"
+                         + (f"; {sized} were far from the size measured in 3D" if sized else ""))
+        return
+    use = exact or close
+    it.rcv_inr = round(statistics.median(li["price"] for li in use))
+    it.price_low_inr, it.price_high_inr = prices.quartiles([li["price"] for li in use])
+    it.price_kind = "exact" if exact else "closest"
+    it.price_source = min(use, key=lambda li: abs(li["price"] - it.rcv_inr))["url"]
+    it.price_note = (f"median of {len(use)} of {len(judged)} listings Jev judged "
+                     f"{'this exact product' if exact else 'a similar product'}")
+
+
 def rank_groups(groups: list[Group]) -> dict:
-    """Per group: which description, which price, what condition; per book: which genre."""
+    """Per group: which description and what condition; per book: which genre. The price is
+    chosen later (rank_prices), once Jev has judged the listings against this identity."""
     q = {}
     for n, g in enumerate(groups):
         if len(g.members) > 1:
@@ -281,20 +364,6 @@ def rank_groups(groups: list[Group]) -> dict:
                               "question": "These descriptions are of one object. Which one identifies it most "
                                           "specifically and correctly, given the text read off it and the owner's words?"},
                 criteria={s: None for s in g.members},
-            )
-        cands = {s: it for s, it in g.members.items() if it.rcv_inr}
-        if len(cands) > 1:
-            q[f"price_{n}"] = Choice(
-                instructions={"object": _view(next(iter(g.members.values()))),
-                              "candidates": {s: {"price_inr": f"Rs {it.rcv_inr:,.0f}", "basis": _basis(it)}
-                                             for s, it in cands.items()},
-                              "question": "Which candidate is the most reliable estimate of what it costs to buy "
-                                          "this exact object new in India today?",
-                              "how_to_judge": "A price the owner paid within the last 12 months for this exact item "
-                                              "is the strongest evidence. Next best is a listing for the same model. A "
-                                              "listing for a similar item or a class estimate is weaker, and a web "
-                                              "median over many different models is weakest."},
-                criteria={s: None for s in cands},
             )
         conds = {s: it.condition for s, it in g.members.items() if it.condition}
         if conds:
@@ -312,8 +381,38 @@ def rank_groups(groups: list[Group]) -> dict:
     return ask(q) if q else {}
 
 
+def market_candidates(g: Group) -> dict[str, Item]:
+    """The prices that can be the replacement cost: every source's market price. The owner's own
+    figure is evidence to check, not a candidate (valuation.line_items compares it), unless
+    nothing else priced the item."""
+    cands = {s: it for s, it in g.members.items() if it.rcv_inr and s != "voice"}
+    return cands or {s: it for s, it in g.members.items() if it.rcv_inr}
+
+
+def rank_prices(groups: list[Group], answers: dict) -> dict:
+    """Per group with more than one market price: which one to trust."""
+    q = {}
+    for n, g in enumerate(groups):
+        cands = market_candidates(g)
+        if len(cands) > 1:
+            q[f"price_{n}"] = Choice(
+                instructions={"object": _view(identity(g, n, answers)),
+                              "candidates": {s: {"price_inr": f"Rs {it.rcv_inr:,.0f}", "basis": _basis(it)}
+                                             for s, it in cands.items()},
+                              "question": "Which candidate is the most reliable estimate of what it costs to buy "
+                                          "this exact object new in India today?",
+                              "how_to_judge": "A listing judged to be this exact product is the strongest evidence. "
+                                              "Next best is the closest similar product of the same type and size. A "
+                                              "class estimate with no listing is weaker, and a median over many "
+                                              "different models is weakest."},
+                criteria={s: None for s in cands},
+            )
+    return ask(q) if q else {}
+
+
 def _basis(it: Item) -> str:
     if it.source == "voice":
         age = f", {it.age_years:g} years ago" if it.age_years is not None else ""
         return f"what the owner says they paid{age}"
-    return " ".join(x for x in (it.price_note, it.price_source) if x) or "no basis given"
+    kind = {"exact": "this exact model", "closest": "the closest similar product"}.get(it.price_kind or "")
+    return " ".join(x for x in (f"priced as {kind}:" if kind else None, it.price_note, it.price_source) if x) or "no basis given"
